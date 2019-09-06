@@ -71,7 +71,6 @@ public class GeradorDeEntidades {
 				options.frontBaseName   = options.getFrontNameFrom( param.substring(11) );
 				hasFrontBaseDefined = true;
 
-
 			////////////////////////////////////////////////////
 			// FLAGS DE GERAÇÃO
 			} else if(param.equalsIgnoreCase("-nogeneratemodel") || param.equalsIgnoreCase("-nogm") )
@@ -110,11 +109,6 @@ public class GeradorDeEntidades {
 			if(options.accessAlias == null) {
 				options.accessAlias = options.entityTableName.toUpperCase();
 			}
-
-//			Property prop = mg.getPropertyByName("id_empresa");
-//			if(prop != null && prop.getType() != PropertyType.JOIN_COMPOSTO_CHAVE) {
-//				options.generateEmpresaEntity = true;
-//			}
 		}
 
 		if(options.accessAlias == null) {
@@ -128,7 +122,6 @@ public class GeradorDeEntidades {
 		}
 
 		System.out.println( options.toString() );
-
 		List<IGerador> geradores = Arrays.asList(
 				new GerarBackEnd(),
 				new GerarFrontEnd()
@@ -156,7 +149,7 @@ public class GeradorDeEntidades {
 			br.close();
 
 		} catch (Exception e) {
-			e.printStackTrace();
+			throw new RuntimeException("Erro na geração do ARQUIVO DE TESTE", e);
 		}
 	}
 }
