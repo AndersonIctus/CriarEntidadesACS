@@ -29,3 +29,5 @@ build/
 
 ### VS Code ###
 .vscode/
+/test-script.txt
+/CriarEntidadesConfiguracoes.txt
