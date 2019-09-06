@@ -9,7 +9,7 @@ Projeto feito para poder ajudar no parsing de SCRIPTS do sistema para as classes
 - **[GSON](https://mvnrepository.com/artifact/com.google.code.gson/gson/2.8.5)** 
 
 _____________________________
-# Rodar Projeto
+# Geração do Artefato (CriarEntidadesACS.jar)
 Após baixar o repositório, para gerar o Artefato, na pasta do Diretorio criado (CriarEntidaesACS) execute o código MAVEN:
 ```     
      $ mvnw package
