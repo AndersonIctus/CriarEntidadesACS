@@ -34,6 +34,18 @@ public class Property implements Comparable<Property> {
 		}
 	}
 
+	public Property(String name, PropertyType propertyType, int inteiro, int decimal, boolean nullable, boolean primaryKey, String comentario) {
+		this.name = name;
+		this.variableName = normalizaPropertieName(name);
+
+		setType(propertyType);
+		this.inteiro = inteiro;
+		this.decimal = decimal;
+		this.isNullable = nullable;
+		this.isPrimaryKey = primaryKey;
+		setComentario(comentario);
+	}
+
 	private String normalizaPropertieName(String name) {
 		String names[] = name.split("_");
 		String nameNormalizado = "";
@@ -124,6 +136,14 @@ public class Property implements Comparable<Property> {
 
 	public boolean isNullable() {
 		return isNullable;
+	}
+
+	public String getComentario() {
+		return comentario;
+	}
+
+	public void setComentario(String comentario) {
+		this.comentario = comentario;
 	}
 
 	@Override

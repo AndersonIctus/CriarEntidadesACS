@@ -50,7 +50,8 @@ public class GerarBackEnd implements IGerador {
 		if( options.getModelGenerator() != null) {
 			classBody = getModelClassBodyFromModelGenerator( options );
 
-		} else {
+		}
+		else {
 			boolean pkClass = options.generateEmpresaEntity;
 			if(pkClass)
 				this.gerarClassPK(options);
@@ -141,12 +142,13 @@ public class GerarBackEnd implements IGerador {
 		String joins = "";
 		String properties = "";
 		String getterAndSetter = "";
+		String typeDefAcsDate = "";
 
 		imports = // Imports Gerais !!
 				"import org.hibernate.annotations.Fetch;\r\n" +
 						"import org.hibernate.annotations.FetchMode;\r\n" +
 						"\r\n" +
-						"import java.util.Calendar;" +
+						"import java.util.Calendar;\r\n" +
 						"import java.math.BigDecimal;\r\n" +
 						"import javax.persistence.*;\r\n";
 
@@ -206,6 +208,16 @@ public class GerarBackEnd implements IGerador {
 					"\t}";
 		}
 
+		// ---- Saber se há algum AcsDateTime nas propriedades
+		long count = modelGen.getProperties().stream().filter(ele -> ele.getType().equals(PropertyType.ACS_DATE_TIME)).count();
+		if(count != 0) {
+			// import do ACs Date TIME !!
+			imports += "import com.innovaro.acs.repository.customtypes.AcsDateTime;\r\n" +
+					   "import com.innovaro.acs.repository.customtypes.AcsDateTimeType;\r\n";
+
+			typeDefAcsDate += "@TypeDef(name = \"AcsDateTime\", typeClass = AcsDateTimeType.class, defaultForType = AcsDateTime.class)\r\n";
+		}
+
 		//
 		if(tableDefinitions.contains("uniqueConstraints") || tableDefinitions.contains("indexes")) {
 			tableDefinitions += "\r\n";
@@ -226,7 +238,7 @@ public class GerarBackEnd implements IGerador {
 
 				joins +=
 						"\t" + "@ManyToOne(fetch=FetchType.LAZY)\r\n" +
-								"\t" + "@Fetch(FetchMode.JOIN)\r\n";
+						"\t" + "@Fetch(FetchMode.JOIN)\r\n";
 
 				String classVariableName = "";
 				/////////////////////////////
@@ -242,7 +254,8 @@ public class GerarBackEnd implements IGerador {
 					}
 
 					// JOIN COMPOSTO
-				} else {
+				}
+				else {
 					String joinsColumns = "";
 					for (int i = 0; i < con.getKeys().length; i++) {
 						String varName = con.getKeys()[i];
@@ -265,12 +278,12 @@ public class GerarBackEnd implements IGerador {
 
 				typeMethod = ref.getClassName();
 				prop.setVariableName( classVariableName );
-
-			} else if (prop.getType() == PropertyType.JOIN_COMPOSTO_CHAVE) { // joins compostos de chave
-				// JOINS COMPOSTO DE CHAVE não são representados como variáveis ou chave, somente sendo representdo no próprio BANCO !
+			}
+			// JOINS COMPOSTO DE CHAVE não são representados como variáveis ou chave, somente sendo representdo no próprio BANCO !
+			else if (prop.getType() == PropertyType.JOIN_COMPOSTO_CHAVE) { // joins compostos de chave
 				continue;
-
-			} else if (prop.isPrimaryKey()) { // pks
+			}
+			else if (prop.isPrimaryKey()) { // pks
 				String propLine = "\t" + "@Column(name=\"" + prop.getName();
 				switch (prop.getType()) {
 					case STRING:
@@ -297,48 +310,59 @@ public class GerarBackEnd implements IGerador {
 				pks += propLine + prop.getVariableName() + ";\r\n";
 				options.addKey(prop); //adiciona para um possivel PK COMPOSTO !
 
-			} else { // other properties
+			}
+			else { // other properties
 				String propLine = "@Column(name=\"" + prop.getName() + "\"";
 				switch (prop.getType()) {
 					case STRING:
 					case CHAR:
 						if(prop.getInteiro() > 1) {
-							propLine += ", length = " + prop.getInteiro() + ((prop.isNullable() == false)? ", nullable = false" : "") + ") private String ";
+							propLine += ", length = " + prop.getInteiro() + ((prop.isNullable() == false)? ", nullable = false" : "") + ")\r\n\tprivate String ";
 							typeMethod = "String";
 						} else {
-							propLine += ((prop.isNullable() == false)? ", nullable = false" : "") + ") private Character ";
+							propLine += ((prop.isNullable() == false)? ", nullable = false" : "") + ")\r\n\tprivate Character ";
 							typeMethod = "Character";
 						}
 						break;
 
 					case DATE:
-						propLine = "@Temporal(TemporalType.DATE) " + propLine + ((prop.isNullable() == false)? ", nullable = false" : "") + ") private Calendar ";
+						propLine = "@Temporal(TemporalType.DATE) " + propLine + ((prop.isNullable() == false)? ", nullable = false" : "") + ")\r\n\tprivate Calendar ";
 						typeMethod = "Calendar";
 						break;
 
 					case TIMESTAMP:
-						propLine = "@Temporal(TemporalType.TIMESTAMP) " + propLine + ((prop.isNullable() == false)? ", nullable = false" : "") + ") private Calendar ";
+						propLine = "@Temporal(TemporalType.TIMESTAMP) " + propLine + ((prop.isNullable() == false)? ", nullable = false" : "") + ")\r\n\tprivate Calendar ";
 						typeMethod = "Calendar";
 						break;
 
+					case ACS_DATE_TIME:
+						propLine = "@Temporal(TemporalType.TIMESTAMP a) " + propLine + ((prop.isNullable() == false)? ", nullable = false" : "") + ")\r\n\tprivate Calendar ";
+
+						propLine = "@Columns(columns = {" +
+												"@Column(name = \""        + prop.getName() + "\"" + ((prop.isNullable() == false)? ", nullable = false" : "") + "), " +
+												"@Column(name = \"offset_" + prop.getName() + "\"" + ((prop.isNullable() == false)? ", nullable = false" : "") + ")" +
+											"})\r\n\tprivate AcsDateTime ";
+						typeMethod = "AcsDateTime";
+						break;
+
 					case DECIMAL:
-						propLine += ", columnDefinition=\"numeric(" + prop.getInteiro() + "," + prop.getDecimal() + ")\"" + ((prop.isNullable() == false)? ", nullable = false" : "") + ") private BigDecimal ";
+						propLine += ", columnDefinition=\"numeric(" + prop.getInteiro() + "," + prop.getDecimal() + ")\"" + ((prop.isNullable() == false)? ", nullable = false" : "") + ")\r\n\tprivate BigDecimal ";
 						typeMethod = "BigDecimal";
 						break;
 
 					case SHORT:
-						propLine += ((prop.isNullable() == false)? ", nullable = false" : "") + ") private Short ";
+						propLine += ((prop.isNullable() == false)? ", nullable = false" : "") + ")\r\n\tprivate Short ";
 						typeMethod = "Short";
 						break;
 
 					case LONG:
-						propLine += ((prop.isNullable() == false)? ", nullable = false" : "") + ") private Long ";
+						propLine += ((prop.isNullable() == false)? ", nullable = false" : "") + ")\r\n\tprivate Long ";
 						typeMethod = "Long";
 						break;
 
 					default:
 					case NUMERO:
-						propLine += ((prop.isNullable() == false)? ", nullable = false" : "") + ") private Integer ";
+						propLine += ((prop.isNullable() == false)? ", nullable = false" : "") + ")\r\n\tprivate Integer ";
 						typeMethod = "Integer";
 						break;
 				}
@@ -368,11 +392,11 @@ public class GerarBackEnd implements IGerador {
 				"\r\n" +
 				"/** ********************************************** \r\n" +
 				" * Classe criada AUTOMATICAMENTE a partir do programa 'CriarEntidadesACS'\r\n" +
-				// getScriptFromPath(options.modelFile) +
 				" ** ********************************************** */\r\n" +
 				"@Entity\r\n" +
 				"@Table("+ tableDefinitions + ")\r\n" +
 				((pkClassComposto.equals("") == false)? pkClassComposto : "") +
+				typeDefAcsDate +
 				"public class "+options.entityName+" extends AbstractModel {\r\n" +
 				pks +
 				"\r\n" +

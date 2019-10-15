@@ -9,6 +9,7 @@ import java.nio.file.StandardOpenOption;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import main.geradores.GenOptions;
 import main.geradores.IGerador;
@@ -163,7 +164,8 @@ public class GerarFrontEnd implements IGerador {
 		if( options.getModelGenerator() != null) {
 			classBody = getClassBodyFromModelGenerator(options);
 
-		} else {
+		}
+		else {
 			classBody = "" +
 					"export class "+options.entityName+" {\r\n" +
 					"    id"+options.entityName+": number;\r\n" +
@@ -191,6 +193,7 @@ public class GerarFrontEnd implements IGerador {
 		String pks = "";
 		String joins = "";
 		String properties = "";
+		String constructor  = "";
 
 		Set<Reference> joinsComposto = new LinkedHashSet<>();
 
@@ -205,7 +208,8 @@ public class GerarFrontEnd implements IGerador {
 
 				joins += "  " + ref.getFormatVariableName(prop.getName()) + ": " + ref.getClassName() + ";\r\n";
 
-			} else if (prop.getType() == PropertyType.JOIN_COMPOSTO) { // joins compostos and imports
+			}
+			else if (prop.getType() == PropertyType.JOIN_COMPOSTO) { // joins compostos and imports
 				Reference ref = modelGen.getReferenceFromProperty(prop);
 
 				if(joinsComposto.contains(ref) == false) {
@@ -218,15 +222,47 @@ public class GerarFrontEnd implements IGerador {
 					joinsComposto.add(ref);
 				}
 
-			} else if (prop.getType() == PropertyType.JOIN_COMPOSTO_CHAVE) { // joins compostos de chave
+			}
+			else if (prop.getType() == PropertyType.JOIN_COMPOSTO_CHAVE) { // joins compostos de chave
 				// JOINS COMPOSTO DE CHAVE não são representados como variáveis ou chave, somente sendo representdo no próprio BANCO !
-
-			} else if (prop.isPrimaryKey()) { // pks
+			}
+			else if (prop.isPrimaryKey()) { // pks
 				pks += "  " + prop.getVariableName() + ": " + normalizaTipoModel(prop.getType()) + ";\r\n";
-			} else { // other properties
+			}
+			else { // other properties
 				properties += "  " + prop.getVariableName() + ": " + normalizaTipoModel(prop.getType()) + ";\r\n";
 			}
 		}
+
+		// ACS DATE TIME
+		String datas = "";
+		List<Property> lsDateTime = modelGen.getProperties().stream()
+				.filter(ele -> ele.getType().equals(PropertyType.ACS_DATE_TIME))
+				.collect(Collectors.toList());
+
+		if(lsDateTime.size() != 0) {
+			imports += "import { AcsDateTime } from '../shared/utils/AcsDateTime';\r\n";
+
+			String reduceDatas = lsDateTime.stream()
+					.map(ele -> {
+						return "      " + "this." + ele.getVariableName() + " = new AcsDateTime(object['" + ele.getVariableName() + "']);";
+					})
+					.reduce((dataA, dataB) -> {
+						return dataA + "\r\n" + dataB;
+					}).orElse("");
+			if(reduceDatas.equals("") == false){
+				datas = "\r\n" + reduceDatas + "\r\n";
+			}
+		}
+
+		constructor += "\r\n" +
+				"  " + "constructor(object?) {\r\n" +
+				"    " + "if (object) { \r\n" +
+				"      " + "Object.assign(this, object);\r\n" +
+				datas +
+				"    " + "}\r\n" +
+				"  " + "}\r\n"
+		;
 
 		String classBody = imports +
 				"\r\n" +
@@ -238,6 +274,7 @@ public class GerarFrontEnd implements IGerador {
 				"\r\n" +
 				"  // ################ PROPERTIES ################\r\n" +
 				properties +
+				constructor +
 				"}";
 
 		return classBody;
@@ -252,6 +289,9 @@ public class GerarFrontEnd implements IGerador {
 			case DATE:
 			case TIMESTAMP:
 				return "Date";
+
+			case ACS_DATE_TIME:
+				return "AcsDateTime";
 
 			default:
 			case NUMERO:
@@ -270,6 +310,7 @@ public class GerarFrontEnd implements IGerador {
 
 			case DATE:
 			case TIMESTAMP:
+			case ACS_DATE_TIME:
 				return "null";
 
 			default:
@@ -287,6 +328,9 @@ public class GerarFrontEnd implements IGerador {
 			case DATE:
 				return "(model." + nameVariable + " != null)? new Date(model." + nameVariable + ") : null";
 
+			case ACS_DATE_TIME:
+				return "model." + nameVariable + ".format()";
+
 			default:
 			case STRING:
 			case CHAR:
@@ -299,7 +343,6 @@ public class GerarFrontEnd implements IGerador {
 	}
 
 	// ----------------------------------------------------------------------------------------- //
-
 	private void gerarServico(GenOptions options) throws IOException {
 		boolean pkClass = false;
 
@@ -644,6 +687,7 @@ public class GerarFrontEnd implements IGerador {
 				"\r\n" +
 				"import { CadastroBaseService } from '../../../../../cadastros/cadastro-base.service';" + "\r\n" +
 				"import { " + options.entityName + "Service } from '../../../../../services/" + options.defaultRoute + ".service';" + "\r\n" +
+				"import { " + options.entityName + " } from '../../../../../model/" + options.entityName + "';" + "\r\n" +
 				"\r\n" +
 				"@Component({" + "\r\n" +
 				"  templateUrl: '../criar-editar-" + options.frontBaseFolder + ".component.html'," + "\r\n" +
@@ -659,7 +703,7 @@ public class GerarFrontEnd implements IGerador {
 				"\r\n" +
 				"  gravarModel(formModel: any) {" + "\r\n" +
 				"    this." + serviceName + "\r\n" +
-				"        .persist(formModel.value)" + "\r\n" +
+				"        .persist(new "+ options.entityName + "(formModel.getRawValue()))" + "\r\n" +
 				"        .then(() => {" + "\r\n" +
 				"            this.toasty.success('" + options.entityName + " adicionado com sucesso!');" + "\r\n" +
 				"            this.router.navigate([this.routerLink]);" + "\r\n" +
@@ -741,8 +785,8 @@ public class GerarFrontEnd implements IGerador {
 				"    this." + serviceName + "\r\n" +
 				"        .getById( this.id" + options.entityName + " )\r\n" +
 				"        .then( model => {\r\n" +
-				"          this.setFormValues(model);\r\n" +
-				"        }).catch( () => this.toasty.error('Não foi encontrado nenhum " + options.entityName + " !') );\r\n" +
+				"          this.setFormValues( new " + options.entityName + "(model) );\r\n" +
+				"        }).catch( (err) => this.errorHandler.handle(err) );\r\n" +
 				"  }\r\n" +
 				"\r\n" +
 				"  setFormValues(model: "  + options.entityName + ") {\r\n" +
@@ -752,7 +796,7 @@ public class GerarFrontEnd implements IGerador {
 				"\r\n" +
 				"  gravarModel(formModel: any) {\r\n" +
 				"    this." + serviceName + "\r\n" +
-				"        .update( formModel.value, this.id" + options.entityName + " )\r\n" +
+				"        .update( new " + options.entityName + "(formModel.getRawValue()), this.id" + options.entityName + " )\r\n" +
 				"        .then( () => {\r\n" +
 				"          this.toasty.success('" + options.entityName + " Atualizado com Sucesso!');\r\n" +
 				"          this.router.navigate([this.routerLink]);\r\n" +

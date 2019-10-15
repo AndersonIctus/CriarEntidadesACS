@@ -7,7 +7,8 @@ CREATE TABLE public.ITENS_COMPRA (
     CANCELADO           CHAR(1) NOT NULL,
     ALTERA_CUSTO        CHAR(1) NOT NULL,
     TIPO_TRIBUTACAO     CHAR(1), -- (Com (C)rédito, (I)sento ou (O)utros)
-    DT_VALIDADE         DATE,
+    DT_VALIDADE         DATE NOT NULL,
+    OFFSET_DT_VALIDADE  VARCHAR(6) NOT NULL,
     UNID_CAIXA          SMALLINT,
 
 	SALDO_INICIAL       NUMERIC(12,3) NOT NULL,

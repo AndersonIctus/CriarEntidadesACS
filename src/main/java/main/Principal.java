@@ -19,7 +19,7 @@ public class Principal {
 			if(args.length < 2) {
 				if(args.length == 1 && args[0].equalsIgnoreCase("-test")) {
 					System.out.println("-> Fazendo TESTE de validacao:");
-					GeradorDeEntidades.gerarEntidadeFrom("-test", "test-script.txt", "-audit", "-back", "-model");
+					GeradorDeEntidades.gerarEntidadeFrom("-test", "test-script.txt", "-audit", "-front", "-ffe");
 					return;
 				}
 

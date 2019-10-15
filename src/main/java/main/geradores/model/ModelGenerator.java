@@ -3,11 +3,7 @@ package main.geradores.model;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -78,7 +74,7 @@ public class ModelGenerator {
 //				});
 //		System.out.println("---------------------------------------");
 
-		// 2 - Cria as bases que MAPEIA o MODEL que deve ser criado !
+		// 2 - Criar as bases que MAPEIA o MODEL que deve ser criado !
 		System.out.println("## Faz transformacao");
 		doTransformation(lsMatch);
 		System.out.println(this);
@@ -132,6 +128,7 @@ public class ModelGenerator {
 
 		/////////////////////////////////////////////////////////////////////////////////////
 		normalizaConstraints();
+		normalizaDateTimeFields();
 		/////////////////////////////////////////////////////////////////////////////////////
 	}
 
@@ -172,7 +169,8 @@ public class ModelGenerator {
 				lsConstraints.remove(c);
 
 				// Chave Estrangeira
-			} else if( c.getType() == ConstraintType.FOREIGN_KEY ) {
+			}
+			else if( c.getType() == ConstraintType.FOREIGN_KEY ) {
 				for( String pk : c.getKeys() ) {
 					String propName = pk.toLowerCase();
 					Property prop = getPropertyByName(propName);
@@ -206,6 +204,43 @@ public class ModelGenerator {
 					this.lsProperties.add(prop);
 				}
 			}
+		}
+	}
+
+	// NORMALIZA os campos de DATE TIME que vem com o offset
+	private void normalizaDateTimeFields() {
+		// 1 - Pega todos os campos date time
+		Set<Property> lsDates = lsProperties.stream()
+				.filter(ele -> {
+					return ele.getType().equals(PropertyType.TIMESTAMP) || ele.getType().equals(PropertyType.DATE);
+				})
+				.collect(Collectors.toSet());
+
+		// 2 - Procura campos offset similares
+		List<AcsDateProperty> lsAcsDates = lsDates.stream()
+				.map(ele -> {
+					Property offsetProp = lsProperties.stream()
+							.filter(prop -> {
+								final String name = prop.getName().toLowerCase();
+								return name.startsWith("offset_") && name.endsWith(ele.getName().toLowerCase());
+							})
+							.findAny().orElse(null);
+
+					if (offsetProp == null) return null;
+					return new AcsDateProperty(ele, offsetProp);
+				})
+				.filter(ele -> ele != null)
+				.collect(Collectors.toList());
+
+		// 3 - Deve remover os dois campos e COLOCAR com um novo tipo chamado ACS_DATE_TIME
+		//  na transformacao esse campo vai se tornar um campo que vale a esses dois campos q serão removidos. Sera um campo composto !!
+		//  as propriedades desse campo deverá ser a mesma contida no DATE_TIME apagado !
+		for (AcsDateProperty acsProp: lsAcsDates) {
+			lsProperties.remove(acsProp.getDate());
+			lsProperties.remove(acsProp.getOffset());
+
+			Property acsProperty = acsProp.toProperty();
+			lsProperties.add(acsProperty);
 		}
 	}
 
@@ -313,5 +348,38 @@ public class ModelGenerator {
 
 		out += "*****************************";
 		return out;
+	}
+
+	class AcsDateProperty {
+		private Property date;
+		private Property offset;
+
+		public AcsDateProperty(Property date, Property offset) {
+			this.date = date;
+			this.offset = offset;
+		}
+
+
+		public Property toProperty() {
+			Property property = new Property( date.getName(), PropertyType.ACS_DATE_TIME, 0, 0, date.isNullable(), false, date.getComentario() );
+			return property;
+		}
+
+		//////////////////////////////////////////////////////////////////////////////////
+		public Property getDate() {
+			return date;
+		}
+
+		public void setDate(Property date) {
+			this.date = date;
+		}
+
+		public Property getOffset() {
+			return offset;
+		}
+
+		public void setOffset(Property offset) {
+			this.offset = offset;
+		}
 	}
 }
