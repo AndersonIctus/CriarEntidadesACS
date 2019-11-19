@@ -22,7 +22,8 @@ public class GerarBackEnd implements IGerador {
 		if(options.onlyFrontEnd == true) {
 			System.out.println("Pulando a geração dos arquivos para o BackEnd ...");
 		} else {
-			gerarModelo(options);
+			if(options.generateModel)
+				gerarModelo(options);
 
 			if(options.onlyModel == false) {
 				gerarFiltro(options);

@@ -30,8 +30,10 @@ public class GerarFrontEnd implements IGerador {
 		if(options.onlyBackEnd) {
 			System.out.println("Pulando a geração dos arquivos para o FrontEnd ...");
 		} else {
-			gerarModelo(options);
-			gerarServico(options);
+			if(options.generateModel) {
+				gerarModelo(options);
+				gerarServico(options);
+			}
 
 			// Verifica se deve gerar todos arquivos mais do front end ou não !
 			if(options.fullFrontEnd == true) {
