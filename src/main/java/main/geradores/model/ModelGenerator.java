@@ -359,7 +359,6 @@ public class ModelGenerator {
 			this.offset = offset;
 		}
 
-
 		public Property toProperty() {
 			Property property = new Property( date.getName(), PropertyType.ACS_DATE_TIME, 0, 0, date.isNullable(), false, date.getComentario() );
 			return property;

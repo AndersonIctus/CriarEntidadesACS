@@ -1,11 +1,13 @@
 package main.geradores;
 
+import main.geradores.model.ModelGenerator;
+import main.geradores.model.config.Configuracoes;
+import main.geradores.model.utils.Property;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
-import main.geradores.model.ModelGenerator;
-import main.geradores.model.utils.Property;
+import java.util.Map;
 
 public class GenOptions {
 	public String entityName;
@@ -29,6 +31,9 @@ public class GenOptions {
 	private ModelGenerator modelGenerator;
 	private List<Property> lsOptionsKeys;
 
+	public String mainBack = null;
+	public String mainFront = null;
+
 	public GenOptions(String entityName) {
 		this.entityName = entityName;
 
@@ -36,6 +41,10 @@ public class GenOptions {
 		this.entityTableName = entityName+"_TABLE_NAME";
 		this.frontBaseName   = this.defaultRoute;
 		this.frontBaseFolder = this.defaultRoute;
+
+		Map<String, String> main_paths = Configuracoes.getInstance().get("path_padrao");
+		this.mainBack = main_paths.get("back");
+		this.mainFront = main_paths.get("front");
 	}
 
 	public String getFrontNameFrom(String nameToFront) {
@@ -75,6 +84,9 @@ public class GenOptions {
 				+ "# onlyBackEnd   -> '" + onlyBackEnd + "' \r\n"
 				+ "# onlyFrontEnd  -> '" + onlyFrontEnd + "' \r\n"
 				+ "# fullFrontEnd  -> '" + fullFrontEnd + "' \r\n"
+				+ "###### Paths Padrão: \r\n"
+				+ "# Path Back   -> '" + mainBack + "' \r\n"
+				+ "# Path Front  -> '" + mainFront + "' \r\n"
 				+ "###############################\r\n";
 		return out;
 	}

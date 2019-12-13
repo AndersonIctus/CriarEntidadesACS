@@ -19,6 +19,10 @@ public class GerarBackEnd implements IGerador {
 	public void gerarArquivos(GenOptions options) throws IOException {
 		System.out.println("===============================================");
 		System.out.println("============ GERANDO BACK END =================");
+		if(options.mainBack != null) {
+			mainPath = options.mainBack;
+		}
+
 		if(options.onlyFrontEnd == true) {
 			System.out.println("Pulando a geração dos arquivos para o BackEnd ...");
 		} else {
@@ -340,8 +344,8 @@ public class GerarBackEnd implements IGerador {
 						propLine = "@Temporal(TemporalType.TIMESTAMP a) " + propLine + ((prop.isNullable() == false)? ", nullable = false" : "") + ")\r\n\tprivate Calendar ";
 
 						propLine = "@Columns(columns = {" +
-												"@Column(name = \""        + prop.getName() + "\"" + ((prop.isNullable() == false)? ", nullable = false" : "") + "), " +
-												"@Column(name = \"offset_" + prop.getName() + "\"" + ((prop.isNullable() == false)? ", nullable = false" : "") + ")" +
+											"@Column(name = \"offset_" + prop.getName() + "\"" + ((prop.isNullable() == false)? ", nullable = false" : "") + ")," +
+											"@Column(name = \""        + prop.getName() + "\"" + ((prop.isNullable() == false)? ", nullable = false" : "") + ") " +
 											"})\r\n\tprivate AcsDateTime ";
 						typeMethod = "AcsDateTime";
 						break;

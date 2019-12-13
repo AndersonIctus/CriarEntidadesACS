@@ -20,12 +20,15 @@ import main.geradores.model.utils.PropertyType;
 import main.geradores.model.utils.Reference;
 
 public class GerarFrontEnd implements IGerador {
-	private static String mainPath = "..\\Gerente-web-front\\src\\app\\";
+	private static String mainPath = "..\\front\\src\\app\\";
 
 	@Override
 	public void gerarArquivos(GenOptions options) throws IOException {
 		System.out.println("===============================================");
 		System.out.println("=========== GERANDO FRONT END =================");
+		if(options.mainFront != null) {
+			mainPath = options.mainFront;
+		}
 
 		if(options.onlyBackEnd) {
 			System.out.println("Pulando a geração dos arquivos para o FrontEnd ...");
@@ -568,7 +571,7 @@ public class GerarFrontEnd implements IGerador {
 		String classBody = ""+
 				"<form [formGroup]=\"formModel\" data-toggle=\"validator\" role=\"form\">" + "\r\n" +
 				"  <others_group-panel [titleGroup]=\"title\"> <!-- GROUP PANEL -->" + "\r\n" +
-				"    <others_panel panelTitle=\"Geral\"> <!-- PANEL GERAL -->" + "\r\n" +
+				"    <others_panel [panelTitle]=\"title\"> <!-- PANEL GERAL -->" + "\r\n" +
 				"      <div class=\"panel-content row m-0\">" + "\r\n" +
 				"        <!-- CODIGO -->" + "\r\n" +
 				"        <div class=\"form-group col-4 col-sm-2 col-md-2\" >" + "\r\n" +
@@ -583,7 +586,7 @@ public class GerarFrontEnd implements IGerador {
 				"</form>" + "\r\n" +
 				"\r\n" +
 				"<!-- TOOL BOX -->" + "\r\n" +
-				"<others_tool-box [formModel]=\"formModel\" [route]=\"routerLink\" [salvarEditarText]=\"salvarEditarText\" (submitAction)=\"gravarFormModel();\"></others_tool-box>" + "\r\n" +
+				"<others_tool-box #toolbox [formModel]=\"formModel\" [route]=\"routerLink\" [salvarEditarText]=\"salvarEditarText\" (submitAction)=\"gravarFormModel();\"></others_tool-box>" + "\r\n" +
 				""
 				;
 
@@ -684,12 +687,14 @@ public class GerarFrontEnd implements IGerador {
 
 		String classBody = "" +
 				"import { Component, OnInit } from '@angular/core';" + "\r\n" +
+				"import { FormGroup } from '@angular/forms';" + "\r\n" +
 				"\r\n" +
 				"import { CriarEditar" + options.frontBaseName + "Component } from '../criar-editar-" + options.frontBaseFolder + ".component';" + "\r\n" +
 				"\r\n" +
 				"import { CadastroBaseService } from '../../../../../cadastros/cadastro-base.service';" + "\r\n" +
 				"import { " + options.entityName + "Service } from '../../../../../services/" + options.defaultRoute + ".service';" + "\r\n" +
 				"import { " + options.entityName + " } from '../../../../../model/" + options.entityName + "';" + "\r\n" +
+				"import { Observable } from 'rxjs';" + "\r\n" +
 				"\r\n" +
 				"@Component({" + "\r\n" +
 				"  templateUrl: '../criar-editar-" + options.frontBaseFolder + ".component.html'," + "\r\n" +
@@ -703,13 +708,13 @@ public class GerarFrontEnd implements IGerador {
 				"    super(" + serviceName + ", baseServices);" + "\r\n" +
 				"  }" + "\r\n" +
 				"\r\n" +
-				"  gravarModel(formModel: any) {" + "\r\n" +
-				"    this." + serviceName + "\r\n" +
-				"        .persist(new "+ options.entityName + "(formModel.getRawValue()))" + "\r\n" +
-				"        .then(() => {" + "\r\n" +
+				"  gravarModel(formModel: FormGroup): Observable<any> {" + "\r\n" +
+				"    return this." + serviceName + "\r\n" +
+				"        .observePersist( new "+ options.entityName + "(formModel.getRawValue()) )" + "\r\n" +
+				"        .map( () => {" + "\r\n" +
 				"            this.toasty.success('" + options.entityName + " adicionado com sucesso!');" + "\r\n" +
 				"            this.router.navigate([this.routerLink]);" + "\r\n" +
-				"        }).catch( erro => this.errorHandler.handle(erro) );" + "\r\n" +
+				"        });" + "\r\n" +
 				"  }" + "\r\n" +
 				"}" + "\r\n" +
 				""
@@ -796,13 +801,13 @@ public class GerarFrontEnd implements IGerador {
 				setFormValues +
 				"  }\r\n" +
 				"\r\n" +
-				"  gravarModel(formModel: any) {\r\n" +
-				"    this." + serviceName + "\r\n" +
-				"        .update( new " + options.entityName + "(formModel.getRawValue()), this.id" + options.entityName + " )\r\n" +
-				"        .then( () => {\r\n" +
+				"  gravarModel(formModel: FormGroup): Observable<any> {\r\n" +
+				"    return this." + serviceName + "\r\n" +
+				"        .observeUpdate( new " + options.entityName + "(formModel.getRawValue()), this.id" + options.entityName + " )\r\n" +
+				"        .map( () => {\r\n" +
 				"          this.toasty.success('" + options.entityName + " Atualizado com Sucesso!');\r\n" +
 				"          this.router.navigate([this.routerLink]);\r\n" +
-				"        }).catch( err => this.errorHandler.handle(err) );\r\n" +
+				"        });\r\n" +
 				"  }\r\n" +
 				"}\r\n" +
 				""
