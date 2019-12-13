@@ -36,21 +36,46 @@ public class Configuracoes {
 				arquivo.close();
 			}
 
-			String linhas = Files.lines( path )
-					.reduce( (strA, strB) -> strA + "\r\n" + strB)
-					.orElse(null);
-
-			Type type = new TypeToken<Map<String, Object>>(){}.getType();
-			configuracoes = g.fromJson(linhas, type);
-			configuracoes = (Map<String, Object>) configuracoes.get("configuracoes");
+			modificarConfiguracoes(path);
 
 			//TODO:  1.2 - Se exitir, então deve verificar se todas as configurações foram colocadas, se alguma não tiver sido, precisa ser colocada !!
+			// 1 Vendo as classes
+			Object classes_normalizadas = get("classes_normalizadas");
+			if(classes_normalizadas == null) {
+				refazArquivoPadrão(path);
+				return;
+			}
+
+			// 2 - Vendo o path padrão
+			Object path_padrao = get("path_padrao");
+			if(path_padrao == null) {
+				refazArquivoPadrão(path);
+				return;
+			}
 
 		} catch (IOException e) {
 			System.out.println("Configuracoes não foram carregadas !!");
 			e.printStackTrace();
 			throw new RuntimeException("As configurações não poderam ser carregadas, por favro cheque o arquivo '" + ARQ_CONF_PATH + "'");
 		}
+	}
+
+	private void modificarConfiguracoes(Path path) throws IOException {
+		String linhas = Files.lines( path )
+				.reduce( (strA, strB) -> strA + "\r\n" + strB)
+				.orElse(null);
+
+		Type type = new TypeToken<Map<String, Object>>(){}.getType();
+		configuracoes = g.fromJson(linhas, type);
+		configuracoes = (Map<String, Object>) configuracoes.get("configuracoes");
+	}
+
+	private void refazArquivoPadrão(Path path) throws IOException {
+		PrintStream arquivo = new PrintStream(ARQ_CONF_PATH, "UTF-8");
+		arquivo.println(CONF_PADRAO);
+		arquivo.close();
+
+		modificarConfiguracoes(path);
 	}
 
 	public static Configuracoes getInstance() {
@@ -71,8 +96,8 @@ public class Configuracoes {
 			"{ " + "\r\n" +
 			"  \"configuracoes\" : { " + "\r\n" +
 			"	\"path_padrao\" : { " + "\r\n" +
-			"		\"back\": \".\\src\\main\\java\\com\\innovaro\\acs\\\", " + "\r\n" +
-			"		\"front\": \"..\\front\\src\\app\\\" " + "\r\n" +
+			"		\"back\": \"./src/main/java/com/innovaro/acs/\", " + "\r\n" +
+			"		\"front\": \"../front/src/app/\" " + "\r\n" +
 			"	}, " + "\r\n" +
 			"    \"classes_normalizadas\" : { " + "\r\n" +
 			"      \"PLANO_CONTAS\": \"PlanoContas\", " + "\r\n" +

@@ -43,8 +43,10 @@ public class GenOptions {
 		this.frontBaseFolder = this.defaultRoute;
 
 		Map<String, String> main_paths = Configuracoes.getInstance().get("path_padrao");
-		this.mainBack = main_paths.get("back");
-		this.mainFront = main_paths.get("front");
+		if(main_paths != null) {
+			this.mainBack = main_paths.get("back");
+			this.mainFront = main_paths.get("front");
+		}
 	}
 
 	public String getFrontNameFrom(String nameToFront) {
