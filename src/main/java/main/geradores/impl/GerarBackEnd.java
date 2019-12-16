@@ -157,6 +157,8 @@ public class GerarBackEnd implements IGerador {
         String typeDefAcsDate = "";
 
         imports = // Imports Gerais !!
+                "import com.fasterxml.jackson.annotation.JsonView;\r\n" +
+                "import com.innovaro.acs.model.jsonviews.Views;\r\n" +
                 "import org.hibernate.annotations.Fetch;\r\n" +
                         "import org.hibernate.annotations.FetchMode;\r\n" +
                         "\r\n" +

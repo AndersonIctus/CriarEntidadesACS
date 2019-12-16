@@ -26,28 +26,29 @@ public class Configuracoes {
     // CONFIGURACOES PADRAO //
     private String CONF_PADRAO =
             "{ " + "\r\n" +
-                    "  \"configuracoes\" : { " + "\r\n" +
-                    "	\"path_padrao\" : { " + "\r\n" +
-                    "		\"back\": \"./src/main/java/com/innovaro/acs/\", " + "\r\n" +
-                    "		\"front\": \"../front/src/app/\" " + "\r\n" +
-                    "	}, " + "\r\n" +
-                    "    \"classes_normalizadas\" : { " + "\r\n" +
-                    "      \"PLANO_CONTAS\": \"PlanoContas\", " + "\r\n" +
-                    "      \"POS\": \"POS\", " + "\r\n" +
-                    "      \"MFES\": \"MFE\", " + "\r\n" +
-                    "      \"CONCENTRADORES\": \"Concentrador\", " + "\r\n" +
-                    "      \"FORNECEDORES\": \"Fornecedor\", " + "\r\n" +
-                    "      \"ITENS_COMBO\": \"ItemCombo\", " + "\r\n" +
-                    "      \"TRANSF_DIV\": \"TransferenciaDiverso\", " + "\r\n" +
-                    "      \"ITENS_TRANSF_DIV\": \"ItemTransferenciaDiverso\", " + "\r\n" +
-                    "      \"DATAS_ABERTURAS\": \"DataAbertura\", " + "\r\n" +
-                    "      \"ABERTURAS\": \"Abertura\", " + "\r\n" +
-                    "      \"DEVOLUCOES\": \"Devolucao\", " + "\r\n" +
-                    "      \"ITENS_DEVOLUCOES\": \"ItemDevolucao\", " + "\r\n" +
-                    "      \"NOTAS_FISCAIS\": \"NotaFiscal\"" + "\r\n" +
-                    "    } " + "\r\n" +
-                    "  } " + "\r\n" +
-                    "}";
+            "  \"configuracoes\" : { " + "\r\n" +
+            "	\"path_padrao\" : { " + "\r\n" +
+            "		\"back\": \"./src/main/java/com/innovaro/acs/\", " + "\r\n" +
+            "		\"front\": \"../front/src/app/\" " + "\r\n" +
+            "	}, " + "\r\n" +
+            "    \"classes_normalizadas\" : { " + "\r\n" +
+            "      \"ABERTURAS\": \"Abertura\"," + "\r\n" +
+            "      \"CONCENTRADORES\": \"Concentrador\"," + "\r\n" +
+            "      \"DATAS_ABERTURAS\": \"DataAbertura\"," + "\r\n" +
+            "      \"DEVOLUCOES\": \"Devolucao\"," + "\r\n" +
+            "      \"FORNECEDORES\": \"Fornecedor\"," + "\r\n" +
+            "      \"ITENS_COMBO\": \"ItemCombo\"," + "\r\n" +
+            "      \"ITENS_COMPRA\": \"ItemCompra\"," + "\r\n" +
+            "      \"ITENS_DEVOLUCOES\": \"ItemDevolucao\"," + "\r\n" +
+            "      \"ITENS_TRANSF_DIV\": \"ItemTransferenciaDiverso\"," + "\r\n" +
+            "      \"MFES\": \"MFE\"," + "\r\n" +
+            "      \"NOTAS_FISCAIS\": \"NotaFiscal\"," + "\r\n" +
+            "      \"PLANO_CONTAS\": \"PlanoContas\"," + "\r\n" +
+            "      \"POS\": \"POS\"," + "\r\n" +
+            "      \"TRANSF_DIV\": \"TransferenciaDiverso\"" + "\r\n" +
+            "    } " + "\r\n" +
+            "  } " + "\r\n" +
+            "}";
 
     @SuppressWarnings("unchecked")
     private Configuracoes() {
