@@ -1,16 +1,12 @@
 package main.geradores.impl;
 
-import java.io.IOException;
-
 import main.geradores.GenOptions;
 import main.geradores.IGerador;
 import main.geradores.Utils;
 import main.geradores.model.ModelGenerator;
-import main.geradores.model.utils.Constraint;
-import main.geradores.model.utils.ConstraintType;
-import main.geradores.model.utils.Property;
-import main.geradores.model.utils.PropertyType;
-import main.geradores.model.utils.Reference;
+import main.geradores.model.utils.*;
+
+import java.io.IOException;
 
 public class GerarBackEnd implements IGerador {
 	private static String mainPath = ".\\src\\main\\java\\com\\innovaro\\acs\\";
@@ -21,6 +17,9 @@ public class GerarBackEnd implements IGerador {
 		System.out.println("============ GERANDO BACK END =================");
 		if(options.mainBack != null) {
 			mainPath = options.mainBack;
+		}
+		else {
+			options.mainBack = mainPath;
 		}
 
 		if(options.onlyFrontEnd == true) {
@@ -151,11 +150,11 @@ public class GerarBackEnd implements IGerador {
 
 		imports = // Imports Gerais !!
 				"import org.hibernate.annotations.Fetch;\r\n" +
-						"import org.hibernate.annotations.FetchMode;\r\n" +
-						"\r\n" +
-						"import java.util.Calendar;\r\n" +
-						"import java.math.BigDecimal;\r\n" +
-						"import javax.persistence.*;\r\n";
+				"import org.hibernate.annotations.FetchMode;\r\n" +
+				"\r\n" +
+				"import java.util.Calendar;\r\n" +
+				"import java.math.BigDecimal;\r\n" +
+				"import javax.persistence.*;\r\n";
 
 		/////////////////////////////////////////////////////////////////////////////////
 		//
@@ -217,8 +216,13 @@ public class GerarBackEnd implements IGerador {
 		long count = modelGen.getProperties().stream().filter(ele -> ele.getType().equals(PropertyType.ACS_DATE_TIME)).count();
 		if(count != 0) {
 			// import do ACs Date TIME !!
-			imports += "import com.innovaro.acs.repository.customtypes.AcsDateTime;\r\n" +
-					   "import com.innovaro.acs.repository.customtypes.AcsDateTimeType;\r\n";
+			imports =
+					"import com.innovaro.acs.repository.customtypes.AcsDateTime;\r\n" +
+					"import com.innovaro.acs.repository.customtypes.AcsDateTimeType;\r\n" +
+					"import org.hibernate.annotations.Columns;\r\n" +
+					imports +
+					"import org.hibernate.annotations.TypeDef;\r\n" +
+			"";
 
 			typeDefAcsDate += "@TypeDef(name = \"AcsDateTime\", typeClass = AcsDateTimeType.class, defaultForType = AcsDateTime.class)\r\n";
 		}
@@ -363,6 +367,11 @@ public class GerarBackEnd implements IGerador {
 					case LONG:
 						propLine += ((prop.isNullable() == false)? ", nullable = false" : "") + ")\r\n\tprivate Long ";
 						typeMethod = "Long";
+						break;
+
+					case TEXT:
+						propLine += ((prop.isNullable() == false)? ", nullable = false" : "") + ")\r\n\tprivate String ";
+						typeMethod = "String";
 						break;
 
 					default:

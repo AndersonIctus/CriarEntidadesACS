@@ -87,12 +87,14 @@ public class Property implements Comparable<Property> {
 			this.type = PropertyType.CHAR;
 		} else if( type.equals("SMALLINT") ) {
 			this.type = PropertyType.SHORT;
+		} else if( type.equals("TIMESTAMP") ) {
+			this.type = PropertyType.TIMESTAMP;
 		} else if( type.equals("BIGINT") ) {
 			this.type = PropertyType.LONG;
 		} else if( type.equals("DATE") ) {
 			this.type = PropertyType.DATE;
-		} else if( type.equals("TIMESTAMP") ) {
-			this.type = PropertyType.TIMESTAMP;
+		} else if( type.equals("TEXT") ) {
+			this.type = PropertyType.TEXT;
 		} else {
 			throw new RuntimeException("Ocorreu um erro ao tentar mapear a Property do tipo '" + type + "'. Ele não é um tipo valido!");
 		}

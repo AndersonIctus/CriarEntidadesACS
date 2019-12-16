@@ -4,6 +4,7 @@ public enum PropertyType {
 	NUMERO,
 	STRING,
 	CHAR,
+	TEXT,
 	SHORT,
 	LONG,
 	DECIMAL,

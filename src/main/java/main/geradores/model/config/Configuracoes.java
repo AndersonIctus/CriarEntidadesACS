@@ -1,5 +1,8 @@
 package main.geradores.model.config;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
 import java.io.IOException;
 import java.io.PrintStream;
 import java.lang.reflect.Type;
@@ -7,9 +10,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
-
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 
 /**
  * 	Essa classe ficara responsável por manter o arquivo de configuração do em formato JSON do Gerador de Entidades.
@@ -111,7 +111,8 @@ public class Configuracoes {
 			"      \"DATAS_ABERTURAS\": \"DataAbertura\", " + "\r\n" +
 			"      \"ABERTURAS\": \"Abertura\", " + "\r\n" +
 			"      \"DEVOLUCOES\": \"Devolucao\", " + "\r\n" +
-			"      \"ITENS_DEVOLUCOES\": \"ItemDevolucao\" " + "\r\n" +
+			"      \"ITENS_DEVOLUCOES\": \"ItemDevolucao\", " + "\r\n" +
+			"      \"NOTAS_FISCAIS\": \"NotaFiscal\"" + "\r\n" +
 			"    } " + "\r\n" +
 			"  } " + "\r\n" +
 			"}";

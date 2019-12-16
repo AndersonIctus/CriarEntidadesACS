@@ -4,6 +4,7 @@ CREATE TABLE public.ITENS_COMPRA (
     ID_COMPRA           INTEGER NOT NULL,
     ID_PRODUTO_EMPRESA  INTEGER NOT NULL,
 	COD_CEST            VARCHAR(7),
+	OBSERVACAO          TEXT,
     CANCELADO           CHAR(1) NOT NULL,
     ALTERA_CUSTO        CHAR(1) NOT NULL,
     TIPO_TRIBUTACAO     CHAR(1), -- (Com (C)rédito, (I)sento ou (O)utros)

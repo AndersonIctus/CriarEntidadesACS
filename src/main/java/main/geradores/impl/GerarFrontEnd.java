@@ -1,5 +1,13 @@
 package main.geradores.impl;
 
+import main.geradores.GenOptions;
+import main.geradores.IGerador;
+import main.geradores.Utils;
+import main.geradores.model.ModelGenerator;
+import main.geradores.model.utils.Property;
+import main.geradores.model.utils.PropertyType;
+import main.geradores.model.utils.Reference;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -11,14 +19,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import main.geradores.GenOptions;
-import main.geradores.IGerador;
-import main.geradores.Utils;
-import main.geradores.model.ModelGenerator;
-import main.geradores.model.utils.Property;
-import main.geradores.model.utils.PropertyType;
-import main.geradores.model.utils.Reference;
-
 public class GerarFrontEnd implements IGerador {
 	private static String mainPath = "..\\front\\src\\app\\";
 
@@ -28,6 +28,9 @@ public class GerarFrontEnd implements IGerador {
 		System.out.println("=========== GERANDO FRONT END =================");
 		if(options.mainFront != null) {
 			mainPath = options.mainFront;
+		}
+		else {
+			options.mainFront = mainPath;
 		}
 
 		if(options.onlyBackEnd) {
@@ -76,7 +79,7 @@ public class GerarFrontEnd implements IGerador {
 				Utils.createDirectory(GerarFrontEnd.mainPath + "criar-editar-"+ options.frontBaseFolder + "\\editar-" + options.frontBaseFolder);
 				gerarComponentEditar(options);
 
-				// Incluir o novo modulo no Routing Module de Cadastros !!
+				// Incluir o novo modulo no Routing Module Escolhido !!
 				if(options.frontModuleName.contains("\\") == false) { // So gera se não tiver sub-modulos
 					incluirCadastroModulo(options);
 				} else {
@@ -86,13 +89,13 @@ public class GerarFrontEnd implements IGerador {
 			}
 		}
 
-		System.out.println("");
+		System.out.println();
 		System.out.println("===============================================");
 		System.out.println("===============================================");
 	}
 
 	private void incluirCadastroModulo(GenOptions options) throws IOException {
-		String pathToFile = "..\\Gerente-web-front\\src\\app\\";
+		String pathToFile = options.mainFront;
 
 		if(options.frontModuleName.equalsIgnoreCase("cadastros")) {
 			pathToFile += "cadastros\\";
@@ -285,68 +288,6 @@ public class GerarFrontEnd implements IGerador {
 		return classBody;
 	}
 
-	private String normalizaTipoModel(PropertyType type) {
-		switch (type) {
-			case STRING:
-			case CHAR:
-				return "string";
-
-			case DATE:
-			case TIMESTAMP:
-				return "Date";
-
-			case ACS_DATE_TIME:
-				return "AcsDateTime";
-
-			default:
-			case NUMERO:
-			case SHORT:
-			case LONG:
-			case DECIMAL:
-				return "number";
-		}
-	}
-
-	private String normalizaInicioModel(PropertyType type) {
-		switch (type) {
-			case STRING:
-			case CHAR:
-				return "''";
-
-			case DATE:
-			case TIMESTAMP:
-			case ACS_DATE_TIME:
-				return "null";
-
-			default:
-			case NUMERO:
-			case SHORT:
-			case LONG:
-			case DECIMAL:
-				return "0";
-		}
-	}
-
-	private String normalizaSetFormValue(String nameVariable, PropertyType type) {
-		switch (type) {
-			case TIMESTAMP:
-			case DATE:
-				return "(model." + nameVariable + " != null)? new Date(model." + nameVariable + ") : null";
-
-			case ACS_DATE_TIME:
-				return "model." + nameVariable + ".format()";
-
-			default:
-			case STRING:
-			case CHAR:
-			case NUMERO:
-			case SHORT:
-			case LONG:
-			case DECIMAL:
-				return "model." + nameVariable;
-		}
-	}
-
 	// ----------------------------------------------------------------------------------------- //
 	private void gerarServico(GenOptions options) throws IOException {
 		boolean pkClass = false;
@@ -361,7 +302,7 @@ public class GerarFrontEnd implements IGerador {
 						: "import { AbstractService } from './abstract-service';\r\n" ) +
 				"import { "+options.entityName+" } from '../model/"+options.entityName+"';\r\n" +
 				"\r\n" +
-				"@Injectable()\r\n" +
+				"@Injectable({providedIn: 'root'})\r\n" +
 				( (pkClass)
 						? "export class "+options.entityName+"Service extends AbstractServiceEmpresa<"+options.entityName+"> {\r\n"
 						: "export class "+options.entityName+"Service extends AbstractService<"+options.entityName+"> {\r\n" ) +
@@ -397,8 +338,8 @@ public class GerarFrontEnd implements IGerador {
 				"import { Criar"+options.frontBaseName+"Component } from './criar-editar-"+options.frontBaseFolder+"/criar-"+options.frontBaseFolder+"/criar-"+options.frontBaseFolder+".component';\r\n" +
 				"import { Editar"+options.frontBaseName+"Component } from './criar-editar-"+options.frontBaseFolder+"/editar-"+options.frontBaseFolder+"/editar-"+options.frontBaseFolder+".component';\r\n" +
 				"\r\n" +
-				"import { "+options.entityName+"Service } from '../../../services/"+options.defaultRoute+".service';\r\n" +
-				"\r\n" +
+				// "import { "+options.entityName+"Service } from '../../../services/"+options.defaultRoute+".service';\r\n" +
+				// "\r\n" +
 				"@NgModule({\r\n" +
 				"  imports: [" + "\r\n" +
 				"    CommonModule,\r\n" +
@@ -414,7 +355,7 @@ public class GerarFrontEnd implements IGerador {
 				"  ],\r\n" +
 				"  declarations: [" + "Listar"+options.frontBaseName+"Component, " + "Criar"+options.frontBaseName+"Component, " + "Editar"+options.frontBaseName+"Component],\r\n" +
 				"  providers: [\r\n" +
-				"    "+options.entityName+"Service,\r\n" +
+				// "    "+options.entityName+"Service,\r\n" +
 				"  ]\r\n" +
 				"})\r\n" +
 				"export class "+options.frontBaseName+"Module { }"
@@ -756,12 +697,15 @@ public class GerarFrontEnd implements IGerador {
 		String classBody = "" +
 				"import { Component, OnInit } from '@angular/core';" + "\r\n" +
 				"import { ActivatedRoute } from '@angular/router';" + "\r\n" +
+				"import { FormGroup } from '@angular/forms';" + "\r\n" +
 				"\r\n" +
 				"import { CriarEditar" + options.frontBaseName + "Component } from '../criar-editar-" + options.frontBaseFolder + ".component';" + "\r\n" +
 				"\r\n" +
 				"import { CadastroBaseService } from '../../../../../cadastros/cadastro-base.service';" + "\r\n" +
 				"import { " + options.entityName + "Service } from '../../../../../services/" + options.defaultRoute + ".service';" + "\r\n" +
 				"import { " + options.entityName + " } from '../../../../../model/" + options.entityName + "';" + "\r\n" +
+				"\r\n" +
+				"import { Observable } from 'rxjs';" + "\r\n" +
 				"\r\n" +
 				"@Component({" + "\r\n" +
 				"  templateUrl: '../criar-editar-" + options.frontBaseFolder + ".component.html'," + "\r\n" +
@@ -816,5 +760,71 @@ public class GerarFrontEnd implements IGerador {
 		Utils.writeContentTo(path + "editar-" + options.frontBaseFolder + ".component.ts", classBody);
 		System.out.println("Generated EDIT   COMPONENT TS '" + "editar-" + options.frontBaseFolder + ".component.ts' into '" + path + "'");
 		System.out.println("------------------------------------------------------------------------------\r\n");
+	}
+
+	// ------------------------------ NORMALIZAR TIPOS ------------------------------
+	private String normalizaTipoModel(PropertyType type) {
+		switch (type) {
+			case STRING:
+			case CHAR:
+			case TEXT:
+				return "string";
+
+			case DATE:
+			case TIMESTAMP:
+				return "Date";
+
+			case ACS_DATE_TIME:
+				return "AcsDateTime";
+
+			default:
+			case NUMERO:
+			case SHORT:
+			case LONG:
+			case DECIMAL:
+				return "number";
+		}
+	}
+
+	private String normalizaInicioModel(PropertyType type) {
+		switch (type) {
+			case STRING:
+			case CHAR:
+			case TEXT:
+				return "''";
+
+			case DATE:
+			case TIMESTAMP:
+			case ACS_DATE_TIME:
+				return "null";
+
+			default:
+			case NUMERO:
+			case SHORT:
+			case LONG:
+			case DECIMAL:
+				return "0";
+		}
+	}
+
+	private String normalizaSetFormValue(String nameVariable, PropertyType type) {
+		switch (type) {
+			case TIMESTAMP:
+			case DATE:
+				return "(model." + nameVariable + " != null)? new Date(model." + nameVariable + ") : null";
+
+			case ACS_DATE_TIME:
+				return "model." + nameVariable + ".toDate()";
+
+			default:
+			case STRING:
+			case CHAR:
+			case TEXT:
+			case NUMERO:
+			case SHORT:
+			case LONG:
+			case DECIMAL:
+				return "model." + nameVariable;
+		}
 	}
 }
