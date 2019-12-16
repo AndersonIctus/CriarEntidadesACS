@@ -11,7 +11,7 @@ public class TesteModelGenerator {
 //				"-front-baseitens-compra",
 				"-audit",
 				"-model",
-				"-front"
+				"-back"
 		);
 		// Principal.main("-test");
 	}
