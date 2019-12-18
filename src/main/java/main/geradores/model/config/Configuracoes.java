@@ -43,6 +43,7 @@ public class Configuracoes {
             "      \"ITENS_TRANSF_DIV\": \"ItemTransferenciaDiverso\"," + "\r\n" +
             "      \"MFES\": \"MFE\"," + "\r\n" +
             "      \"NOTAS_FISCAIS\": \"NotaFiscal\"," + "\r\n" +
+            "      \"PDVS\": \"PDV\"," + "\r\n" +
             "      \"PLANO_CONTAS\": \"PlanoContas\"," + "\r\n" +
             "      \"POS\": \"POS\"," + "\r\n" +
             "      \"TRANSF_DIV\": \"TransferenciaDiverso\"" + "\r\n" +
