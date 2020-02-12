@@ -57,7 +57,6 @@ public class Principal {
                 + "FLAGS: \r\n"
                 + "-----------------------------------\r\n"
                 + " -noGenerateModel [ou -noGM] \t\t\t\t Indica que a classe modelo não deve ser gerada.\r\n"
-                + " -generateEmpresaEntity [ou -genEmp] \t\t\t Gera as classes considerando a empresa como Chave da entidade.\r\n"
                 + " -onlyBackEnd [ou -back] \t\t\t\t Gera somente os arquivos de BACK - END.\r\n"
                 + " -onlyModel [ou -model] \t\t\t\t Gera somente os arquivos de Modelo.\r\n"
                 + " -onlyFrontEnd [ou -front] \t\t\t\t Gera somente os arquivos de FRONT - END.\r\n"

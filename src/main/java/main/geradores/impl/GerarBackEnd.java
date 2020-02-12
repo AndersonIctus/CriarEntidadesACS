@@ -26,16 +26,18 @@ public class GerarBackEnd implements IGerador {
         System.out.println("============ GERANDO BACK END =================");
         if (options.mainBack != null) {
             mainPath = options.mainBack;
-        } else {
+        }
+        else {
             options.mainBack = mainPath;
         }
 
         if (options.onlyFrontEnd) {
             System.out.println("Pulando a geração dos arquivos para o BackEnd ...");
         } else {
-            if (options.generateModel)
+            if (options.generateModel) {
                 gerarModelo(options);
                 incluirViewClass(options);
+            }
 
             if (!options.onlyModel) {
                 gerarFiltro(options);
@@ -63,7 +65,8 @@ public class GerarBackEnd implements IGerador {
         if (options.getModelGenerator() != null) {
             classBody = getModelClassBodyFromModelGenerator(options);
 
-        } else {
+        }
+        else {
             boolean pkClass = options.generateEmpresaEntity;
             if (pkClass)
                 this.gerarClassPK(options);
@@ -141,6 +144,7 @@ public class GerarBackEnd implements IGerador {
 
         Utils.writeContentTo(path + options.entityName + ".java", classBody);
         System.out.println("Generated Entity '" + options.entityName + "' into '" + path + "'");
+        System.out.println("-----------------------------------------------");
     }
 
     private String getModelClassBodyFromModelGenerator(GenOptions options) throws IOException {
@@ -153,18 +157,20 @@ public class GerarBackEnd implements IGerador {
 
         String joins = "";
         String properties = "";
-        String getterAndSetter = "";
+        // String getterAndSetter = "";
         String typeDefAcsDate = "";
 
         imports = // Imports Gerais !!
                 "import com.fasterxml.jackson.annotation.JsonView;\r\n" +
                 "import com.innovaro.acs.model.jsonviews.Views;\r\n" +
+                "import lombok.Data;\r\n" +
+                "import lombok.EqualsAndHashCode;\r\n" +
                 "import org.hibernate.annotations.Fetch;\r\n" +
-                        "import org.hibernate.annotations.FetchMode;\r\n" +
-                        "\r\n" +
-                        "import java.util.Calendar;\r\n" +
-                        "import java.math.BigDecimal;\r\n" +
-                        "import javax.persistence.*;\r\n";
+                "import org.hibernate.annotations.FetchMode;\r\n" +
+                "\r\n" +
+                "import java.util.Calendar;\r\n" +
+                "import java.math.BigDecimal;\r\n" +
+                "import javax.persistence.*;\r\n";
 
         /////////////////////////////////////////////////////////////////////////////////
         //
@@ -220,11 +226,11 @@ public class GerarBackEnd implements IGerador {
             // import do ACs Date TIME !!
             imports =
                     "import com.innovaro.acs.repository.customtypes.AcsDateTime;\r\n" +
-                            "import com.innovaro.acs.repository.customtypes.AcsDateTimeType;\r\n" +
-                            "import org.hibernate.annotations.Columns;\r\n" +
-                            imports +
-                            "import org.hibernate.annotations.TypeDef;\r\n" +
-                            "";
+                    "import com.innovaro.acs.repository.customtypes.AcsDateTimeType;\r\n" +
+                    "import org.hibernate.annotations.Columns;\r\n" +
+                    imports +
+                    "import org.hibernate.annotations.TypeDef;\r\n" +
+                    "";
 
             typeDefAcsDate += "@TypeDef(name = \"AcsDateTime\", typeClass = AcsDateTimeType.class, defaultForType = AcsDateTime.class)\r\n";
         }
@@ -237,7 +243,7 @@ public class GerarBackEnd implements IGerador {
         /////////////////////////////////////////////////////////////////////////////////
         String jsonViewRef = "\t@JsonView(Views." + options.entityName + "View.class)\r\n";
         for (Property prop : modelGen.getProperties()) {
-            String typeMethod = "";
+            // String typeMethod = "";
             if (prop.getType() == PropertyType.JOIN || prop.getType() == PropertyType.JOIN_COMPOSTO) { // joins
                 Constraint con = modelGen.getJoinConstraintByKey(prop.getName());
                 Reference ref = con.getReference();
@@ -249,7 +255,8 @@ public class GerarBackEnd implements IGerador {
                 }
 
                 joins += "\t" + "@ManyToOne(fetch=FetchType.LAZY)\r\n" +
-                         "\t" + "@Fetch(FetchMode.JOIN)\r\n";
+                         "\t" + "@Fetch(FetchMode.JOIN)\r\n" +
+                        jsonViewRef;
 
                 String classVariableName = "";
                 /////////////////////////////
@@ -284,11 +291,9 @@ public class GerarBackEnd implements IGerador {
                     classVariableName = ref.getClassVariableName();
                 }
 
-                joins += jsonViewRef +
-                        "\t" + "private " + ref.getClassName() + " " + classVariableName + ";\r\n\r\n";
+                joins += "\t" + "private " + ref.getClassName() + " " + classVariableName + ";\r\n\r\n";
                 /////////////////////////////
 
-                typeMethod = ref.getClassName();
                 prop.setVariableName(classVariableName);
             }
             // JOINS COMPOSTO DE CHAVE não são representados como variáveis ou chave, somente sendo representdo no próprio BANCO !
@@ -305,7 +310,6 @@ public class GerarBackEnd implements IGerador {
                                         propLine +
                                         "\", length = " + prop.getInteiro() + ", nullable = false)\r\n" +
                                         "\t" + "private String ";
-                        typeMethod = "String";
                         break;
 
                     default:
@@ -315,7 +319,6 @@ public class GerarBackEnd implements IGerador {
                                         "\t" + "@SequenceGenerator(name=\"" + modelGen.getTableName() + "\", sequenceName=\"" + modelGen.getTableName() + "_seq\", allocationSize=1)\r\n" +
                                         "\t" + "@Column(name=\"" + prop.getName() + "\")\r\n" +
                                         "\t" + "private Integer ";
-                        typeMethod = "Integer";
                         break;
                 }
 
@@ -324,36 +327,32 @@ public class GerarBackEnd implements IGerador {
 
             }
             else { // other properties
-                String propLine = "@Column(name=\"" + prop.getName() + "\"";
+                String propLine = jsonViewRef + "\t@Column(name=\"" + prop.getName() + "\"";
                 switch (prop.getType()) {
                     case STRING:
                     case CHAR:
                         if (prop.getInteiro() > 1) {
                             propLine += ", length = " + prop.getInteiro() + ((!prop.isNullable()) ? ", nullable = false" : "") + ")\r\n" +
-                                    jsonViewRef +
                                     "\tprivate String ";
-                            typeMethod = "String";
+                        }
+                        else if (prop.getInteiro() == 0) { // String sem tamanho definido
+                            propLine += ((!prop.isNullable()) ? ", nullable = false" : "") + ")\r\n" +
+                                    "\tprivate String ";
                         }
                         else {
                             propLine += ((!prop.isNullable()) ? ", nullable = false" : "") + ")\r\n" +
-                                    jsonViewRef +
                                     "\tprivate Character ";
-                            typeMethod = "Character";
                         }
                         break;
 
                     case DATE:
                         propLine = "@Temporal(TemporalType.DATE) " + propLine + ((!prop.isNullable()) ? ", nullable = false" : "") + ")\r\n" +
-                                jsonViewRef +
                                 "\tprivate Calendar ";
-                        typeMethod = "Calendar";
                         break;
 
                     case TIMESTAMP:
                         propLine = "@Temporal(TemporalType.TIMESTAMP) " + propLine + ((!prop.isNullable()) ? ", nullable = false" : "") + ")\r\n" +
-                                jsonViewRef +
                                 "\tprivate Calendar ";
-                        typeMethod = "Calendar";
                         break;
 
                     case ACS_DATE_TIME:
@@ -361,37 +360,27 @@ public class GerarBackEnd implements IGerador {
                                 "@Column(name = \"offset_" + prop.getName() + "\"" + ((!prop.isNullable()) ? ", nullable = false" : "") + ")," +
                                 "@Column(name = \"" + prop.getName() + "\"" + ((!prop.isNullable()) ? ", nullable = false" : "") + ") " +
                                 "})\r\n" +
-                                jsonViewRef +
                                 "\tprivate AcsDateTime ";
-                        typeMethod = "AcsDateTime";
                         break;
 
                     case DECIMAL:
                         propLine += ", columnDefinition=\"numeric(" + prop.getInteiro() + "," + prop.getDecimal() + ")\"" + ((!prop.isNullable()) ? ", nullable = false" : "") + ")\r\n" +
-                                jsonViewRef +
                                 "\tprivate BigDecimal ";
-                        typeMethod = "BigDecimal";
                         break;
 
                     case SHORT:
                         propLine += ((!prop.isNullable()) ? ", nullable = false" : "") + ")\r\n" +
-                                jsonViewRef +
                                 "\tprivate Short ";
-                        typeMethod = "Short";
                         break;
 
                     case LONG:
                         propLine += ((!prop.isNullable()) ? ", nullable = false" : "") + ")\r\n" +
-                                jsonViewRef +
                                 "\tprivate Long ";
-                        typeMethod = "Long";
                         break;
 
                     case TEXT:
                         propLine += ((!prop.isNullable()) ? ", nullable = false" : "") + ")\r\n" +
-                                jsonViewRef +
                                 "\tprivate String ";
-                        typeMethod = "String";
                         break;
 
                     case AUDITORIA:
@@ -401,19 +390,12 @@ public class GerarBackEnd implements IGerador {
                     default:
                     case NUMERO:
                         propLine += ((!prop.isNullable()) ? ", nullable = false" : "") + ")\r\n" +
-                                jsonViewRef +
                                 "\tprivate Integer ";
-                        typeMethod = "Integer";
                         break;
                 }
 
-                properties += "\t" + propLine + prop.getVariableName() + ";\r\n";
+                properties += propLine + prop.getVariableName() + ";\r\n\r\n";
             }
-
-            // Getters and Setters !!
-            if (!getterAndSetter.equals("")) getterAndSetter += "\r\n";
-
-            getterAndSetter += parseToGetAndSet(typeMethod, prop.getVariableName());
         }
 
         /////////////////////////////////////////////////////////////////////////////////
@@ -433,7 +415,7 @@ public class GerarBackEnd implements IGerador {
                 "/** ********************************************** \r\n" +
                 " * Classe criada AUTOMATICAMENTE a partir do programa 'CriarEntidadesACS'\r\n" +
                 " ** ********************************************** */\r\n" +
-                "@Entity\r\n" +
+                "@Entity @Data @EqualsAndHashCode(callSuper = true)\r\n" +
                 "@Table(" + tableDefinitions + ")\r\n" +
                 ((!pkClassComposto.equals("")) ? pkClassComposto : "") +
                 typeDefAcsDate +
@@ -448,10 +430,6 @@ public class GerarBackEnd implements IGerador {
                 "	//region ################ PROPERTIES ################\r\n" +
                 properties +
                 " \t//endregion" + "\r\n" +
-                "\r\n" +
-                "	//region ################ GETTERs AND SETTERs ################\r\n" +
-                getterAndSetter +
-                "\t//endregion" + "\r\n" +
                 "\r\n" +
                 "     @Override" + "\r\n" +
                 "     public Class<?> getViewJson() { " + "\r\n" +
@@ -630,7 +608,6 @@ public class GerarBackEnd implements IGerador {
         String path = GerarBackEnd.mainPath + "repository\\filter\\";
 
         String properties = "";
-        String getterAndSetter = "";
         String fetch = "";
         String join = "";
         String predicates = "";
@@ -646,10 +623,6 @@ public class GerarBackEnd implements IGerador {
 
                 if (predicates.equals("") == false) predicates += "\r\n";
                 predicates += parseJoinToPredicate(prop.getVariableName());
-
-                // Getters and Setters !!
-                if (getterAndSetter.equals("") == false) getterAndSetter += "\r\n";
-                getterAndSetter += parseToGetAndSet("Integer", varName);
             }
         }
 
@@ -667,18 +640,16 @@ public class GerarBackEnd implements IGerador {
                 "import org.apache.commons.lang3.StringUtils;\r\n" +
                 "\r\n" +
                 "import com.innovaro.acs.model." + options.entityName + ";\r\n" +
+                "import lombok.Data;\r\n" +
+                "import lombok.EqualsAndHashCode;\r\n" +
                 "\r\n" +
                 "/** ********************************************** \r\n" +
                 " * Classe criada AUTOMATICAMENTE a partir do programa 'CriarEntidadesACS'\r\n" +
                 " ** ********************************************** */\r\n" +
+                "@Data @EqualsAndHashCode(callSuper = false)\r\n" +
                 "public class " + options.entityName + "Filter extends AbstractFilter<" + options.entityName + "> {\r\n" +
                 "	//region ##################### PROPERTIES ############################\r\n" +
                 properties +
-                "\t//endregion" + "\r\n" +
-                "\r\n" +
-
-                "	//region ################### GETTERs AND SETTERs #####################\r\n" +
-                getterAndSetter +
                 "\t//endregion" + "\r\n" +
                 "\r\n" +
 
@@ -710,6 +681,7 @@ public class GerarBackEnd implements IGerador {
 
         Utils.writeContentTo(path + options.entityName + "Filter.java", classBody);
         System.out.println("Generated Entity '" + options.entityName + "Filter' into '" + path + "'");
+        System.out.println("-----------------------------------------------");
     }
 
     private void gerarRepositoryQuery(GenOptions options) throws IOException {
@@ -729,6 +701,7 @@ public class GerarBackEnd implements IGerador {
 
         Utils.writeContentTo(path + options.entityName + "RepositoryQuery.java", classBody);
         System.out.println("Generated Entity '" + options.entityName + "RepositoryQuery' into '" + path + "'");
+        System.out.println("-----------------------------------------------");
     }
 
     private void gerarRepositoryImpl(GenOptions options) throws IOException {
@@ -749,6 +722,7 @@ public class GerarBackEnd implements IGerador {
 
         Utils.writeContentTo(path + options.entityName + "RepositoryImpl.java", classBody);
         System.out.println("Generated Entity '" + options.entityName + "RepositoryImpl' into '" + path + "'");
+        System.out.println("-----------------------------------------------");
     }
 
     private void gerarRepository(GenOptions options) throws IOException {
@@ -779,6 +753,7 @@ public class GerarBackEnd implements IGerador {
 
         Utils.writeContentTo(path + options.entityName + "Repository.java", classBody);
         System.out.println("Generated Entity '" + options.entityName + "Repository' into '" + path + "'");
+        System.out.println("-----------------------------------------------");
     }
 
     private void gerarResource(GenOptions options) throws IOException {
@@ -792,7 +767,8 @@ public class GerarBackEnd implements IGerador {
         if (options.getModelGenerator() != null) {
             classBody = getResourceClassBodyFromModelGenerator(options);
 
-        } else {
+        }
+        else {
             boolean pkClass = options.generateEmpresaEntity;
             boolean serviceClass = options.generateResourceService;
             if (serviceClass)
@@ -919,6 +895,7 @@ public class GerarBackEnd implements IGerador {
 
         Utils.writeContentTo(path + options.entityName + "Resource.java", classBody);
         System.out.println("Generated Entity '" + options.entityName + "Resource' into '" + path + "'");
+        System.out.println("-----------------------------------------------");
     }
 
     private String getResourceClassBodyFromModelGenerator(GenOptions options) throws IOException {
@@ -1074,6 +1051,9 @@ public class GerarBackEnd implements IGerador {
         String classBody = "package com.innovaro.acs.resource;\r\n" +
                 "\r\n" +
                 imports +
+                "import static com.innovaro.acs.security.AcsAuthConsts.HAS_AUTHORITY_ACESSAR_" + options.accessAlias + ";\r\n" +
+                "import static com.innovaro.acs.security.AcsAuthConsts.HAS_AUTHORITY_INCLUIR_" + options.accessAlias + ";\r\n" +
+                "import static com.innovaro.acs.security.AcsAuthConsts.HAS_AUTHORITY_ALTERAR_" + options.accessAlias + ";\r\n" +
                 "\r\n" +
                 "/** ********************************************** \r\n" +
                 " * Classe criada AUTOMATICAMENTE a partir do programa 'CriarEntidadesACS'\r\n" +
@@ -1089,14 +1069,14 @@ public class GerarBackEnd implements IGerador {
                 "\t" + "\r\n" +
                 "\t" + "// @Transactional\r\n" +
                 "\t" + "@GetMapping()\r\n" +
-                "\t" + "// @PreAuthorize(\"hasAuthority('ACESSAR " + options.accessAlias + "')\")\r\n" +
+                "\t" + "// @PreAuthorize(HAS_AUTHORITY_ACESSAR_"+ options.accessAlias + ")\r\n" +
                 "\t" + "public Page<" + options.entityName + "> search(" + options.entityName + "Filter filter, Pageable pageable, String orderBy) {\r\n" +
                 "\t\t" + "return super.search(filter, pageable, orderBy);\r\n" +
                 "\t" + "}\r\n" +
                 "\r\n" +
                 "\t" + "// @Transactional\r\n" +
                 "\t" + "@GetMapping(value = {\"/max/{atributo}\"}, produces = MediaType.APPLICATION_JSON_VALUE)\r\n" +
-                "\t" + "// @PreAuthorize(\"hasAuthority('ACESSAR " + options.accessAlias + "')\")\r\n" +
+                "\t" + "// @PreAuthorize(HAS_AUTHORITY_ACESSAR_"+ options.accessAlias + ")\r\n" +
                 "\t" + "public String max(@PathVariable String atributo, " + options.entityName + "Filter filter) {\r\n" +
                 "\t\t" + "return super.max(atributo, filter);\r\n" +
                 "\t" + "}\r\n" +
@@ -1105,7 +1085,7 @@ public class GerarBackEnd implements IGerador {
                 // ******* LISTING *******
                 "\t" + "@Transactional\r\n" +
                 "\t" + "@GetMapping(\"/list\")\r\n" +
-                "\t" + "// @PreAuthorize(\"hasAuthority('ACESSAR " + options.accessAlias + "')\")\r\n" +
+                "\t" + "// @PreAuthorize(HAS_AUTHORITY_ACESSAR_"+ options.accessAlias + ")\r\n" +
                 "\t" + "public Page<Map<String,?>> searchListar(" + options.entityName + "Filter filter, Pageable pageable) {\r\n" +
                 listGroupBy +
                 "\t\t" + "\r\n" +
@@ -1118,7 +1098,7 @@ public class GerarBackEnd implements IGerador {
 
                 // ******* GET BY ID *******
                 "\t" + "@GetMapping(\"/" + byIdMapping + "\")\r\n" +
-                "\t" + "// @PreAuthorize(\"hasAuthority('ACESSAR " + options.accessAlias + "')\")\r\n" +
+                "\t" + "// @PreAuthorize(HAS_AUTHORITY_ACESSAR_"+ options.accessAlias + ")\r\n" +
                 "\t" + "public ResponseEntity<" + options.entityName + "> findById(" + byIdAssign + ") {\r\n" +
                 "\t\t" + "return ResponseEntity.ok().body(service.findOne(id));\r\n" +
                 "\t" + "}\r\n" +
@@ -1129,7 +1109,7 @@ public class GerarBackEnd implements IGerador {
 
                 // -------------- METODO CREATE --------------
                 "\t" + "@PostMapping(\"" + createMapping + "\")\r\n" +
-                "\t" + "@PreAuthorize(\"hasAuthority('INCLUIR " + options.accessAlias + "')\")\r\n" +
+                "\t" + "@PreAuthorize(HAS_AUTHORITY_INCLUIR_"+ options.accessAlias + ")\r\n" +
                 "\t" + "public ResponseEntity<" + options.entityName + "> create(" + createAssign + "@Valid @RequestBody " + options.entityName + " model, HttpServletResponse response) {\r\n" +
                 createModelSalvo +
                 "\r\n" +
@@ -1140,7 +1120,7 @@ public class GerarBackEnd implements IGerador {
 
                 // -------------- METODO UPDATE --------------
                 "\t" + "@PutMapping(\"/" + byIdMapping + "\")\r\n" +
-                "\t" + "@PreAuthorize(\"hasAuthority('ALTERAR " + options.accessAlias + "')\")\r\n" +
+                "\t" + "@PreAuthorize(HAS_AUTHORITY_ALTERAR_"+ options.accessAlias + ")\r\n" +
                 "\t" + "public ResponseEntity<" + options.entityName + "> update(" + byIdAssign + ", @Valid @RequestBody " + options.entityName + " model) {\r\n" +
                 updateModelSalvo +
                 "\r\n" +
@@ -1151,7 +1131,7 @@ public class GerarBackEnd implements IGerador {
                 // -------------- METODO DELETE --------------
                 "\t" + "@DeleteMapping(\"/" + byIdMapping + "\")\r\n" +
                 "\t" + "@ResponseStatus(HttpStatus.NO_CONTENT)\r\n" +
-                "\t" + "@PreAuthorize(\"hasAuthority('ALTERAR " + options.accessAlias + "')\")\r\n" +
+                "\t" + "@PreAuthorize(HAS_AUTHORITY_ALTERAR_"+ options.accessAlias + ")\r\n" +
                 "\t" + "public void delete(" + byIdAssign + ") {\r\n" +
                 "\t\t" + "service.delete(" + modelFind + ");\r\n" +
                 "\t" + "}\r\n" +
@@ -1308,6 +1288,7 @@ public class GerarBackEnd implements IGerador {
 
         Utils.writeContentTo(path + options.entityName + "Service.java", classBody);
         System.out.println("Generated Entity '" + options.entityName + "Service' into '" + path + "'");
+        System.out.println("-----------------------------------------------");
     }
 
     private void gerarClassServiceFromList(GenOptions options) throws IOException {
@@ -1351,6 +1332,7 @@ public class GerarBackEnd implements IGerador {
 
         Utils.writeContentTo(path + options.entityName + "Service.java", classBody);
         System.out.println("Generated Entity '" + options.entityName + "Service' into '" + path + "'");
+        System.out.println("-----------------------------------------------");
     }
 
     // #############################################################################
@@ -1366,6 +1348,7 @@ public class GerarBackEnd implements IGerador {
         if (Utils.isAuditionMode()) {
             System.out.println("PATH     => '" + pathToFile + "'");
             System.out.println("New LINE => '" + newLine + "'");
+            System.out.println("-----------------------------------------------");
             return;
         }
 

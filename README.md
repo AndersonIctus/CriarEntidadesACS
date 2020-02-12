@@ -12,11 +12,11 @@ _____________________________
 # Geração do Artefato (CriarEntidadesACS.jar)
 Após baixar o repositório, para gerar o Artefato, na pasta do Diretorio criado (CriarEntidaesACS) execute o código MAVEN:
 ```     
-     $ mvnw package
+$ mvnw package
 ```     
 O arquivo será gerado em ./target/RELEASE/CriarEntidadesACS.jar.
 
-    Então esse arquivo deve ser movido para dentro Pasta do Back do Gerente Web
+Então esse arquivo deve ser movido para dentro Pasta do Back do Gerente Web
 _____________________________
 # Como Utilizar #
 Essas são as opções dentro do executável:
@@ -30,7 +30,6 @@ Essas são as opções dentro do executável:
 FLAGS:
 -----------------------------------
  -noGenerateModel [ou -noGM]               Indica que a classe modelo não deve ser gerada.
- -generateEmpresaEntity [ou -genEmp]       Gera as classes considerando a empresa como Chave da entidade.
  -onlyBackEnd [ou -back]                   Gera somente os arquivos de BACK - END.
  -onlyModel [ou -model]                    Gera somente os arquivos de Modelo.
  -onlyFrontEnd [ou -front]                 Gera somente os arquivos de FRONT - END.
