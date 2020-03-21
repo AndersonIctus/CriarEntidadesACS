@@ -3,11 +3,11 @@ package main;
 public class TesteModelGenerator {
 	public static void main(String[] args) {
 		Principal.main(
-				"-mf", "./sync_notas.txt",
+				"-mf", "./itens_venda.txt",
 //				"-moduleestoques\\compra-diversos\\criar-editar-compra-diversos",
 //				"-front-baseitens-compra",
-				"-back",
-//				"-model",
+				"-front",
+				"-model",
 				"-audit"
 		);
 		// Principal.main("-test");

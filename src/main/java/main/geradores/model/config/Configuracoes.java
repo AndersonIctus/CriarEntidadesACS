@@ -32,21 +32,54 @@ public class Configuracoes {
             "		\"front\": \"../front/src/app/\" " + "\r\n" +
             "	}, " + "\r\n" +
             "    \"classes_normalizadas\" : { " + "\r\n" +
+            "      \"ABASTECIMENTOS\": \"Abastecimento\"," + "\r\n" +
             "      \"ABERTURAS\": \"Abertura\"," + "\r\n" +
+            "      \"AUTORIZADOS_NFE\": \"AutorizadoNfe\"," + "\r\n" +
+            "      \"CODIGOS_BANDEIRAS_STATIX\": \"CodigoBandeiraStatix\"," + "\r\n" +
+            "      \"COEFICIENTES_ABASTECIMENTO\": \"CoeficienteAbastecimento\"," + "\r\n" +
+            "      \"COMBOS_VENDA\": \"ComboVenda\"," + "\r\n" +
+            "      \"COMPONENTES_VENDA\": \"ComponenteVenda\"," + "\r\n" +
             "      \"CONCENTRADORES\": \"Concentrador\"," + "\r\n" +
+            "      \"CONCILIACOES_CARTOES\": \"ConciliacaoCartao\"," + "\r\n" +
+            "      \"CONTAGENS\": \"Contagem\"," + "\r\n" +
+            "      \"CUPONS_NOTA\": \"CupomNota\"," + "\r\n" +
             "      \"DATAS_ABERTURAS\": \"DataAbertura\"," + "\r\n" +
+            "      \"DESPESAS_FATURA\": \"DespesaFatura\"," + "\r\n" +
             "      \"DEVOLUCOES\": \"Devolucao\"," + "\r\n" +
+            "      \"DIGITAIS_CLIENTES\": \"DigitalCliente\"," + "\r\n" +
+            "      \"ENVIOS_EMAILS\": \"EnvioEmail\"," + "\r\n" +
             "      \"FORNECEDORES\": \"Fornecedor\"," + "\r\n" +
+            "      \"INUTILIZACOES\": \"Inutilizacao\"," + "\r\n" +
             "      \"ITENS_COMBO\": \"ItemCombo\"," + "\r\n" +
             "      \"ITENS_COMPRA\": \"ItemCompra\"," + "\r\n" +
+            "      \"ITENS_CONTAGEM\": \"ItemContagem\"," + "\r\n" +
             "      \"ITENS_DEVOLUCOES\": \"ItemDevolucao\"," + "\r\n" +
+            "      \"ITENS_NOTA\": \"ItemNota\"," + "\r\n" +
+            "      \"ITENS_RECEBIMENTO\": \"ItemRecebido\"," + "\r\n" +
             "      \"ITENS_TRANSF_DIV\": \"ItemTransferenciaDiverso\"," + "\r\n" +
+            "      \"ITENS_VENDA\": \"ItemVenda\"," + "\r\n" +
+            "      \"MANIFESTO_NOTAS\": \"ManifestoNota\"," + "\r\n" +
+            "      \"MANUTENCAO_BOMBAS\": \"ManutencaoBomba\"," + "\r\n" +
             "      \"MFES\": \"MFE\"," + "\r\n" +
+            "      \"MOVIMENTO_CAIXA\": \"MovimentoCaixa\"," + "\r\n" +
+            "      \"MUNICIPIOS_DIEF_PA\": \"MunicipioDiefPa\"," + "\r\n" +
             "      \"NOTAS_FISCAIS\": \"NotaFiscal\"," + "\r\n" +
+            "      \"PARAMETROS_RELATORIOS\": \"ParametroRelatorio\"," + "\r\n" +
             "      \"PDVS\": \"PDV\"," + "\r\n" +
             "      \"PLANO_CONTAS\": \"PlanoContas\"," + "\r\n" +
             "      \"POS\": \"POS\"," + "\r\n" +
-            "      \"TRANSF_DIV\": \"TransferenciaDiverso\"" + "\r\n" +
+            "      \"PRECOS_TURNO\": \"PrecoTurno\"," + "\r\n" +
+            "      \"PRESTACOES\": \"Prestacao\"," + "\r\n" +
+            "      \"PRESTACOES_RECEBIMENTOS\": \"PrestacaoRecebimento\"," + "\r\n" +
+            "      \"RECARGAS\": \"Recarga\"," + "\r\n" +
+            "      \"RESTITUICAO_FATURAS\": \"RestituicaoFatura\"," + "\r\n" +
+            "      \"RET_FISCAL_VENDAS\": \"RetFiscalVenda\"," + "\r\n" +
+            "      \"SALDO_ICMS\": \"SaldoIcms\"," + "\r\n" +
+            "      \"SALDO_MES\": \"SaldoMes\"," + "\r\n" +
+            "      \"SALDO_PIS_COFINS\": \"SaldoPisCofins\"," + "\r\n" +
+            "      \"TRANSF_DIV\": \"TransferenciaDiverso\"," + "\r\n" +
+            "      \"VENDAS\": \"Venda\"," + "\r\n" +
+            "      \"XML_VENDAS\": \"XmlVenda\"" + "\r\n" +
             "    } " + "\r\n" +
             "  } " + "\r\n" +
             "}";
