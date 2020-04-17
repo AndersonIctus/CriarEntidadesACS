@@ -3,6 +3,7 @@ package main.geradores;
 import main.geradores.model.ModelGenerator;
 import main.geradores.model.config.Configuracoes;
 import main.geradores.model.utils.Property;
+import main.geradores.report.ReportGenerator;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -29,8 +30,12 @@ public class GenOptions {
     public boolean fullFrontEnd = false; // Flag para indicar que se deve gerar todo o front end será gerado !
     public String mainBack = null;
     public String mainFront = null;
+
     private ModelGenerator modelGenerator;
+    private ReportGenerator reportGenerator;
     private List<Property> lsOptionsKeys;
+
+    private boolean optionReport = false;
 
     public GenOptions(String entityName) {
         this.entityName = entityName;
@@ -79,8 +84,6 @@ public class GenOptions {
                 + "# modelFile       -> '" + ((modelFile == null) ? "<modelo padrão>" : modelFile) + "' \r\n"
                 + "###### Flags: \r\n"
                 + "# generateModel -> '" + generateModel + "' \r\n"
-                + "# genEmpEntity  -> '" + generateEmpresaEntity + "' \r\n"
-                + "# genResService -> '" + generateResourceService + "' \r\n"
                 + "# onlyBackEnd   -> '" + onlyBackEnd + "' \r\n"
                 + "# onlyFrontEnd  -> '" + onlyFrontEnd + "' \r\n"
                 + "# fullFrontEnd  -> '" + fullFrontEnd + "' \r\n"
@@ -95,8 +98,16 @@ public class GenOptions {
         modelGenerator = new ModelGenerator(this.modelFile);
     }
 
+    public void generateReportScript() throws IOException {
+        reportGenerator = new ReportGenerator(this.modelFile);
+    }
+
     public ModelGenerator getModelGenerator() {
         return modelGenerator;
+    }
+
+    public ReportGenerator getReportGenerator() {
+        return reportGenerator;
     }
 
     public List<Property> getOptionsKeys() {
@@ -112,5 +123,13 @@ public class GenOptions {
 
     public boolean isComposto() {
         return this.lsOptionsKeys.size() > 1;
+    }
+
+    public void setOptionReport(boolean optionReport) {
+        this.optionReport = optionReport;
+    }
+
+    public boolean isOptionReport() {
+        return this.optionReport;
     }
 }

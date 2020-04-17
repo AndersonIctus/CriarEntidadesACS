@@ -31,3 +31,9 @@ build/
 .vscode/
 /test-script.txt
 /CriarEntidadesConfiguracoes.txt
+/ConstDiretoriosRelatorios.java
+/inutilizacoes.txt
+/itens_venda.txt
+/RelatorioOperacionalService.java
+/RelatorioResource.java
+/report-base.json

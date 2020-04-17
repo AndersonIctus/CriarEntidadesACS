@@ -31,7 +31,8 @@ public class Principal {
             }
 
             if (args[0].equalsIgnoreCase("-generate") || args[0].equalsIgnoreCase("-g") ||
-                    args[0].equalsIgnoreCase("-modelFile") || args[0].equalsIgnoreCase("-mf")) {
+                    args[0].equalsIgnoreCase("-modelFile") || args[0].equalsIgnoreCase("-mf") ||
+                    args[0].equalsIgnoreCase("-report") || args[0].equalsIgnoreCase("-rt") ) {
                 GeradorDeEntidades.gerarEntidadeFrom(args);
             } else {
                 printOpcoes();
@@ -52,6 +53,7 @@ public class Principal {
         opcoes += "-> Utilize uma das diretivas \r\n"
                 + "\t\t-generate [ou -g] <nomeEntidade> [flags ou options] \tpara gerar as classes para essa entidade !\r\n"
                 + "\t\t-modelFile [ou -mf] <path_to_file> [flags ou options] \t Arquivo SCRIPT que pode ser usado como base para a criação do Modelo.\r\n"
+                + "\t\t-report [ou -rt] <path_to_file> [flags ou options] \t Arquivo para ser usado como base para a criação dos Arquivos de Relatório.\r\n"
                 + "\r\n"
 
                 + "FLAGS: \r\n"
@@ -62,6 +64,7 @@ public class Principal {
                 + " -onlyFrontEnd [ou -front] \t\t\t\t Gera somente os arquivos de FRONT - END.\r\n"
                 + " -fullFrontEnd [ou -ffe] \t\t\t\t Gera todos os arquivos no FRONT - END.\r\n"
                 + " -parseScript [ou -ps] \t\t\t\t Faz um Novo Arquivo de Scripting para ser usado como base na geração dos modelos.\r\n"
+                + " -mount [ou -mt] \t\t\t\t Usado para gerar um arquivo de base para ser usado nos relatórios.\r\n"
                 + " -auditionMode [ou -audit] \t\t\t\t Nao faz geracoes, so imprime o resultado em tela (Modo Audição de Teste).\r\n"
                 + "\r\n"
 

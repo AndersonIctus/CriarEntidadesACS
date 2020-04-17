@@ -1,0 +1,13 @@
+{
+  "name": "teste_padroes",
+  "title": "REPORT PADRAO",
+  "reportType": "operacional",
+  "role": { "code": 1, "description": "role padrao" },
+  "properties": [
+    { "name": "idEmpresa", "type": "Integer", "value": 0, "required": true },
+    { "name": "dataInicial", "type": "AcsDateTime", "required": true },
+    { "name": "dataFinal", "type": "AcsDateTime" },
+    { "name": "tipoRelatorio", "type": "String", "value": "\"CORPO\"" },
+    { "name": "mostraNumeros", "type": "Boolean", "value": false }
+  ]
+}

@@ -1,4 +1,4 @@
-package main.geradores.impl;
+package main.geradores.model.impl;
 
 import main.geradores.GenOptions;
 import main.geradores.IGerador;
@@ -35,7 +35,8 @@ public class GerarFrontEnd implements IGerador {
 
         if (options.onlyBackEnd) {
             System.out.println("Pulando a geração dos arquivos para o FrontEnd ...");
-        } else {
+        }
+        else {
             if (options.generateModel) {
                 gerarModelo(options);
                 gerarServico(options);

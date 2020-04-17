@@ -1,4 +1,4 @@
-package main.geradores.impl;
+package main.geradores.model.impl;
 
 import main.geradores.GenOptions;
 import main.geradores.IGerador;

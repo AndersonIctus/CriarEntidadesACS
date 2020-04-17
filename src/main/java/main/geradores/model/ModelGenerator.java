@@ -26,13 +26,13 @@ public class ModelGenerator {
         List<MyMatching> lsMatch = Files.lines(Paths.get(pathToFile))
                 .map(line -> {
                     String[] patterns = Arrays.asList(
-                            "CREATE TABLE[\\s]+[Pp][Uu][Bb][Ll][Ii][Cc].",
-                            "CREATE TABLE",
-                            "CREATE INDEX",
+                            "CREATE [Tt][Aa][Bb][Ll][Ee][\\s]+[Pp][Uu][Bb][Ll][Ii][Cc].",
+                            "CREATE [Tt][Aa][Bb][Ll][Ee]",
+                            "CREATE [Ii][Nn][Dd][Ee][Xx]",
                             "CREATE SEQUENCE ([\\w\\s\\n\\.])+",           // SEQUENCE
                             "CACHE [0-9\\s]+;",                            // FINAL SEQUENCE
                             "ALTER TABLE [A-Za-z0-9_]+ ADD CONSTRAINT",    // CONSTRAINT (do alter table)
-                            "ALTER TABLE",                                 // ALTER TABLE
+                            "ALTER [Tt][Aa][Bb][Ll][Ee]",                  // ALTER TABLE
                             "NOT NULL",
                             "UNIQUE",
                             "FOREIGN KEY",

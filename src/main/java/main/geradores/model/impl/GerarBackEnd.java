@@ -1,4 +1,4 @@
-package main.geradores.impl;
+package main.geradores.model.impl;
 
 import main.geradores.GenOptions;
 import main.geradores.IGerador;
@@ -33,7 +33,8 @@ public class GerarBackEnd implements IGerador {
 
         if (options.onlyFrontEnd) {
             System.out.println("Pulando a geração dos arquivos para o BackEnd ...");
-        } else {
+        }
+        else {
             if (options.generateModel) {
                 gerarModelo(options);
                 incluirViewClass(options);
@@ -1340,7 +1341,6 @@ public class GerarBackEnd implements IGerador {
         String pathToFile = options.mainBack;
 
         pathToFile += "model/jsonviews/Views.java";
-        // pathToFile = "./Views.java"; // REMOVER !!!
 
         String newLine = "    public static class " + options.entityName + "View extends AbstractClassView {}";
         String tmpFile = "./tmp.txt";

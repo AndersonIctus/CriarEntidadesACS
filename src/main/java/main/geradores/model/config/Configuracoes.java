@@ -23,7 +23,8 @@ public class Configuracoes {
 
     private Map<String, Object> configuracoes;
     private Gson g = new Gson();
-    // CONFIGURACOES PADRAO //
+
+    //region // ****** DADOS DAS CONFIGURACOES PADRAO ***** //
     private String CONF_PADRAO =
             "{ " + "\r\n" +
             "  \"configuracoes\" : { " + "\r\n" +
@@ -83,6 +84,7 @@ public class Configuracoes {
             "    } " + "\r\n" +
             "  } " + "\r\n" +
             "}";
+    //endregion
 
     @SuppressWarnings("unchecked")
     private Configuracoes() {

@@ -3,10 +3,14 @@ package main;
 import main.geradores.GenOptions;
 import main.geradores.IGerador;
 import main.geradores.Utils;
-import main.geradores.impl.GerarBackEnd;
-import main.geradores.impl.GerarFrontEnd;
-import main.geradores.impl.ParseScript;
 import main.geradores.model.ModelGenerator;
+import main.geradores.model.impl.GerarBackEnd;
+import main.geradores.model.impl.GerarFrontEnd;
+import main.geradores.model.impl.ParseScript;
+import main.geradores.report.ReportFileModel;
+import main.geradores.report.ReportGenerator;
+import main.geradores.report.impl.GerarReportBackEnd;
+import main.geradores.report.impl.GerarReportFrontEnd;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -19,8 +23,6 @@ import java.util.List;
  * @author Anderson Dourado Cunha
  */
 public class GeradorDeEntidades {
-    // private static String mainPath = ".\\src\\main\\java\\com\\innovaro\\acs\\";
-
     public static void gerarEntidadeFrom(String... args) throws IOException {
         final GenOptions options = new GenOptions(args[1]);
         boolean parsingScript = false; // Verifica se deve fazer primeiro o parsing do script para depois gerar o Back e o Front !!
@@ -44,7 +46,25 @@ public class GeradorDeEntidades {
             }
         }
 
-        // for (String param : args) {
+        // Caso tenha usado um Script para relatorio.
+        if (args[0].equalsIgnoreCase("-report") || args[0].equalsIgnoreCase("-rt")) {
+            if(args[1].equalsIgnoreCase("-mount") || args[1].equalsIgnoreCase("-mt")) {
+                gerarReportBase(); // Monta o Arquivo Padrão de report
+                return;
+            }
+
+            String pathFile = args[1];
+            if (Files.isRegularFile(Paths.get(pathFile), LinkOption.NOFOLLOW_LINKS)) {
+                options.modelFile = pathFile;
+                options.setOptionReport(true);
+
+                options.generateReportScript();
+            } else {
+                throw new IOException("Arquivo passado não encontrado !");
+            }
+        }
+
+        // -- Verificar os parametros passados -- //
         for (int i = 2; i < args.length; i++) {
             String param = args[i];
 
@@ -52,7 +72,7 @@ public class GeradorDeEntidades {
             // OPTIONS DE GERAÇÃO
             if (param.toLowerCase().startsWith("-r") && param.length() > 2) {
                 options.defaultRoute = param.substring(2);
-                if (hasFrontBaseDefined == false) {
+                if (!hasFrontBaseDefined) {
                     options.frontBaseFolder = param.substring(2);
                     options.frontBaseName = options.getFrontNameFrom(param.substring(2));
                 }
@@ -70,8 +90,8 @@ public class GeradorDeEntidades {
                 options.frontBaseName = options.getFrontNameFrom(param.substring(11));
                 hasFrontBaseDefined = true;
 
-                ////////////////////////////////////////////////////
-                // FLAGS DE GERAÇÃO
+            ////////////////////////////////////////////////////
+            // FLAGS DE GERAÇÃO
             } else if (param.equalsIgnoreCase("-nogeneratemodel") || param.equalsIgnoreCase("-nogm"))
                 options.generateModel = false;
             else if (param.equalsIgnoreCase("-generateempresaentity") || param.equalsIgnoreCase("-genemp"))
@@ -97,10 +117,11 @@ public class GeradorDeEntidades {
 
             options.entityName = mg.getClassName();
             options.entityTableName = mg.getTableName();
-            if (hasRouteDefined == false)
+            if (!hasRouteDefined) {
                 options.defaultRoute = mg.getDefaultRoute();
+            }
 
-            if (hasFrontBaseDefined == false) {
+            if (!hasFrontBaseDefined) {
                 options.frontBaseFolder = mg.getDefaultRoute();
                 options.frontBaseName = options.getFrontNameFrom(options.defaultRoute);
             }
@@ -109,22 +130,55 @@ public class GeradorDeEntidades {
                 options.accessAlias = options.entityTableName.toUpperCase();
             }
         }
+        else if(options.getReportGenerator() != null) {
+            ReportGenerator rg = options.getReportGenerator();
+
+            options.entityName = rg.getClassName();
+            options.entityTableName = rg.getReportName();
+            if (!hasRouteDefined) {
+                options.defaultRoute = rg.getDefaultRoute();
+            }
+
+            ReportFileModel reportModel = rg.getReportModel();
+            if (!hasFrontBaseDefined) {
+                options.frontModuleName = "report";
+
+                options.frontBaseFolder = reportModel.getReportType() + "/" + rg.getDefaultRoute();
+                options.frontBaseName = options.getFrontNameFrom(options.defaultRoute);
+            }
+
+            if (options.accessAlias == null) {
+                options.accessAlias = reportModel.getRole().getDescription().toUpperCase();
+            }
+        }
 
         if (options.accessAlias == null) {
             options.accessAlias = "ALIAS_PADRAO";
         }
 
         //--------------------------------- PARSING DE SCRIPT ---------------------------------//
-        if (parsingScript == true) {
+        if (parsingScript) {
             // Gera um novo MODEL SCRIPT para as opções passadas !!
             new ParseScript().gerarArquivos(options);
         }
 
         System.out.println(options.toString());
-        List<IGerador> geradores = Arrays.asList(
-                new GerarBackEnd(),
-                new GerarFrontEnd()
-        );
+        List<IGerador> geradores = null;
+
+        // Options para Gerador de Report
+        if( options.isOptionReport() ) {
+            geradores = Arrays.asList(
+                    new GerarReportBackEnd(),
+                    new GerarReportFrontEnd()
+            );
+        }
+        // Options para Gerador de Entidades
+        else {
+            geradores = Arrays.asList(
+                    new GerarBackEnd(),
+                    new GerarFrontEnd()
+            );
+        }
 
         for (IGerador ger : geradores) {
             ger.gerarArquivos(options);
@@ -132,6 +186,7 @@ public class GeradorDeEntidades {
         }
     }
 
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////
     private static void gerarArquivoTeste() {
         try {
             InputStream resource = GeradorDeEntidades.class.getClassLoader().getResourceAsStream("test-script.txt");
@@ -149,6 +204,28 @@ public class GeradorDeEntidades {
 
         } catch (Exception e) {
             throw new RuntimeException("Erro na geração do ARQUIVO DE TESTE", e);
+        }
+    }
+
+    private static void gerarReportBase() {
+        try {
+            InputStream resource = GeradorDeEntidades.class.getClassLoader().getResourceAsStream("report-base.json");
+            BufferedReader br = new BufferedReader(new InputStreamReader(resource));
+
+            PrintStream arquivo = new PrintStream("report-base.json");
+
+            String line = "";
+            while ((line = br.readLine()) != null) {
+                arquivo.println(line);
+            }
+
+            arquivo.close();
+            br.close();
+
+            System.out.println("## Arquivo padrão de Report criado!");
+
+        } catch (Exception e) {
+            throw new RuntimeException("Erro na geração do ARQUIVO BASE DE RELATORIO", e);
         }
     }
 }
