@@ -107,6 +107,7 @@ public class ReportFileModel {
         private String type;
         private String value;
         private Boolean required;
+        private PropertyFrontValue front;
 
         //region // ----------- GETTERs and SETTERs ----------- //
         public String getName() {
@@ -133,23 +134,80 @@ public class ReportFileModel {
             this.value = value;
         }
 
-        public Boolean getRequired() {
-            return required;
+        public Boolean isRequired() {
+            return (required == null)? false: required;
         }
 
         public void setRequired(Boolean required) {
             this.required = (required == null)? false : required;
+        }
+
+        public PropertyFrontValue getFront() {
+            return front;
+        }
+
+        public void setFront(PropertyFrontValue front) {
+            this.front = front;
         }
         //endregion
 
         public void normalizeValues() {
             setType(type);
             setRequired(required);
+
+            if(front == null) {
+                front = new ReportFileModel.ReportProperty.PropertyFrontValue();
+            }
+
+            if(front.getLabel() == null)
+                front.setLabel(name);
+            if(front.getType() == null)
+                front.setTypeByProperty(type);
         }
 
         @Override
         public String toString() {
-            return name + " [" + type + ", " + value + ", " + required + "]";
+            return name + " [" + type + ", " + value + ", " + required + "] " + front;
+        }
+
+        public static class PropertyFrontValue {
+            private String label;
+            private String type;
+
+            //region // ----------- GETTERs and SETTERs ----------- //
+            public String getLabel() {
+                return label;
+            }
+
+            public void setLabel(String label) {
+                this.label = label;
+            }
+
+            public String getType() {
+                return type;
+            }
+
+            public void setType(String type) {
+                this.type = type;
+            }
+            //endregion
+
+            public void setTypeByProperty(String propType) {
+                if(propType.equalsIgnoreCase("AcsDateTime")) {
+                    this.type = "DATE";
+                } else if(propType.equalsIgnoreCase("Boolean")) {
+                    this.type = "CHECKBOX";
+                } else {
+                    this.type = "INPUT";
+                }
+            }
+
+            @Override
+            public String toString() {
+                return "('" + label +"', '" + type + "')";
+            }
+
+
         }
     }
 }

@@ -143,7 +143,7 @@ public class GeradorDeEntidades {
             if (!hasFrontBaseDefined) {
                 options.frontModuleName = "report";
 
-                options.frontBaseFolder = reportModel.getReportType() + "/" + rg.getDefaultRoute();
+                options.frontBaseFolder = rg.getDefaultRoute();
                 options.frontBaseName = options.getFrontNameFrom(options.defaultRoute);
             }
 

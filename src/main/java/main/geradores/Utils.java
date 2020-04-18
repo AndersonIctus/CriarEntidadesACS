@@ -28,8 +28,13 @@ public class Utils {
         if (auditionMode == false) {
             new File(pathDirectory).mkdir();
         } else {
-            System.out.println("Arquivo gerado em: " + pathDirectory);
+            System.out.println("Diretório gerado em: " + pathDirectory + "\r\n");
         }
+    }
+
+    public static boolean isDirectory(String pathDirectory) throws IOException {
+        File file = new File(pathDirectory);
+        return file.isDirectory();
     }
 
     public static void aditionModeOn() {

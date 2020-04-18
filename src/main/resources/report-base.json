@@ -2,12 +2,13 @@
   "name": "teste_padroes",
   "title": "REPORT PADRAO",
   "reportType": "operacional",
-  "role": { "code": 1, "description": "role padrao" },
+  "role": { "code": 1, "description": "ROLE PADRAO DO RELATORIO" },
   "properties": [
-    { "name": "idEmpresa", "type": "Integer", "value": 0, "required": true },
-    { "name": "dataInicial", "type": "AcsDateTime", "required": true },
+    { "name": "idEmpresa", "type": "Integer", "value": 0, "required": true, "front": { "label": "Número de Ordem" } },
+    { "name": "dataInicial", "type": "AcsDateTime", "required": true, "front": { "label": "Período Inicial" } },
     { "name": "dataFinal", "type": "AcsDateTime" },
-    { "name": "tipoRelatorio", "type": "String", "value": "\"CORPO\"" },
-    { "name": "mostraNumeros", "type": "Boolean", "value": false }
+    { "name": "observacao", "type": "String", "value": "''", "front": { "label": "Período Inicial", "type": "textarea" } },
+    { "name": "tipoRelatorio", "type": "String", "value": "CORPO" },
+    { "name": "exibirNumeroPagina", "type": "Boolean", "value": true, "required": true, "front": { "label": "Exibir Números" } }
   ]
 }

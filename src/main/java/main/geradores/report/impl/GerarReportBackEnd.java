@@ -13,9 +13,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class GerarReportBackEnd implements IGerador {
     private static String mainPath = ".\\src\\main\\java\\com\\innovaro\\acs\\modulo\\relatorio\\";
@@ -67,10 +65,14 @@ public class GerarReportBackEnd implements IGerador {
         String parametersRequired = "";
 
         for(ReportFileModel.ReportProperty prop: reportGenerator.getReportModel().getProperties()) {
-            properties += "    private " + prop.getType() + " " + prop.getName();
-            if(!prop.getRequired()) {
+            properties += "    private " + getTypeByProperty(prop.getType()) + " " + prop.getName();
+            if(!prop.isRequired()) {
                 if(prop.getValue() != null) {
-                    properties += " = " + prop.getValue();
+                    if(prop.getType().equalsIgnoreCase("String")) {
+                        properties += " = \"" + prop.getValue() + "\"";
+                    } else {
+                        properties += " = " + prop.getValue();
+                    }
                 }
             }
             else {
@@ -312,6 +314,12 @@ public class GerarReportBackEnd implements IGerador {
     private String getReportServiceName(String reportType) {
         String type = reportType.substring(0, 1).toUpperCase() + reportType.substring(1);
         return "Relatorio" + type + "Service";
+    }
+
+    private String getTypeByProperty(String type) {
+        if(type.equalsIgnoreCase("SEARCH"))
+            return "Integer";
+        return type;
     }
 
     private void writeToFile(Path path, byte[] bytes, StandardOpenOption... append) throws IOException {
