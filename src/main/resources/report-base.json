@@ -1,10 +1,11 @@
 {
-  "name": "teste_padroes",
-  "title": "REPORT PADRAO",
-  "reportType": "operacional",
-  "role": { "code": 1, "description": "ROLE PADRAO DO RELATORIO" },
+  "name": "listagem_produtos",
+  "title": "Listar Produtos",
+  "reportType": "cadastro",
+  "role": "REL. LISTAGENS",
   "properties": [
-    { "name": "idEmpresa", "type": "Integer", "value": 0, "required": true, "front": { "label": "Número de Ordem" } },
+    { "name": "idEmpresa", "type": "Search", "entity": "Empresa", "value": 0, "required": true, "front": { "label": "Empresa" } },
+    { "name": "idCombustivel", "type": "Search", "entity": "ProdutoEmpresa", "front": { "label": "Combustível", "group": "combustivel" } },
     { "name": "dataInicial", "type": "AcsDateTime", "required": true, "front": { "label": "Período Inicial" } },
     { "name": "dataFinal", "type": "AcsDateTime" },
     { "name": "observacao", "type": "String", "value": "''", "front": { "label": "Período Inicial", "type": "textarea" } },

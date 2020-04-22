@@ -85,6 +85,8 @@ public class Principal {
                 + "* CriarEntidadesACS -generate Produto -rprodutos -eaPRODUTOS -etprodutos \r\n"
                 + "* CriarEntidadesACS -mf \"./meu-script.txt\" -ffe \r\n"
                 + "* CriarEntidadesACS -mf \"./meu-script.txt\" -modulemovimentos -front-baselivro-caixa -ffe -ea\"LIVRO CAIXA\" \r\n"
+                + "* CriarEntidadesACS -report -mount \r\n"
+                + "* CriarEntidadesACS -rt \"./report-base.json\" \r\n"
                 + "\r\n";
 
         System.out.println(opcoes);

@@ -42,7 +42,7 @@ public class GerarFrontEnd implements IGerador {
                 gerarServico(options);
             }
 
-            // Verifica se deve gerar todos arquivos mais do front end ou não !
+            // Verifica se deve gerar todos arquivos mais do front end ou não
             if (options.fullFrontEnd) {
                 if (options.frontModuleName.equalsIgnoreCase("cadastros")) {
                     GerarFrontEnd.mainPath += "cadastros\\" + options.frontBaseFolder + "\\";
@@ -80,7 +80,7 @@ public class GerarFrontEnd implements IGerador {
                 Utils.createDirectory(GerarFrontEnd.mainPath + "criar-editar-" + options.frontBaseFolder + "\\editar-" + options.frontBaseFolder);
                 gerarComponentEditar(options);
 
-                // Incluir o novo modulo no Routing Module Escolhido !!
+                // Incluir o novo modulo no Routing Module Escolhido
                 if (!options.frontModuleName.contains("\\")) { // So gera se não tiver sub-modulos
                     incluirCadastroModulo(options);
                 } else {
@@ -127,7 +127,7 @@ public class GerarFrontEnd implements IGerador {
             if (!writted) {
                 // 2 - Quando estiver lendo as ROTAS
                 //   2.1 - Verifica a ordem pelo nome do PATH e inclui a newLine no local certo
-                //   * Verificar se está no início ou no final do array de rotas !
+                //   * Verificar se está no início ou no final do array de rotas
                 if (line.startsWith("  { path:")) {
                     // 2.2 -> Verifica a Ordem alfabética
                     String[] tokens = line.split("'");
@@ -165,7 +165,7 @@ public class GerarFrontEnd implements IGerador {
     /////////////////////////////////////////////////////////////////////////////////
 
     private void gerarModelo(GenOptions options) throws IOException {
-        boolean pkClass = false; // options.generateEmpresaEntity;
+        boolean pkClass = false; // options.generateEmpresaEntity
 
         String path = GerarFrontEnd.mainPath + "model\\";
         String classBody = "";
@@ -230,7 +230,7 @@ public class GerarFrontEnd implements IGerador {
                 }
 
             } else if (prop.getType() == PropertyType.JOIN_COMPOSTO_CHAVE) { // joins compostos de chave
-                // JOINS COMPOSTO DE CHAVE não são representados como variáveis ou chave, somente sendo representdo no próprio BANCO !
+                // JOINS COMPOSTO DE CHAVE não são representados como variáveis ou chave, somente sendo representdo no próprio BANCO
             } else if (prop.isPrimaryKey()) { // pks
                 pks += "  " + prop.getVariableName() + ": " + normalizaTipoModel(prop.getType()) + ";\r\n";
             } else { // other properties

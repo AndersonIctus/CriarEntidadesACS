@@ -147,6 +147,7 @@ public class GerarReportBackEnd implements IGerador {
                 if( line.startsWith("    //") ) {
                     if(line.contains(reportType.toUpperCase())) {
                         iniciaBusca = true;
+                        writeToFile(Paths.get(tmpFile), (line + "\r\n").getBytes(StandardCharsets.UTF_8), StandardOpenOption.APPEND);
                         continue;
                     }
                 }
@@ -170,6 +171,9 @@ public class GerarReportBackEnd implements IGerador {
                 if (line.startsWith("}")) {
                     writted = true;
                     writeToFile(Paths.get(tmpFile), (newLine + "\r\n").getBytes(StandardCharsets.UTF_8), StandardOpenOption.APPEND);
+                } else if(iniciaBusca && line.trim().equals("") ) {
+                    writted = true;
+                    writeToFile(Paths.get(tmpFile), (newLine + "\r\n").getBytes(StandardCharsets.UTF_8), StandardOpenOption.APPEND);
                 }
             }
 
@@ -178,6 +182,10 @@ public class GerarReportBackEnd implements IGerador {
 
         Files.delete(readModule);
         new File(tmpFile).renameTo(new File(pathToFile));
+
+        System.out.println("Generated a linha '" + newLine);
+        System.out.println("Into '" + pathToFile + "'");
+        System.out.println("-----------------------------------------------");
     }
 
     private void includeResourceLine(GenOptions options) throws IOException {
@@ -186,9 +194,11 @@ public class GerarReportBackEnd implements IGerador {
 
         ReportGenerator reportGenerator = options.getReportGenerator();
         String reportType = reportGenerator.getReportModel().getReportType();
+        String role = options.accessAlias.toUpperCase().replaceAll("\\.", "").replaceAll(" ", "_");
 
         String newLine =
                 "    @GetMapping(\"/" + reportType + "/" + options.defaultRoute + "\")\r\n" +
+                "    @PreAuthorize(HAS_AUTHORITY_"+role+")\r\n" +
                 "    public ResponseEntity<Relatorio> report" + options.entityName + "(" + options.entityName + "FilterReport filter) {\r\n" +
                 "        return ResponseEntity.ok().body(service.gerarReport" + options.entityName + "(filter));\r\n" +
                 "    }\r\n";
@@ -240,11 +250,15 @@ public class GerarReportBackEnd implements IGerador {
 
          Files.delete(readModule);
          new File(tmpFile).renameTo(new File(pathToFile));
+
+        System.out.println("Generated a linha '" + newLine);
+        System.out.println("Into '" + pathToFile + "'");
+        System.out.println("-----------------------------------------------");
     }
 
     private void includeServiceLine(GenOptions options) throws IOException {
         String pathToFile = options.mainBack;
-        pathToFile += "modulo/relatorio/resource/";
+        pathToFile += "modulo/relatorio/service/";
 
         ReportGenerator reportGenerator = options.getReportGenerator();
         String reportName = "RELATORIO_" + reportGenerator.getReportName().toUpperCase();
@@ -309,6 +323,10 @@ public class GerarReportBackEnd implements IGerador {
 
         Files.delete(readModule);
         new File(tmpFile).renameTo(new File(pathToFile));
+
+        System.out.println("Generated a linha '" + newLine);
+        System.out.println("Into '" + pathToFile + "'");
+        System.out.println("-----------------------------------------------");
     }
 
     private String getReportServiceName(String reportType) {

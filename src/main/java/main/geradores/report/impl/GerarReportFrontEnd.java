@@ -54,11 +54,11 @@ public class GerarReportFrontEnd implements IGerador {
         System.out.println("===============================================");
     }
 
-    //region --- Funções para a criação do Modulo ---
+    //region // --- Funções para a criação do Modulo --- //
     private void gerarModule(GenOptions options) throws IOException {
         String path = mainPath;
         String domainName = options.getReportGenerator().getReportModel().getReportType();
-        String roleDescription = options.getReportGenerator().getReportModel().getRole().getDescription();
+        String roleDescription = options.getReportGenerator().getReportModel().getRole();
 
         // ----------------------- Creating Module
         String fileBody =
@@ -109,28 +109,35 @@ public class GerarReportFrontEnd implements IGerador {
         String domainName = reportModel.getReportType();
         String title = reportModel.getTitle();
 
+        // --------- Gerando Imports
         String imports =
-                "import { Component, OnInit } from '@angular/core';\r\n" +
-                "import { Validators } from '@angular/forms';\r\n" +
-                "\r\n" +
-                "import { RelatorioBaseComponent } from '../../shared/base/relatorio-base.component';\r\n" +
-                "import { RelatorioBaseService } from '../../shared/base/relatorio-base.service';\r\n" +
-                "\r\n" +
-                "import { AcsDateTime } from '../../../../shared/utils/AcsDateTime';\r\n" +
-                "import { Moment } from '../../../../shared/utils/Moment';\r\n";
+            "import { Component, OnInit, ViewChild } from '@angular/core';\r\n" +
+            "import { Validators } from '@angular/forms';\r\n" +
+            "\r\n" +
+            "import { DialogDesignModel } from '../../../../shared/components/dialogs/custom-dialog/DialogDesignModel';\r\n" +
+            "import { SearchDialogComponent, SearchResponseModel } from '../../../../shared/components/dialogs/search-dialog/search-dialog.component';\r\n" +
+            "import { Util } from '../../../../shared/utils/Util';\r\n" +
+            "\r\n"+
+            "import { RelatorioBaseComponent } from '../../shared/base/relatorio-base.component';\r\n" +
+            "import { RelatorioBaseService } from '../../shared/base/relatorio-base.service';\r\n" +
+            "\r\n" +
+            "import { AcsDateTime } from '../../../../shared/utils/AcsDateTime';\r\n" +
+            "import { Moment } from '../../../../shared/utils/Moment';\r\n";
 
         String bindProperties = "";
         String getParameters = "";
+        String atributesOpcoes = "";
         List<ReportFileModel.ReportProperty> searchProperties = new ArrayList<>();
 
+        // --------- Gerando os properties
         for(ReportFileModel.ReportProperty prop: reportModel.getProperties()) {
             // Properties ...
             String propLine = "";
             if(prop.getType().equalsIgnoreCase("SEARCH")) {
                 propLine = "" +
-                        "            " + prop.getName() + "_group: this.formBuilder.group({\r\n" +
-                        "                id: [''],\r\n" +
-                        "                descricao_" + prop.getName() + ": ['']\r\n" +
+                        "            " + prop.getFront().getGroup() + ": this.formBuilder.group({\r\n" +
+                        "                id: [''" + ((prop.isRequired())? ", Validators.required" : "") + "],\r\n" +
+                        "                descricao_" + prop.getFront().getGroup() + ": ['']\r\n" +
                         "            }),\r\n";
                 searchProperties.add(prop);
 
@@ -156,11 +163,119 @@ public class GerarReportFrontEnd implements IGerador {
             String paramLine = "        filterList.push(`" + prop.getName() + "=${"+getParamValue(prop)+"}`);";
             if(!prop.isRequired()) {
                 paramLine =
-                        "        if(this.formModel.get('" + prop.getName() + "').value !== '') {\r\n" +
+                        "        if("+getParamValue(prop)+" !== '') {\r\n" +
                         "    " + paramLine + "\r\n" +
                         "        }\r\n";
             }
             getParameters += paramLine + "\r\n";
+
+            if(prop.getFront().getType().equalsIgnoreCase("SELECT")) {
+                atributesOpcoes += getAtributeOpcao(prop);
+            }
+        }
+
+        if(!atributesOpcoes.equals("")) {
+            atributesOpcoes = "\r\n" + atributesOpcoes;
+        }
+
+        // --------- Gerando o openSearch
+        String openSearchDialog = "";
+        String entityService = "";
+        if(searchProperties.size() > 0) {
+            String importModels = "";
+            String importServices = "";
+
+            String searchIf = "";
+            String searchDialog = "" +
+                    "        this.searchDialog\r\n" +
+                    "          .showDialog()\r\n" +
+                    "          .subscribe((resp: SearchResponseModel) => {\r\n";
+            // for(ReportFileModel.ReportProperty prop : searchProperties) {
+            for (int i = 0; i < searchProperties.size(); i++) {
+                ReportFileModel.ReportProperty prop = searchProperties.get(i);
+                String label = prop.getFront().getLabel();
+                String group = prop.getFront().getGroup();
+                String entity = prop.getEntity();
+                String entityVariable = entity.substring(0, 1).toLowerCase() + entity.substring(1);
+
+                // ************ Faz o searchIf
+                if(i == 0) {
+                    searchIf += "        if(sourceControl === '" + group + "') {\r\n";
+                }
+                else {
+                    searchIf += "\r\n" +
+                            "        } else if(sourceControl === '" + group + "') {\r\n";
+                }
+
+                if(group.equals("empresa")) {
+                    searchIf += "" +
+                            "            const empresaDesign = [\r\n" +
+                            "                new DialogDesignModel('Razão Social', 'razaoSocial'),\r\n" +
+                            "                new DialogDesignModel('CNPJ', 'cnpj', false, 'cnpj', Util.formatCpfCnpj),\r\n" +
+                            "                new DialogDesignModel('UF', 'uf')\r\n" +
+                            "            ];\r\n" +
+                            "            this.searchDialog.changeSearchValues('PESQUISAR Empresas', 'empresa', empresaDesign, this.empresaService,\r\n" +
+                            "                            `/search`, `idUsuario=${this.usuario.id}&sort=razaoSocial`);\r\n";
+
+                } else {
+                    searchIf += "" +
+                        "            const " + group + "Design = [\r\n" +
+                        "                new DialogDesignModel('Id', '" + group + ".id'),\r\n" +
+                        "                new DialogDesignModel('Descrição', '" + group + ".descricao')\r\n" +
+                        "            ];\r\n" +
+                        "            this.searchDialog.changeSearchValues('PESQUISAR "+label+"', sourceControl, "+group+"Design, this."+entityVariable+"Service,\r\n" +
+                        "                            `/search`, ``);\r\n";
+                }
+
+                // ************ Faz o SearchDialog
+                if(i == 0) {
+                    searchDialog += "            if (resp.sourceControl === '"+group+"') {\r\n";
+                }
+                else {
+                    searchDialog += "\r\n" +
+                            "            } else if (resp.sourceControl === '"+group+"') {\r\n";
+                }
+
+                if(group.equals("empresa")) {
+                    searchDialog +=
+                        "                const result = resp.result as Empresa;\r\n" +
+                        "                this.formModel.get('empresa.id').setValue(result.id);\r\n" +
+                        "                this.formModel.get('empresa.descricao_empresa').setValue(`${result.razaoSocial} (${Util.formatCpfCnpj(result.cnpj)})`);\r\n";
+
+                } else {
+                    searchDialog +=
+                        "                const result = resp.result as " + entity + ";\r\n" +
+                        "                this.formModel.get('"+group+".id').setValue(result.id);\r\n" +
+                        "                this.formModel.get('"+group+".descricao_"+group+"').setValue(`${result.descricao}`);\r\n";
+                }
+
+                entityService += "        public "+entityVariable+"Service: "+entity+"Service,\r\n";
+
+                importModels += "import { " + entity + " } from '../../../../model/"+entity+"';\r\n";
+                importServices += "import { "+entity+"Service } from '../../../../services/"+entityVariable+".service';\r\n";
+            }
+
+            searchIf += "        }\r\n";
+            searchDialog += ""+
+                    "            }\r\n" +
+                    "        });\r\n";
+
+            openSearchDialog = "\r\n" +
+                    "    openSearchDialog(sourceControl: string) {\r\n" +
+                    "        if (this.formModel.disabled) return; // Sai se estiver desabilitado\r\n" +
+                    "\r\n" +
+                    "        this.searchDialog.modal_lg = false;\r\n" +
+                    searchIf +
+                    "\r\n" +
+                    searchDialog +
+                    "    }\r\n";
+
+            entityService += "\r\n";
+
+            imports += "\r\n" +
+                    importModels +
+                    "\r\n" +
+                    importServices;
         }
 
         // ----------------------- Creating Component
@@ -171,8 +286,11 @@ public class GerarReportFrontEnd implements IGerador {
                 "    templateUrl: './"+options.defaultRoute+".component.html'\r\n" +
                 "})\r\n" +
                 "export class "+options.frontBaseName+"Component extends RelatorioBaseComponent implements OnInit {\r\n" +
+                ((!openSearchDialog.equals(""))? "    @ViewChild('search_dialog') searchDialog: SearchDialogComponent;\r\n" : "") +
+                atributesOpcoes +
                 "    \r\n" +
                 "    constructor(\r\n" +
+                entityService +
                 "        public baseServices: RelatorioBaseService\r\n" +
                 "    ) { super(baseServices); }\r\n" +
                 "\r\n" +
@@ -196,6 +314,7 @@ public class GerarReportFrontEnd implements IGerador {
                 getParameters +
                 "        return filterList.join('&');\r\n" +
                 "    }\r\n" +
+                openSearchDialog +
                 "}\r\n";
 
         Utils.writeContentTo(path + options.defaultRoute + ".component.ts", fileBody);
@@ -220,9 +339,9 @@ public class GerarReportFrontEnd implements IGerador {
         }
 
         if(hasSearchProperty) {
-            posFormElements += "\r\n" +
+            posFormElements += "\r\n\r\n" +
                     "<!-- SEARCH DIALOGS -->\r\n" +
-                    "<dialogs_search class=\"search-relatorios-" + options.defaultRoute + "\" #search_dialog></dialogs_search>";
+                    "<dialogs_search class=\"search-relatorios-" + options.defaultRoute + "\" #search_dialog></dialogs_search>\r\n";
         }
 
         // ----------------------- Creating Component
@@ -274,7 +393,7 @@ public class GerarReportFrontEnd implements IGerador {
 
                     String token = line.substring(inicio, fin);
 
-                    int comp = domainName.compareTo(token);
+                    int comp = options.defaultRoute.compareTo(token);
                     if (comp < 0) {
                         writted = true;
                         writeToFile(Paths.get(tmpFile), (newLine + "\r\n").getBytes(StandardCharsets.UTF_8), StandardOpenOption.APPEND);
@@ -282,8 +401,7 @@ public class GerarReportFrontEnd implements IGerador {
                         writted = true;
                     }
                 }
-
-                if (line.startsWith("];")) {
+                else if (line.startsWith("];")) {
                     writted = true;
                     writeToFile(Paths.get(tmpFile), (newLine+"\r\n").getBytes(StandardCharsets.UTF_8), StandardOpenOption.APPEND);
                 }
@@ -294,10 +412,14 @@ public class GerarReportFrontEnd implements IGerador {
 
         Files.delete(readModule);
         new File(tmpFile).renameTo(new File(pathToFile));
+
+        System.out.println("Generated a linha '" + newLine);
+        System.out.println("Into '" + pathToFile + "'");
+        System.out.println("-----------------------------------------------");
     }
     //endregion
 
-    //region -- Funções para criação de Domínio ---
+    //region // --- Funções para criação de Domínio --- //
     private void createDomainFiles(GenOptions options) throws IOException {
         System.out.println("############## Gerando Arquivos de Domínio");
         gerarDomainModule(options);
@@ -405,6 +527,10 @@ public class GerarReportFrontEnd implements IGerador {
 
         Files.delete(readModule);
         new File(tmpFile).renameTo(new File(pathToFile));
+
+        System.out.println("Generated a linha '" + newLine);
+        System.out.println("Into '" + pathToFile + "'");
+        System.out.println("-----------------------------------------------");
     }
     //endregion
 
@@ -418,7 +544,7 @@ public class GerarReportFrontEnd implements IGerador {
         if(prop.getType().equalsIgnoreCase("AcsDateTime")) {
             ret = "Moment.format(" + ret + ")";
         } else if(prop.getType().equalsIgnoreCase("SEARCH")) {
-            ret = "this.formModel.get('"+ prop.getName() + "_group.id').value";
+            ret = "this.formModel.get('"+ prop.getFront().getGroup() + ".id').value";
         }
 
         return ret;
@@ -470,6 +596,16 @@ public class GerarReportFrontEnd implements IGerador {
             matElement = "\t" + "<textarea matInput formControlName=\"" + prop.getName() + "\" maxLength=\"250\" rows=\"3\"></textarea>" + "\r\n";
 
         }
+        else if(front.getType().equalsIgnoreCase("SELECT")) {
+            String opcoes = "opcoes" + prop.getName().substring(0,1).toUpperCase()+prop.getName().substring(1);
+
+            div = "<div class=\"form-group col-6 col-sm-4 col-md-3 col-lg-2\">";
+            matFormFieldInner = "<mat-form-field appearance=\"fill\">";
+
+            matElement = "\t"  + "<mat-select formControlName=\"" + prop.getName() + "\" title=\"Escolher " + prop.getFront().getLabel() + "\">\n" +
+                    spc + "\t\t\t"  + "<mat-option *ngFor=\"let opcao of "+opcoes+"\" [value]=\"opcao.value\"> {{opcao.name}} </mat-option>\n" +
+                    spc + "\t\t" + "</mat-select>\r\n";
+        }
         else if(front.getType().equalsIgnoreCase("CHECKBOX")) {
             div = "<div class=\"form-group col-4 col-sm-4 col-md-3 col-lg-3\">";
             matElement = "\t" + "<mat-checkbox type=\"checkbox\" formControlName=\"" + prop.getName() + "\" class=\"mr-1\"></mat-checkbox>" + "\r\n" +
@@ -481,14 +617,17 @@ public class GerarReportFrontEnd implements IGerador {
 
         }
         else if(front.getType().equalsIgnoreCase("SEARCH")) {
-            div = "<div class=\"form-group col-12 col-md-4 col-lg-4\" formGroupName=\""+prop.getName()+"_group\" " + ((prop.isRequired())? "required" : "") + ">";
-            matFormFieldInner = "<mat-form-field appearance=\"fill\" hideRequiredMarker=\"true\" floatLabel=\"always\" title=\""+front.getLabel()+"\" style=\"cursor: pointer;\" (click)=\"openSearchDialog('"+prop.getName()+"');\" >";
+            div = "<div class=\"form-group col-12 col-md-4 col-lg-4\" formGroupName=\""+prop.getFront().getGroup()+"\" " + ((prop.isRequired())? "required" : "") + ">";
+            matFormFieldInner = "<mat-form-field appearance=\"fill\" hideRequiredMarker=\"true\" floatLabel=\"always\" title=\""+front.getLabel()+"\" style=\"cursor: pointer;\" (click)=\"openSearchDialog('"+prop.getFront().getGroup()+"');\" >";
 
-            matElement = "\t" + "<input matInput formControlName=\"descricao_" + prop.getName() + "\" style=\"cursor: pointer;\" readonly>" + "\r\n" +
+            matElement = "\t" + "<input matInput formControlName=\"descricao_" + prop.getFront().getGroup() + "\" style=\"cursor: pointer;\" readonly>" + "\r\n" +
                     "\r\n" +
                     spc + "\t\t" + "<button mat-button matSuffix mat-icon-button type=\"button\" aria-label=\"Search\">\r\n" +
                     spc + "\t\t\t" + "<mat-icon>search</mat-icon>\r\n" +
                     spc + "\t\t" + "</button>\r\n";
+
+            errors = spc + "\t" + "<others_alert-errors [submitted]=\"submitted\" [control]=\"formModel.get('"+prop.getFront().getGroup()+".id')\"></others_alert-errors>\r\n";
+
         }
         else {
             throw new RuntimeException("Tipo [" + front.getType() + "] passado é desconhecido");
@@ -503,7 +642,7 @@ public class GerarReportFrontEnd implements IGerador {
                     spc + "\t" + "</mat-form-field>";
         }
 
-        if(errors.equals("") && prop.isRequired() && !front.getType().equalsIgnoreCase("CHECKBOX")) {
+        if(errors.equals("") && prop.isRequired() && !front.getType().equalsIgnoreCase("CHECKBOX") && !front.getType().equalsIgnoreCase("SELECT")) {
             errors = spc + "\t" + "<others_alert-errors [submitted]=\"submitted\" [control]=\"formModel.get('"+prop.getName()+"')\"></others_alert-errors>\r\n";
         }
 
@@ -514,6 +653,24 @@ public class GerarReportFrontEnd implements IGerador {
               spc + "</div>\r\n";
 
         return spc + "<!-- " + prop.getName().toUpperCase() + " -->" + "\r\n" + div;
+    }
+
+    private String getAtributeOpcao(ReportFileModel.ReportProperty prop) {
+        String opcoes   = "opcoes" + prop.getName().substring(0,1).toUpperCase()+prop.getName().substring(1);
+        String opcaoRet = "    " + opcoes + " = [\r\n";
+        if(prop.getType().equalsIgnoreCase("BOOLEAN")) {
+            opcaoRet += "        { name: 'Sim', value: true },\r\n" +
+                        "        { name: 'Não', value: false }\r\n";
+        } else if(prop.getType().equalsIgnoreCase("STRING")) {
+            opcaoRet += "        { name: 'Sim', value: 'S' },\r\n" +
+                        "        { name: 'Não', value: 'N' }\r\n";
+        } else {
+            opcaoRet += "        { name: 'Opção 1', value: 0 },\r\n" +
+                        "        { name: 'Opção 2', value: 1 }\r\n";
+        }
+        opcaoRet += "    ];\r\n";
+
+        return opcaoRet;
     }
 
     private void writeToFile(Path path, byte[] bytes, StandardOpenOption... append) throws IOException {
