@@ -8,6 +8,7 @@ public class TesteModelGenerator {
 				"./report-base-outro.json",
 //				"-moduleestoques\\compra-diversos\\criar-editar-compra-diversos",
 //				"-front-baseitens-compra",
+//				"-back",
 				"-front",
 //				"-model",
 				"-audit"

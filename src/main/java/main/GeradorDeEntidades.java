@@ -148,7 +148,7 @@ public class GeradorDeEntidades {
             }
 
             if (options.accessAlias == null) {
-                options.accessAlias = reportModel.getRole().getDescription().toUpperCase();
+                options.accessAlias = reportModel.getRole().toUpperCase();
             }
         }
 

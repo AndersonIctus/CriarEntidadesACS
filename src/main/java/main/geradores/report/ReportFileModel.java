@@ -6,7 +6,7 @@ public class ReportFileModel {
     private String name;
     private String title;
     private String reportType;
-    private ReportRole role;
+    private String role;
     private List<ReportProperty> properties;
 
     //region // ----------- GETTERs and SETTERs ----------- //
@@ -34,11 +34,11 @@ public class ReportFileModel {
         this.reportType = reportType;
     }
 
-    public ReportRole getRole() {
+    public String getRole() {
         return role;
     }
 
-    public void setRole(ReportRole role) {
+    public void setRole(String role) {
         this.role = role;
     }
 
@@ -74,37 +74,10 @@ public class ReportFileModel {
         return out;
     }
 
-    public static class ReportRole {
-        private Integer code;
-        private String description;
-
-        //region // ----------- GETTERs and SETTERs ----------- //
-        public Integer getCode() {
-            return code;
-        }
-
-        public void setCode(Integer code) {
-            this.code = code;
-        }
-
-        public String getDescription() {
-            return description;
-        }
-
-        public void setDescription(String description) {
-            this.description = description;
-        }
-        //endregion
-
-        @Override
-        public String toString() {
-            return "'" + description + "' [" + code + "]";
-        }
-    }
-
     public static class ReportProperty {
         private String name;
         private String type;
+        private String entity;
         private String value;
         private Boolean required;
         private PropertyFrontValue front;
@@ -124,6 +97,14 @@ public class ReportFileModel {
 
         public void setType(String type) {
             this.type = (type == null)? "Integer" : type;
+        }
+
+        public String getEntity() {
+            return entity;
+        }
+
+        public void setEntity(String entity) {
+            this.entity = entity;
         }
 
         public String getValue() {
@@ -155,6 +136,18 @@ public class ReportFileModel {
             setType(type);
             setRequired(required);
 
+            if(entity == null) {
+                if(type.equalsIgnoreCase("SEARCH")) {
+                    if(name.startsWith("id")) { // Espera-se que os campos search iniciaem com 'id'
+                        setEntity(name.substring(2)); // pula o id
+                    } else {
+                        setEntity(name); // O proprio nome é o grupo !
+                    }
+                } else {
+                    setEntity(type);
+                }
+            }
+
             if(front == null) {
                 front = new ReportFileModel.ReportProperty.PropertyFrontValue();
             }
@@ -163,16 +156,20 @@ public class ReportFileModel {
                 front.setLabel(name);
             if(front.getType() == null)
                 front.setTypeByProperty(type);
+            if(front.getGroup() == null) {
+                front.setGroup(entity.substring(0, 1).toLowerCase() + entity.substring(1));
+            }
         }
 
         @Override
         public String toString() {
-            return name + " [" + type + ", " + value + ", " + required + "] " + front;
+            return name + ": " + entity + " [" + type + ", " + value + ", " + required + "] " + front;
         }
 
         public static class PropertyFrontValue {
             private String label;
             private String type;
+            private String group; // Usado para tipos SEARCH
 
             //region // ----------- GETTERs and SETTERs ----------- //
             public String getLabel() {
@@ -190,6 +187,14 @@ public class ReportFileModel {
             public void setType(String type) {
                 this.type = type;
             }
+
+            public String getGroup() {
+                return group;
+            }
+
+            public void setGroup(String group) {
+                this.group = group;
+            }
             //endregion
 
             public void setTypeByProperty(String propType) {
@@ -197,6 +202,8 @@ public class ReportFileModel {
                     this.type = "DATE";
                 } else if(propType.equalsIgnoreCase("Boolean")) {
                     this.type = "CHECKBOX";
+                } else if(propType.equalsIgnoreCase("SEARCH")) {
+                    this.type = "SEARCH";
                 } else {
                     this.type = "INPUT";
                 }
@@ -204,10 +211,8 @@ public class ReportFileModel {
 
             @Override
             public String toString() {
-                return "('" + label +"', '" + type + "')";
+                return "('" + label + "', '" + type + "', '" + group + "')";
             }
-
-
         }
     }
 }

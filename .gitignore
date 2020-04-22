@@ -37,3 +37,7 @@ build/
 /RelatorioOperacionalService.java
 /RelatorioResource.java
 /report-base.json
+/operacional-routing.module.ts
+/relatorios-routing.module.ts
+/report-base-outro.json
+/cadastro-routing.module.ts
