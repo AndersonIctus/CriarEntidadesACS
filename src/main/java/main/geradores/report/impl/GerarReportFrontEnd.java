@@ -14,7 +14,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 public class GerarReportFrontEnd implements IGerador {
     private static String mainPath = "..\\front\\src\\app\\modulos\\relatorios\\";
@@ -57,7 +59,7 @@ public class GerarReportFrontEnd implements IGerador {
     //region // --- Funções para a criação do Modulo --- //
     private void gerarModule(GenOptions options) throws IOException {
         String path = mainPath;
-        String domainName = options.getReportGenerator().getReportModel().getReportType();
+        String domainName = options.getReportGenerator().getReportModel().getDomain();
         String roleDescription = options.getReportGenerator().getReportModel().getRole();
 
         // ----------------------- Creating Module
@@ -106,7 +108,7 @@ public class GerarReportFrontEnd implements IGerador {
     private void gerarComponent(GenOptions options) throws IOException {
         String path = mainPath;
         ReportFileModel reportModel = options.getReportGenerator().getReportModel();
-        String domainName = reportModel.getReportType();
+        String domainName = reportModel.getDomain();
         String title = reportModel.getTitle();
 
         // --------- Gerando Imports
@@ -116,6 +118,7 @@ public class GerarReportFrontEnd implements IGerador {
             "\r\n" +
             "import { DialogDesignModel } from '../../../../shared/components/dialogs/custom-dialog/DialogDesignModel';\r\n" +
             "import { SearchDialogComponent, SearchResponseModel } from '../../../../shared/components/dialogs/search-dialog/search-dialog.component';\r\n" +
+            "import { InputFilterComponent } from '../../../../shared/components/others/input-filter/input-filter.component';\r\n" +
             "import { Util } from '../../../../shared/utils/Util';\r\n" +
             "\r\n"+
             "import { RelatorioBaseComponent } from '../../shared/base/relatorio-base.component';\r\n" +
@@ -128,10 +131,11 @@ public class GerarReportFrontEnd implements IGerador {
         String getParameters = "";
         String atributesOpcoes = "";
         List<ReportFileModel.ReportProperty> searchProperties = new ArrayList<>();
+        List<ReportFileModel.ReportProperty> filterProperties = new ArrayList<>();
 
         // --------- Gerando os properties
         for(ReportFileModel.ReportProperty prop: reportModel.getProperties()) {
-            // Properties ...
+            // Properties (bindForm) ...
             String propLine = "";
             if(prop.getType().equalsIgnoreCase("SEARCH")) {
                 propLine = "" +
@@ -142,9 +146,16 @@ public class GerarReportFrontEnd implements IGerador {
                 searchProperties.add(prop);
 
             }
+            else if(prop.getType().equalsIgnoreCase("FILTER")) {
+                filterProperties.add(prop);
+
+            }
             else {
                 String value = prop.getValue();
-                if(value != null && prop.getType().equalsIgnoreCase("String")) {
+                if(value == null && !prop.getType().equals("AcsDateTime")) {
+                    value = "''";
+                }
+                else if((prop.getType().equalsIgnoreCase("String") || prop.getType().equalsIgnoreCase("Character"))) {
                     value = "'" + value + "'";
                 }
 
@@ -161,7 +172,13 @@ public class GerarReportFrontEnd implements IGerador {
 
             // Parameters ...
             String paramLine = "        filterList.push(`" + prop.getName() + "=${"+getParamValue(prop)+"}`);";
-            if(!prop.isRequired()) {
+            if(prop.getType().equalsIgnoreCase("FILTER")) {
+                paramLine =
+                        "        this." + prop.getFront().getGroup() + "Filter.selectedElements.forEach( element => {\r\n" +
+                        "            filterList.push(`"+prop.getName()+"=${element.id}`);\r\n" +
+                        "        });\r\n";
+
+            } else if(!prop.isRequired()) {
                 paramLine =
                         "        if("+getParamValue(prop)+" !== '') {\r\n" +
                         "    " + paramLine + "\r\n" +
@@ -169,7 +186,7 @@ public class GerarReportFrontEnd implements IGerador {
             }
             getParameters += paramLine + "\r\n";
 
-            if(prop.getFront().getType().equalsIgnoreCase("SELECT")) {
+            if(prop.getFront().getType().equalsIgnoreCase("SELECT") || prop.getFront().getType().equalsIgnoreCase("RADIO")) {
                 atributesOpcoes += getAtributeOpcao(prop);
             }
         }
@@ -178,13 +195,13 @@ public class GerarReportFrontEnd implements IGerador {
             atributesOpcoes = "\r\n" + atributesOpcoes;
         }
 
+        // Atributos para o Search e o Filter
+        String entityService = "";
+        List<String> lsImportModels = new ArrayList<>();
+
         // --------- Gerando o openSearch
         String openSearchDialog = "";
-        String entityService = "";
         if(searchProperties.size() > 0) {
-            String importModels = "";
-            String importServices = "";
-
             String searchIf = "";
             String searchDialog = "" +
                     "        this.searchDialog\r\n" +
@@ -249,10 +266,9 @@ public class GerarReportFrontEnd implements IGerador {
                         "                this.formModel.get('"+group+".descricao_"+group+"').setValue(`${result.descricao}`);\r\n";
                 }
 
-                entityService += "        public "+entityVariable+"Service: "+entity+"Service,\r\n";
-
-                importModels += "import { " + entity + " } from '../../../../model/"+entity+"';\r\n";
-                importServices += "import { "+entity+"Service } from '../../../../services/"+entityVariable+".service';\r\n";
+                if(!lsImportModels.contains(entity)) {
+                    lsImportModels.add(entity);
+                }
             }
 
             searchIf += "        }\r\n";
@@ -269,6 +285,62 @@ public class GerarReportFrontEnd implements IGerador {
                     "\r\n" +
                     searchDialog +
                     "    }\r\n";
+        }
+
+        // --------- Gerando o initFilter
+        String doClearFunction = "";
+        String initFilterFunction = "";
+        if(filterProperties.size() > 0) {
+            String doClearEntity = "";
+            String initFilterEntity = "";
+            String filterAtributes = "\r\n    // ------ FILTERS ------ \r\n";
+
+            boolean isFirst = true;
+            for (ReportFileModel.ReportProperty prop: filterProperties) {
+                if(!isFirst) {
+                    initFilterEntity += "\r\n";
+                }
+
+                ReportFileModel.ReportProperty.PropertyFrontValue front = prop.getFront();
+                String entity = prop.getEntity();
+
+                filterAtributes += "    @ViewChild('"+ front.getGroup() + "Filter') "+front.getGroup()+"Filter: InputFilterComponent<"+ entity +">;\r\n";
+                doClearEntity += "        this."+front.getGroup()+"Filter.clearFilter();\r\n";
+                initFilterEntity += getInitFilterData(prop);
+
+                if(!lsImportModels.contains(entity)) {
+                    lsImportModels.add(entity);
+                }
+
+                isFirst = false;
+            }
+
+            atributesOpcoes += filterAtributes + "\r\n";
+
+            initFilterFunction = "\r\n" +
+                    "    initFilters() {\r\n" +
+                    initFilterEntity +
+                    "    }\r\n\r\n";
+
+            doClearFunction = "\r\n" +
+                    "    doClear() {\r\n" +
+                    "        super.doClear();\r\n" +
+                    "\r\n" +
+                    doClearEntity +
+                    "    }\r\n\r\n";
+        }
+
+        if(lsImportModels.size() > 0) {
+            String importModels = "";
+            String importServices = "";
+
+            for(String entity: lsImportModels) {
+                String entityVariable = entity.substring(0,1).toLowerCase() + entity.substring(1);
+
+                importModels += "import { " + entity + " } from '../../../../model/"+entity+"';\r\n";
+                importServices += "import { "+entity+"Service } from '../../../../services/"+getServiceName(entity)+".service';\r\n";
+                entityService += "        public "+entityVariable+"Service: "+entity+"Service,\r\n";
+            }
 
             entityService += "\r\n";
 
@@ -278,7 +350,7 @@ public class GerarReportFrontEnd implements IGerador {
                     importServices;
         }
 
-        // ----------------------- Creating Component
+        //region // ----------------------- Creating Component (fileBody)
         String fileBody =
                 imports +
                 "\r\n" +
@@ -287,8 +359,7 @@ public class GerarReportFrontEnd implements IGerador {
                 "})\r\n" +
                 "export class "+options.frontBaseName+"Component extends RelatorioBaseComponent implements OnInit {\r\n" +
                 ((!openSearchDialog.equals(""))? "    @ViewChild('search_dialog') searchDialog: SearchDialogComponent;\r\n" : "") +
-                atributesOpcoes +
-                "    \r\n" +
+                ((!atributesOpcoes.equals(""))? atributesOpcoes : "    \r\n") +
                 "    constructor(\r\n" +
                 entityService +
                 "        public baseServices: RelatorioBaseService\r\n" +
@@ -299,6 +370,7 @@ public class GerarReportFrontEnd implements IGerador {
                 "\r\n" +
                 "        this.urlAction = '/"+domainName+"/"+options.defaultRoute+"'; // end-point do relatorio no back\r\n" +
                 "        this.title = '"+title+"';\r\n" +
+                ((initFilterFunction.equals(""))? "\r\n        this.initFilters();\r\n" : "") +
                 "    }\r\n" +
                 "\r\n" +
                 "    // Funções do Fomulário //\r\n" +
@@ -308,14 +380,17 @@ public class GerarReportFrontEnd implements IGerador {
                 "        });\r\n" +
                 "    }\r\n" +
                 "\r\n" +
+                initFilterFunction +
                 "    // Funções de Filters //\r\n" +
                 "    getParameters(): string {\r\n" +
                 "        const filterList: string[] = [];\r\n" +
                 getParameters +
                 "        return filterList.join('&');\r\n" +
                 "    }\r\n" +
+                doClearFunction +
                 openSearchDialog +
                 "}\r\n";
+        //endregion
 
         Utils.writeContentTo(path + options.defaultRoute + ".component.ts", fileBody);
         System.out.println("Generated Module '" + options.defaultRoute + ".component.ts' into '" + path + "'");
@@ -325,23 +400,31 @@ public class GerarReportFrontEnd implements IGerador {
     private void gerarTela(GenOptions options) throws IOException {
         String path = mainPath;
         ReportFileModel reportModel = options.getReportGenerator().getReportModel();
-        String domainName = reportModel.getReportType();
 
         String posFormElements = "";
         String filters = "";
         boolean hasSearchProperty = false;
+        boolean hasFilterProperty = false;
         for(ReportFileModel.ReportProperty prop: reportModel.getProperties()) {
             filters += "\r\n" + getHtmlElement(prop);
 
             if(prop.getType().equalsIgnoreCase("SEARCH")) {
                 hasSearchProperty = true;
+            } else if(prop.getType().equalsIgnoreCase("FILTER")) {
+                hasFilterProperty = true;
             }
         }
 
         if(hasSearchProperty) {
             posFormElements += "\r\n\r\n" +
                     "<!-- SEARCH DIALOGS -->\r\n" +
-                    "<dialogs_search class=\"search-relatorios-" + options.defaultRoute + "\" #search_dialog></dialogs_search>\r\n";
+                    "<dialogs_search class=\"search-relatorios-" + options.defaultRoute + "\" #search_dialog></dialogs_search>";
+        }
+
+        if(hasFilterProperty) {
+            posFormElements += "\r\n\r\n" +
+                    "<!-- MODAL FILTER -->\r\n" +
+                    "<dialogs_filter class=\"filter-relatorios-" + options.defaultRoute + "\" #filter_dialog></dialogs_filter>";
         }
 
         // ----------------------- Creating Component
@@ -363,7 +446,7 @@ public class GerarReportFrontEnd implements IGerador {
     }
 
     private void incluirModuloNoDominio(GenOptions options) throws IOException {
-        String domainName = options.getReportGenerator().getReportModel().getReportType();
+        String domainName = options.getReportGenerator().getReportModel().getDomain();
 
         String pathToFile = mainPath + domainName + "-routing.module.ts";
 
@@ -431,7 +514,7 @@ public class GerarReportFrontEnd implements IGerador {
         String path = mainPath + getDirectoryDomain(options);
         Utils.createDirectory(path);
 
-        String domainName = options.getReportGenerator().getReportModel().getReportType();
+        String domainName = options.getReportGenerator().getReportModel().getDomain();
         String domainClass = domainName.substring(0,1).toUpperCase() + domainName.substring(1);
 
         // ----------------------- Creating Module
@@ -478,7 +561,7 @@ public class GerarReportFrontEnd implements IGerador {
     private void incluirDomainModule(GenOptions options) throws IOException {
         String pathToFile = mainPath + "relatorios-routing.module.ts";
 
-        String domainName = options.getReportGenerator().getReportModel().getReportType();
+        String domainName = options.getReportGenerator().getReportModel().getDomain();
         String domainClass = domainName.substring(0,1).toUpperCase() + domainName.substring(1);
 
         String newLine = "    { path: '"+domainName+"', loadChildren: './"+domainName+"/"+domainName+".module#"+domainClass+"Module' },";
@@ -536,7 +619,7 @@ public class GerarReportFrontEnd implements IGerador {
 
     private String getDirectoryDomain(GenOptions options) {
         ReportGenerator reportGenerator = options.getReportGenerator();
-        return reportGenerator.getReportModel().getReportType() + "/";
+        return reportGenerator.getReportModel().getDomain() + "/";
     }
 
     private String getParamValue(ReportFileModel.ReportProperty prop) {
@@ -578,7 +661,28 @@ public class GerarReportFrontEnd implements IGerador {
                 matElement += "placeholder=\""+prop.getValue()+"\"";
             }
             matElement += ">\r\n";
+        }
+        else if(front.getType().equalsIgnoreCase("NUMBER")) {
+            div = "<div class=\"form-group col-4 col-sm-4 col-md-3 col-lg-2\">";
+            matElement = "\t" + "<input matInput formControlName=\"" + prop.getName() + "\" maxLength=\""+front.getInteiro()+"\" ";
 
+            String mask = getNumberMask(front.getInteiro());
+            if(front.getZerosLeft()) {
+                matElement += "[numberMask]=\"{ mask: '"+mask+"', zerosLeft: true }\" ";
+            } else {
+                matElement += "numberMask=\""+mask+"\" ";
+            }
+
+            matElement += "placeholder=\""+mask.replaceAll("9", "0")+"\">\r\n";
+        }
+        else if(front.getType().equalsIgnoreCase("DECIMAL")) {
+            div = "<div class=\"form-group col-4 col-sm-4 col-md-3 col-lg-2\">";
+            matElement = "\t" + "<input matInput formControlName=\"" + prop.getName() + "\" maxLength=\""+(front.getInteiro()+front.getDecimal() + 1)+"\" ";
+
+            String acsCurrency = "acsCurrencyMask [options]=\"{ prefix: ' ', precision: {min: " + front.getDecimal() + ", max: " + front.getInteiro() + "} }\"";
+
+            String mask = "0," + getNumberMask(front.getDecimal());
+            matElement += acsCurrency + " placeholder=\""+mask.replaceAll("9", "0")+"\">\r\n";
         }
         else if(front.getType().equalsIgnoreCase("DATE")) {
             div = "<div class=\"form-group col-6 col-sm-6 col-md-4 col-lg-3\">";
@@ -606,6 +710,21 @@ public class GerarReportFrontEnd implements IGerador {
                     spc + "\t\t\t"  + "<mat-option *ngFor=\"let opcao of "+opcoes+"\" [value]=\"opcao.value\"> {{opcao.name}} </mat-option>\n" +
                     spc + "\t\t" + "</mat-select>\r\n";
         }
+        else if(front.getType().equalsIgnoreCase("RADIO")) {
+            String opcoes = "opcoes" + prop.getName().substring(0,1).toUpperCase()+prop.getName().substring(1);
+
+            div = "<div class=\"form-group col-12 col-lg-7\">";
+
+            matElement = ""  + "<mat-radio-group formControlName=\"" + prop.getName() + "\">\r\n" +
+                    spc + "\t\t" + "<label style=\"cursor: pointer;\" *ngFor=\"let opcao of " + opcoes + "\">\r\n" +
+                    spc + "\t\t\t" + "<mat-radio-button [value]=\"opcao.value\" class=\"col-4\"> {{opcao.name}} </mat-radio-button>\r\n" +
+                    spc + "\t\t" + "</label>\r\n" +
+                    spc + "\t" + "</mat-radio-group>";
+
+            matFormField = "\t" + "<b><label class=\"col-12\">"+front.getLabel()+"</label></b>" + "\r\n" +
+                    spc + "\t" + matElement;
+
+        }
         else if(front.getType().equalsIgnoreCase("CHECKBOX")) {
             div = "<div class=\"form-group col-4 col-sm-4 col-md-3 col-lg-3\">";
             matElement = "\t" + "<mat-checkbox type=\"checkbox\" formControlName=\"" + prop.getName() + "\" class=\"mr-1\"></mat-checkbox>" + "\r\n" +
@@ -629,6 +748,11 @@ public class GerarReportFrontEnd implements IGerador {
             errors = spc + "\t" + "<others_alert-errors [submitted]=\"submitted\" [control]=\"formModel.get('"+prop.getFront().getGroup()+".id')\"></others_alert-errors>\r\n";
 
         }
+        else if(front.getType().equalsIgnoreCase("FILTER")) {
+            div = "<div class=\"form-group col-12 col-sm-6 col-md-6 col-lg-3\">";
+            matFormField = "\t<others_input-filter #" + prop.getFront().getGroup() + "Filter [filterDialogComponent]=\"filter_dialog\" class=\"col-12 m-0 p-0\"></others_input-filter>";
+
+        }
         else {
             throw new RuntimeException("Tipo [" + front.getType() + "] passado é desconhecido");
         }
@@ -642,7 +766,11 @@ public class GerarReportFrontEnd implements IGerador {
                     spc + "\t" + "</mat-form-field>";
         }
 
-        if(errors.equals("") && prop.isRequired() && !front.getType().equalsIgnoreCase("CHECKBOX") && !front.getType().equalsIgnoreCase("SELECT")) {
+        if(errors.equals("") && prop.isRequired() &&
+                !front.getType().equalsIgnoreCase("CHECKBOX") &&
+                !front.getType().equalsIgnoreCase("SELECT") &&
+                !front.getType().equalsIgnoreCase("RADIO") &&
+                !front.getType().equalsIgnoreCase("FILTER") ) {
             errors = spc + "\t" + "<others_alert-errors [submitted]=\"submitted\" [control]=\"formModel.get('"+prop.getName()+"')\"></others_alert-errors>\r\n";
         }
 
@@ -655,22 +783,91 @@ public class GerarReportFrontEnd implements IGerador {
         return spc + "<!-- " + prop.getName().toUpperCase() + " -->" + "\r\n" + div;
     }
 
+    private String getInitFilterData(ReportFileModel.ReportProperty prop) {
+        String spc = "        ";
+        String entity = prop.getEntity();
+        String entityVariable = entity.substring(0,1).toLowerCase() + entity.substring(1);
+        ReportFileModel.ReportProperty.PropertyFrontValue front = prop.getFront();
+
+        return
+                spc + "////////////////////////////////////////////////////////\r\n" +
+                spc + "// Filtro de " + entity + " ("+ front.getLabel() +")\r\n" +
+                spc + "this."+front.getGroup()+"Filter.label = '" + front.getLabel() + "';\r\n" +
+                spc + "this."+front.getGroup()+"Filter.dialog_title = 'Filtrar "+front.getLabel()+"';\r\n" +
+                spc + "this."+front.getGroup()+"Filter.service = this."+entityVariable+"Service;\r\n" +
+                spc + "this."+front.getGroup()+"Filter.urlAction = `/filter/empresa/${this.empresa.id}`;\r\n" +
+                spc + "this."+front.getGroup()+"Filter.dataParameter = ``;\r\n" +
+                spc + "this."+front.getGroup()+"Filter.table_design = [\r\n" +
+                spc + "    new DialogDesignModel('Id', 'id'),\r\n" +
+                spc + "    new DialogDesignModel('Descrição', 'descricao')\r\n" +
+                spc + "];\n" +
+                spc + "this."+front.getGroup()+"Filter.input_transform_descriptor = {\r\n" +
+                spc + "    id: 'id',\r\n" +
+                spc + "    title: [ { prefix: '', field: 'descricao' } ]\r\n" +
+                spc + "};\r\n";
+    }
+
+    private String getNumberMask(Integer inteiro) {
+        String ret = "";
+        for(int i = 0; i < inteiro; i++) {
+            ret += "9";
+        }
+        return ret;
+    }
+
     private String getAtributeOpcao(ReportFileModel.ReportProperty prop) {
         String opcoes   = "opcoes" + prop.getName().substring(0,1).toUpperCase()+prop.getName().substring(1);
         String opcaoRet = "    " + opcoes + " = [\r\n";
-        if(prop.getType().equalsIgnoreCase("BOOLEAN")) {
+        if(prop.getFront().getOptions().size() > 0) { // Usa opções customizadas
+            opcaoRet = "    " + opcoes + " = [";
+            Map<String, String> options = prop.getFront().getOptions();
+
+            boolean isFirst = true;
+            for (Object value: options.keySet()) {
+                if(!isFirst) {
+                    opcaoRet +=",";
+                }
+
+                String name = options.get(value);
+                opcaoRet += "\r\n        { name: '" + name + "', value: '"+value+"' }";
+                isFirst = false;
+            }
+            opcaoRet += "\r\n";
+
+        } else if(prop.getType().equalsIgnoreCase("BOOLEAN")) {
             opcaoRet += "        { name: 'Sim', value: true },\r\n" +
                         "        { name: 'Não', value: false }\r\n";
-        } else if(prop.getType().equalsIgnoreCase("STRING")) {
+        } else if(prop.getType().equalsIgnoreCase("STRING") || prop.getType().equalsIgnoreCase("CHARACTER")) {
             opcaoRet += "        { name: 'Sim', value: 'S' },\r\n" +
                         "        { name: 'Não', value: 'N' }\r\n";
         } else {
             opcaoRet += "        { name: 'Opção 1', value: 0 },\r\n" +
                         "        { name: 'Opção 2', value: 1 }\r\n";
         }
-        opcaoRet += "    ];\r\n";
+        opcaoRet += "    ];\r\n\r\n";
 
         return opcaoRet;
+    }
+
+    private String getServiceName(String entity) {
+        String out = "";
+        boolean isFirst = true;
+        for(char l: entity.toCharArray()) {
+            String letra = l + "";
+            if(isFirst) {
+                out += letra.toLowerCase();
+                isFirst = false;
+                continue;
+            }
+
+            if(letra.equals(letra.toLowerCase())) {
+                out += letra;
+            } else {
+                out += "-" + letra.toLowerCase();
+            }
+        }
+
+        return out;
     }
 
     private void writeToFile(Path path, byte[] bytes, StandardOpenOption... append) throws IOException {

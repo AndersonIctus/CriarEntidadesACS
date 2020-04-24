@@ -1,13 +1,15 @@
 {
   "name": "listagem_produtos",
   "title": "Listar Produtos",
-  "reportType": "cadastro",
+  "domain": "cadastro",
   "role": "REL. LISTAGENS",
   "properties": [
     { "name": "idEmpresa", "type": "Search", "entity": "Empresa", "value": 0, "required": true, "front": { "label": "Empresa" } },
     { "name": "idCombustivel", "type": "Search", "entity": "ProdutoEmpresa", "front": { "label": "Combustível", "group": "combustivel" } },
+    { "name": "tipoRelatorio", "type": "String", "value": "D", "required": true, "front": { "label": "Apresentação", "type": "radio", "options": {"R": "Resumido", "D": "Detalhado"} } },
     { "name": "dataInicial", "type": "AcsDateTime", "required": true, "front": { "label": "Período Inicial" } },
     { "name": "dataFinal", "type": "AcsDateTime" },
+    { "name": "tipoData", "type": "String", "value": "V", "required": true, "front": { "label": "Consulta Data", "type": "select", "options": {"V": "Emissão", "C": "Caixa"} } },
     { "name": "observacao", "type": "String", "value": "''", "front": { "label": "Período Inicial", "type": "textarea" } },
     { "name": "tipoRelatorio", "type": "String", "value": "CORPO" },
     { "name": "exibirNumeroPagina", "type": "Boolean", "value": true, "required": true, "front": { "label": "Exibir Números" } }

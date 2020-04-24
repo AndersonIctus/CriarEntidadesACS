@@ -57,12 +57,14 @@ public class GerarReportBackEnd implements IGerador {
                 "import com.innovaro.acs.repository.customtypes.AcsDateTime;\r\n" +
                 "import lombok.Data;\r\n" +
                 "\r\n"+
+                "import java.math.BigDecimal;\r\n" +
                 "import java.time.OffsetDateTime;\r\n" +
                 "import java.util.HashMap;\r\n" +
                 "import java.util.Map;\r\n";
 
         String properties = "";
         String parametersRequired = "";
+        String messageProperties = "";
 
         for(ReportFileModel.ReportProperty prop: reportGenerator.getReportModel().getProperties()) {
             properties += "    private " + getTypeByProperty(prop.getType()) + " " + prop.getName();
@@ -79,12 +81,18 @@ public class GerarReportBackEnd implements IGerador {
                 String methodName = prop.getName().substring(0, 1).toUpperCase() + prop.getName().substring(1);
                 parametersRequired +=
                         "        if (this.get" + methodName + "() == null) {\r\n" +
-                        "            throw new ACSNotFoundException(\""+reportGenerator.getReportName()+"."+prop.getName()+".obrigatorio\");\r\n" +
+                        "            throw new ACSNotFoundException(\""+options.defaultRoute+"."+prop.getName()+".obrigatorio\");\r\n" +
                         "        }\r\n\r\n";
+
+                messageProperties += "        " + options.defaultRoute + "." + prop.getName() + ".obrigatorio = O campo "+ prop.getFront().getLabel() + " é obrigatório.\r\n";
             }
 
             properties += ";\r\n";
         }
+        messageProperties = "        /**  messages.properties \r\n" +
+                "        ################### " + options.frontBaseName + "\r\n" +
+                messageProperties +
+                "        */\r\n";
 
         String classBody = "package com.innovaro.acs.modulo.relatorio.filter;\r\n" +
                 "\r\n" +
@@ -100,6 +108,7 @@ public class GerarReportBackEnd implements IGerador {
                 "    @Override\r\n" +
                 "    protected void validarParametros() {\r\n" +
                 parametersRequired +
+                messageProperties +
                 "    }\r\n" +
                 "\r\n" +
                 "    @Override\r\n" +
@@ -121,7 +130,7 @@ public class GerarReportBackEnd implements IGerador {
 
         ReportGenerator reportGenerator = options.getReportGenerator();
         String reportName = "RELATORIO_" + reportGenerator.getReportName().toUpperCase();
-        String reportType = reportGenerator.getReportModel().getReportType();
+        String reportType = reportGenerator.getReportModel().getDomain();
 
         String newLine = "    String " + reportName + " = \"/report/" + reportType +
                          "/" + options.defaultRoute + "/" + options.defaultRoute + ".jasper\";";
@@ -129,7 +138,7 @@ public class GerarReportBackEnd implements IGerador {
 
         if (Utils.isAuditionMode()) {
             System.out.println("PATH     => '" + pathToFile + "'");
-            System.out.println("New LINE => '" + newLine + "'");
+            System.out.println("New LINE => '\r\n" + newLine + "'");
             System.out.println("-----------------------------------------------");
             return;
         }
@@ -193,7 +202,7 @@ public class GerarReportBackEnd implements IGerador {
         pathToFile += "modulo/relatorio/resource/RelatorioResource.java";
 
         ReportGenerator reportGenerator = options.getReportGenerator();
-        String reportType = reportGenerator.getReportModel().getReportType();
+        String reportType = reportGenerator.getReportModel().getDomain();
         String role = options.accessAlias.toUpperCase().replaceAll("\\.", "").replaceAll(" ", "_");
 
         String newLine =
@@ -206,7 +215,7 @@ public class GerarReportBackEnd implements IGerador {
 
         if (Utils.isAuditionMode()) {
             System.out.println("PATH     => '" + pathToFile + "'");
-            System.out.println("New LINE => '" + newLine + "'");
+            System.out.println("New LINE => '\r\n" + newLine + "'");
             System.out.println("-----------------------------------------------");
             return;
         }
@@ -263,7 +272,7 @@ public class GerarReportBackEnd implements IGerador {
         ReportGenerator reportGenerator = options.getReportGenerator();
         String reportName = "RELATORIO_" + reportGenerator.getReportName().toUpperCase();
         String reportTitle = reportGenerator.getReportModel().getTitle();
-        String reportType = reportGenerator.getReportModel().getReportType();
+        String reportType = reportGenerator.getReportModel().getDomain();
 
         pathToFile += getReportServiceName(reportType) + ".java";
 
@@ -281,7 +290,7 @@ public class GerarReportBackEnd implements IGerador {
 
         if (Utils.isAuditionMode()) {
             System.out.println("PATH     => '" + pathToFile + "'");
-            System.out.println("New LINE => '" + newLine + "'");
+            System.out.println("New LINE => '\r\n" + newLine + "'");
             System.out.println("-----------------------------------------------");
             return;
         }
@@ -335,7 +344,7 @@ public class GerarReportBackEnd implements IGerador {
     }
 
     private String getTypeByProperty(String type) {
-        if(type.equalsIgnoreCase("SEARCH"))
+        if(type.equalsIgnoreCase("SEARCH") || type.equalsIgnoreCase("FILTER"))
             return "Integer";
         return type;
     }

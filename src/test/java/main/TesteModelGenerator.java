@@ -5,7 +5,7 @@ public class TesteModelGenerator {
 		Principal.main(
 				"-report",
 //				"-mount",
-				"./report-base-outro.json",
+				"./report-base.json",
 //				"-moduleestoques\\compra-diversos\\criar-editar-compra-diversos",
 //				"-front-baseitens-compra",
 //				"-back",

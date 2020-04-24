@@ -1,11 +1,12 @@
 package main.geradores.report;
 
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class ReportFileModel {
     private String name;
     private String title;
-    private String reportType;
+    private String domain;
     private String role;
     private List<ReportProperty> properties;
 
@@ -26,12 +27,12 @@ public class ReportFileModel {
         this.title = title;
     }
 
-    public String getReportType() {
-        return reportType;
+    public String getDomain() {
+        return domain;
     }
 
-    public void setReportType(String reportType) {
-        this.reportType = reportType;
+    public void setDomain(String domain) {
+        this.domain = domain;
     }
 
     public String getRole() {
@@ -52,9 +53,12 @@ public class ReportFileModel {
     //endregion
 
     public void normalizeProperties() {
-        for(ReportProperty prop: properties) {
-            prop.normalizeValues();
-        }
+        properties = properties.stream()
+                .filter(Objects::nonNull)
+                .map( prop -> {
+                    prop.normalizeValues();
+                    return prop;
+                }).collect(Collectors.toList());
     }
 
     @Override
@@ -62,7 +66,7 @@ public class ReportFileModel {
         String out = "###### REPORT MODEL ######\r\n" +
                 "## name = '" + name + "'\r\n" +
                 "## title = '" + title + "'\r\n" +
-                "## reportType = '" + reportType + "'\r\n" +
+                "## domain = '" + domain + "'\r\n" +
                 "## role = " + role + "\r\n" +
                 "#### ATRIBUTES ####\r\n";
 
@@ -156,9 +160,16 @@ public class ReportFileModel {
                 front.setLabel(name);
             if(front.getType() == null)
                 front.setTypeByProperty(type);
-            if(front.getGroup() == null) {
+            if(front.getGroup() == null)
                 front.setGroup(entity.substring(0, 1).toLowerCase() + entity.substring(1));
-            }
+            if(front.getInteiro() == null)
+                front.setInteiro(0);
+            if(front.getDecimal() == null)
+                front.setDecimal(0);
+            if(front.getZerosLeft() == null)
+                front.setZerosLeft(false);
+            if(front.getOptions() == null)
+                front.setOptions(new HashMap<>());
         }
 
         @Override
@@ -170,6 +181,10 @@ public class ReportFileModel {
             private String label;
             private String type;
             private String group; // Usado para tipos SEARCH
+            private Integer inteiro = 0; // Usado para numericos
+            private Integer decimal = 0; // Usado para numericos
+            private Boolean zerosLeft = false; // Usado para numericos
+            private Map<String, String> options;
 
             //region // ----------- GETTERs and SETTERs ----------- //
             public String getLabel() {
@@ -195,6 +210,38 @@ public class ReportFileModel {
             public void setGroup(String group) {
                 this.group = group;
             }
+
+            public Integer getInteiro() {
+                return inteiro;
+            }
+
+            public void setInteiro(Integer inteiro) {
+                this.inteiro = inteiro;
+            }
+
+            public Integer getDecimal() {
+                return decimal;
+            }
+
+            public void setDecimal(Integer decimal) {
+                this.decimal = decimal;
+            }
+
+            public Boolean getZerosLeft() {
+                return zerosLeft;
+            }
+
+            public void setZerosLeft(Boolean zerosLeft) {
+                this.zerosLeft = zerosLeft;
+            }
+
+            public Map<String, String> getOptions() {
+                return options;
+            }
+
+            public void setOptions(Map<String, String> options) {
+                this.options = options;
+            }
             //endregion
 
             public void setTypeByProperty(String propType) {
@@ -204,6 +251,10 @@ public class ReportFileModel {
                     this.type = "CHECKBOX";
                 } else if(propType.equalsIgnoreCase("SEARCH")) {
                     this.type = "SEARCH";
+                } else if(propType.equalsIgnoreCase("FILTER")) {
+                    this.type = "FILTER";
+                } else if(propType.equalsIgnoreCase("BigDecimal")) {
+                    this.type = "DECIMAL";
                 } else {
                     this.type = "INPUT";
                 }
@@ -211,7 +262,11 @@ public class ReportFileModel {
 
             @Override
             public String toString() {
-                return "('" + label + "', '" + type + "', '" + group + "')";
+                String out = "('" + label + "', '" + type.toUpperCase() + "', '" + group + "') [" + inteiro + ", " + decimal + ", " + zerosLeft + "]";
+                if(options.size() > 0) {
+                    out+= "\r\n             options: " + options.toString();
+                }
+                return out;
             }
         }
     }
