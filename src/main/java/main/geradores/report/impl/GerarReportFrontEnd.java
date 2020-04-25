@@ -679,7 +679,7 @@ public class GerarReportFrontEnd implements IGerador {
             div = "<div class=\"form-group col-4 col-sm-4 col-md-3 col-lg-2\">";
             matElement = "\t" + "<input matInput formControlName=\"" + prop.getName() + "\" maxLength=\""+(front.getInteiro()+front.getDecimal() + 1)+"\" ";
 
-            String acsCurrency = "acsCurrencyMask [options]=\"{ prefix: ' ', precision: {min: " + front.getDecimal() + ", max: " + front.getInteiro() + "} }\"";
+            String acsCurrency = "acsCurrencyMask [options]=\"{ prefix: ' ', precision: {min: " + front.getDecimal() + ", max: " + front.getDecimal() + "} }\"";
 
             String mask = "0," + getNumberMask(front.getDecimal());
             matElement += acsCurrency + " placeholder=\""+mask.replaceAll("9", "0")+"\">\r\n";
@@ -727,8 +727,14 @@ public class GerarReportFrontEnd implements IGerador {
         }
         else if(front.getType().equalsIgnoreCase("CHECKBOX")) {
             div = "<div class=\"form-group col-4 col-sm-4 col-md-3 col-lg-3\">";
-            matElement = "\t" + "<mat-checkbox type=\"checkbox\" formControlName=\"" + prop.getName() + "\" class=\"mr-1\"></mat-checkbox>" + "\r\n" +
-                   spc + "\t\t" + "<b>" + front.getLabel() + "</b>\r\n";
+
+            if(prop.getType().equalsIgnoreCase("String")) {
+                matElement = "\t" + "<mat-checkbox type=\"checkbox\" (change)=\"changeValue($event, '" + prop.getName() + "');\" [checked]=\"isCheked('" + prop.getName() + "')\" class=\"mr-1\"></mat-checkbox>" + "\r\n";
+            } else {
+                matElement = "\t" + "<mat-checkbox type=\"checkbox\" formControlName=\"" + prop.getName() + "\" class=\"mr-1\"></mat-checkbox>" + "\r\n";
+            }
+
+            matElement += spc + "\t\t" + "<b>" + front.getLabel() + "</b>\r\n";
 
             matFormField = "\t" + "<label style=\"cursor: pointer;\" >" + "\r\n" +
                     spc + "\t" + matElement +

@@ -61,24 +61,28 @@ Foi criada essa estrutura para facilitar a montagem das classes e arquivos de 'b
 class ReportFileModel {
     String name;         // Nome do report (pode ser o nome do arquivo jasper sem a extenção separado por underline [ex.: listagem_produtos]
     String title;        // Titulo do Report [Ex: Listagem de Produtos]
-    String reportType;   // Tipo do Report (aqui segue o nome das pastas do tipo de relatório) [Ex.: "cadastro" ou "operacional"]
+    String domain;       // Domínio do Report (aqui segue o nome das pastas do tipo de relatório) [Ex.: "cadastro" ou "operacional"]
     String role;         // Regra de acesso do relatorio [Ex.: "REL. OPERACIONAL RESUMO" ou "REL. LISTAGENS"]
     List<ReportProperty> properties; // Lista de Propriedades/atributos do relatorio (O Objetivo é colocar os campos obrigatorios, não obrigatórios e ocultos usados no relatorio)
 }
 
 class ReportProperty {
-	String name;         // Nome do campo (Nome que será usado como variável para um campo. Use Camel case do Java) [Ex.: "idEmpresa" ou "observacao"]
-	String type;         // Tipo do campo (O tipo do campo considerado para o Java no backend. Também pode usar o tipo Search para facilitar o Front) [Ex.: "AcsDateTime" ou "Integer"]
-	String entity;       // Entidade considerada no Front (Só é usada quando o type for 'Search'. Use Entidades do model do back end java) [Ex.: "Empresa" ou "ProdutoEmpresa"]
-	String value;        // Valor padrão que ele deve assumir (ele é nulo por padrão) [Ex.: "0" ou "CORPO" ou "S"]
-	Boolean required;    // Informa se o campo é requerido ou não para a pesquisa (é falso por padrão) [Ex.: false ou true]
-	PropertyFrontValue front; // Alguns dados a mais do do atributo usado no front
+    String name;         // Nome do campo (Nome que será usado como variável para um campo. Use Camel case do Java) [Ex.: "idEmpresa" ou "observacao"]
+    String type;         // Tipo do campo (O tipo do campo considerado para o Java no backend. Também pode usar o tipo Search para facilitar o Front) [Ex.: "AcsDateTime" ou "Integer"]
+    String entity;       // Entidade considerada no Front (Só é usada quando o type for 'Search'. Use Entidades do model do back end java) [Ex.: "Empresa" ou "ProdutoEmpresa"]
+    String value;        // Valor padrão que ele deve assumir (ele é nulo por padrão) [Ex.: "0" ou "CORPO" ou "S"]
+    Boolean required;    // Informa se o campo é requerido ou não para a pesquisa (é falso por padrão) [Ex.: false ou true]
+    PropertyFrontValue front; // Alguns dados a mais do do atributo usado no front
 }
 
 class PropertyFrontValue {
-	String label;        // Label do campo no Front (se não informar pega o "name" do campo) [Ex.: "Empresa Cadastrada" ou "Ativo"]
-	String type;         // Tipo que o campo terá no front (se não passado ele pega um valor padrão a partir do "type" do campo) [Ex.: "INPUT", "SELECT", "SEARCH"]
-	String group;        // Usado para quando o tipo no front é um "SEARCH" (Se não for passado ele pega a partir do "entity" do campo. o nome deve ser camel case iniciado por minusculo) [Ex.: "empresa" ou "produtoEmpresa" ou "combustivel"]
+    String label;        // Label do campo no Front (se não informar pega o "name" do campo) [Ex.: "Empresa Cadastrada" ou "Ativo"]
+    String type;         // Tipo que o campo terá no front (se não passado ele pega um valor padrão a partir do "type" do campo) [Ex.: "INPUT", "SELECT", "SEARCH"]
+    String group;        // Usado para quando o tipo no front é um "SEARCH" (Se não for passado ele pega a partir do "entity" do campo. o nome deve ser camel case iniciado por minusculo) [Ex.: "empresa" ou "produtoEmpresa" ou "combustivel"]
+    Integer inteiro;     // Usado para informar a parte inteira dos campos numericos ou decimais (O padrão é 1 para tipos numericos ou decimais type: 'number' || type: 'decimal') [Ex.: inteiro: 8]
+    Integer decimal;     // Usado para informar as casas decimais dos campos decimais (O padrão é 2 para typos decimais - type: 'decimal') [Ex.: decimal: 2]
+	Boolean zerosLeft;   // Usado para indicar aos campos numericos se deve ou não completar com zeros a esquerda (type: 'number') [Ex.: zerosLeft: true]
+    Map<String, String> options; // Mapa de opções que é usado para um Select ou Radio Button (A formatação segue o padrão  "valor-chave": "label no front") [Ex.: options: { "R": "Relatório Resumido", "D": "Relatório Detalhado" }] 
 } 
 
 // **********************************************************
@@ -90,8 +94,12 @@ class PropertyFrontValue {
   "reportType": "cadastro",
   "role": "REL. LISTAGENS",
   "properties": [
-    { "name": "idEmpresa" },
-    { "name": "ativo", "type": "String" }
+    { "name": "idEmpresa", "entity": "Empresa", "front": { "type": "search" } },
+    { "name": "tipoRelatorio", "front": { "type": "radio" } },
+    { "name": "serie", "front": { "type": "number" } },
+    { "name": "valorInicial", "front": { "type": "decimal" } },
+    { "name": "nome", "type": "String" },
+    { "name": "idade" },
   ]
 }
 
@@ -102,7 +110,10 @@ class PropertyFrontValue {
   "reportType": "cadastro",
   "role": "REL. LISTAGENS",
   "properties": [
-    { "name": "idEmpresa", "type": "Search", "entity": "Empresa", "value": "0", "required": true, "front": { "label": "Empresa", "type": "SEARCH", "group": "empresa" } },
+    { "name": "idEmpresa", "type": "Search", "entity": "Empresa", "value": "0", "required": true, "front": { "label": "Empresa", "type": "search", "group": "empresa" } },
+    { "name": "tipoRelatorio", "type": "String", "value": "D", "required": true, "front": { "label": "Apresentação", "type": "radio", "options": {"R": "Resumido", "D": "Detalhado"} } },
+    { "name": "serie", "type": "String", "value": "0", "required": false, "front": { "label": "Série", "type": "number", "inteiro": 3, "zerosLeft": true } },
+    { "name": "valorInicial", "type": "BigDecimal", "value": "0,00", "required": false, "front": { "label": "Valor Final", "type": "decimal", "inteiro": 11, "decimal": 2 } },
     { "name": "ativo", "type": "String", "value": "S", "front": { "label": "Ativo", "type": "select" } }
   ]
 }

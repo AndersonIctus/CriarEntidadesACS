@@ -9,6 +9,8 @@
     { "name": "tipoRelatorio", "type": "String", "value": "D", "required": true, "front": { "label": "Apresentação", "type": "radio", "options": {"R": "Resumido", "D": "Detalhado"} } },
     { "name": "dataInicial", "type": "AcsDateTime", "required": true, "front": { "label": "Período Inicial" } },
     { "name": "dataFinal", "type": "AcsDateTime" },
+    { "name": "serie", "type": "String", "front": { "label": "Série", "type": "number", "inteiro": 3, "zerosLeft": true } },
+    { "name": "valorInicial", "front": { "label": "Valor Final", "type": "decimal", "inteiro": 11, "decimal": 2 } },
     { "name": "tipoData", "type": "String", "value": "V", "required": true, "front": { "label": "Consulta Data", "type": "select", "options": {"V": "Emissão", "C": "Caixa"} } },
     { "name": "observacao", "type": "String", "value": "''", "front": { "label": "Período Inicial", "type": "textarea" } },
     { "name": "tipoRelatorio", "type": "String", "value": "CORPO" },

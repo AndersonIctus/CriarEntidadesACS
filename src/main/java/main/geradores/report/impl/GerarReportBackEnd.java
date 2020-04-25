@@ -60,6 +60,7 @@ public class GerarReportBackEnd implements IGerador {
                 "import java.math.BigDecimal;\r\n" +
                 "import java.time.OffsetDateTime;\r\n" +
                 "import java.util.HashMap;\r\n" +
+                "import java.util.List;\r\n" +
                 "import java.util.Map;\r\n";
 
         String properties = "";
@@ -79,8 +80,14 @@ public class GerarReportBackEnd implements IGerador {
             }
             else {
                 String methodName = prop.getName().substring(0, 1).toUpperCase() + prop.getName().substring(1);
+
+                if(prop.getType().equalsIgnoreCase("String")) {
+                    parametersRequired += "        if (StringUtils.isEmpty(this.get" + methodName + "())) {\r\n";
+                } else {
+                    parametersRequired += "        if (this.get" + methodName + "() == null) {\r\n";
+                }
+
                 parametersRequired +=
-                        "        if (this.get" + methodName + "() == null) {\r\n" +
                         "            throw new ACSNotFoundException(\""+options.defaultRoute+"."+prop.getName()+".obrigatorio\");\r\n" +
                         "        }\r\n\r\n";
 
@@ -89,7 +96,9 @@ public class GerarReportBackEnd implements IGerador {
 
             properties += ";\r\n";
         }
-        messageProperties = "        /**  messages.properties \r\n" +
+
+        messageProperties =
+                "        /**  messages.properties \r\n" +
                 "        ################### " + options.frontBaseName + "\r\n" +
                 messageProperties +
                 "        */\r\n";
@@ -344,8 +353,10 @@ public class GerarReportBackEnd implements IGerador {
     }
 
     private String getTypeByProperty(String type) {
-        if(type.equalsIgnoreCase("SEARCH") || type.equalsIgnoreCase("FILTER"))
+        if(type.equalsIgnoreCase("SEARCH"))
             return "Integer";
+        else if(type.equalsIgnoreCase("FILTER"))
+            return "List<Integer>";
         return type;
     }
 

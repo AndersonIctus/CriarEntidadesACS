@@ -140,9 +140,9 @@ public class ReportFileModel {
             setType(type);
             setRequired(required);
 
-            if(entity == null) {
-                if(type.equalsIgnoreCase("SEARCH")) {
-                    if(name.startsWith("id")) { // Espera-se que os campos search iniciaem com 'id'
+            if (entity == null) {
+                if (type.equalsIgnoreCase("SEARCH")) {
+                    if (name.startsWith("id")) { // Espera-se que os campos search iniciaem com 'id'
                         setEntity(name.substring(2)); // pula o id
                     } else {
                         setEntity(name); // O proprio nome é o grupo !
@@ -152,24 +152,51 @@ public class ReportFileModel {
                 }
             }
 
-            if(front == null) {
+            // NORMALIZA O FRONT //
+            if (front == null) {
                 front = new ReportFileModel.ReportProperty.PropertyFrontValue();
             }
 
-            if(front.getLabel() == null)
+            if (front.getType() == null)
+                front.setTypeByPropertyType(type);
+            else
+                setTypeByFrontType(front.getType());
+
+            if (front.getLabel() == null)
                 front.setLabel(name);
-            if(front.getType() == null)
-                front.setTypeByProperty(type);
-            if(front.getGroup() == null)
+            if (front.getGroup() == null)
                 front.setGroup(entity.substring(0, 1).toLowerCase() + entity.substring(1));
-            if(front.getInteiro() == null)
-                front.setInteiro(0);
-            if(front.getDecimal() == null)
-                front.setDecimal(0);
-            if(front.getZerosLeft() == null)
+            if (front.getZerosLeft() == null)
                 front.setZerosLeft(false);
-            if(front.getOptions() == null)
+            if (front.getOptions() == null)
                 front.setOptions(new HashMap<>());
+
+            if (front.getInteiro() == null) {
+                if (front.getType().equalsIgnoreCase("number") || front.getType().equalsIgnoreCase("decimal"))
+                    front.setInteiro(1);
+                else
+                    front.setInteiro(0);
+            }
+
+            if (front.getDecimal() == null) {
+                if (front.getType().equalsIgnoreCase("decimal"))
+                    front.setDecimal(2);
+                else
+                    front.setDecimal(0);
+            }
+        }
+
+        private void setTypeByFrontType(String type) {
+            if(type.equalsIgnoreCase("radio") || type.equalsIgnoreCase("select") || type.equalsIgnoreCase("checkbox"))
+                this.setType("String");
+            else if(type.equalsIgnoreCase("decimal"))
+                this.setType("BigDecimal");
+            else if(type.equalsIgnoreCase("search"))
+                this.setType("SEARCH");
+            else if(type.equalsIgnoreCase("filter"))
+                this.setType("FILTER");
+            else if(type.equalsIgnoreCase("date"))
+                this.setType("AcsDateTime");
         }
 
         @Override
@@ -181,9 +208,9 @@ public class ReportFileModel {
             private String label;
             private String type;
             private String group; // Usado para tipos SEARCH
-            private Integer inteiro = 0; // Usado para numericos
-            private Integer decimal = 0; // Usado para numericos
-            private Boolean zerosLeft = false; // Usado para numericos
+            private Integer inteiro; // Usado para numericos
+            private Integer decimal; // Usado para numericos
+            private Boolean zerosLeft; // Usado para numericos
             private Map<String, String> options;
 
             //region // ----------- GETTERs and SETTERs ----------- //
@@ -244,16 +271,16 @@ public class ReportFileModel {
             }
             //endregion
 
-            public void setTypeByProperty(String propType) {
-                if(propType.equalsIgnoreCase("AcsDateTime")) {
+            public void setTypeByPropertyType(String type) {
+                if(type.equalsIgnoreCase("AcsDateTime")) {
                     this.type = "DATE";
-                } else if(propType.equalsIgnoreCase("Boolean")) {
+                } else if(type.equalsIgnoreCase("Boolean")) {
                     this.type = "CHECKBOX";
-                } else if(propType.equalsIgnoreCase("SEARCH")) {
+                } else if(type.equalsIgnoreCase("SEARCH")) {
                     this.type = "SEARCH";
-                } else if(propType.equalsIgnoreCase("FILTER")) {
+                } else if(type.equalsIgnoreCase("FILTER")) {
                     this.type = "FILTER";
-                } else if(propType.equalsIgnoreCase("BigDecimal")) {
+                } else if(type.equalsIgnoreCase("BigDecimal")) {
                     this.type = "DECIMAL";
                 } else {
                     this.type = "INPUT";
