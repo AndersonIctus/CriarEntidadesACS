@@ -58,6 +58,7 @@ Foi criada essa estrutura para facilitar a montagem das classes e arquivos de 'b
 ```
 // **********************************************************
 // ************ Aqui o modelo que cria o Json ***************
+// Classe com os atributos necessário para criar a estrutura
 class ReportFileModel {
     String name;         // Nome do report (pode ser o nome do arquivo jasper sem a extenção separado por underline [ex.: listagem_produtos]
     String title;        // Titulo do Report [Ex: Listagem de Produtos]
@@ -66,6 +67,7 @@ class ReportFileModel {
     List<ReportProperty> properties; // Lista de Propriedades/atributos do relatorio (O Objetivo é colocar os campos obrigatorios, não obrigatórios e ocultos usados no relatorio)
 }
 
+// Classe com os valores padrão usados principalmente no back
 class ReportProperty {
     String name;         // Nome do campo (Nome que será usado como variável para um campo. Use Camel case do Java) [Ex.: "idEmpresa" ou "observacao"]
     String type;         // Tipo do campo (O tipo do campo considerado para o Java no backend. Também pode usar o tipo Search para facilitar o Front) [Ex.: "AcsDateTime" ou "Integer"]
@@ -75,13 +77,14 @@ class ReportProperty {
     PropertyFrontValue front; // Alguns dados a mais do do atributo usado no front
 }
 
+// Classe com os valores padrão usados exclusivamente no front
 class PropertyFrontValue {
     String label;        // Label do campo no Front (se não informar pega o "name" do campo) [Ex.: "Empresa Cadastrada" ou "Ativo"]
     String type;         // Tipo que o campo terá no front (se não passado ele pega um valor padrão a partir do "type" do campo) [Ex.: "INPUT", "SELECT", "SEARCH"]
     String group;        // Usado para quando o tipo no front é um "SEARCH" (Se não for passado ele pega a partir do "entity" do campo. o nome deve ser camel case iniciado por minusculo) [Ex.: "empresa" ou "produtoEmpresa" ou "combustivel"]
     Integer inteiro;     // Usado para informar a parte inteira dos campos numericos ou decimais (O padrão é 1 para tipos numericos ou decimais type: 'number' || type: 'decimal') [Ex.: inteiro: 8]
     Integer decimal;     // Usado para informar as casas decimais dos campos decimais (O padrão é 2 para typos decimais - type: 'decimal') [Ex.: decimal: 2]
-	Boolean zerosLeft;   // Usado para indicar aos campos numericos se deve ou não completar com zeros a esquerda (type: 'number') [Ex.: zerosLeft: true]
+    Boolean zerosLeft;   // Usado para indicar aos campos numericos se deve ou não completar com zeros a esquerda (type: 'number') [Ex.: zerosLeft: true]
     Map<String, String> options; // Mapa de opções que é usado para um Select ou Radio Button (A formatação segue o padrão  "valor-chave": "label no front") [Ex.: options: { "R": "Relatório Resumido", "D": "Relatório Detalhado" }] 
 } 
 
@@ -120,6 +123,156 @@ class PropertyFrontValue {
 
 // Para saber mais, crie o arquivo base com o comando '$ CriarEntidadesACS -rt "./report-base.json"' 
 // Nele vão estar as mais variadas maneiras de se criar as propriedades do relatório.
+```
+### Tipos que podem ser utilizados no Report-Base (script .json) ###
+Aqui são os tipos que podem ser utilizados no arquivo.json.
+ 
+    Se nenhum type for passado nem no back e nem no front.
+    Por padrão os valores ficam:
+    Back => Interger
+    Front => input 
+
+Tipos do filtro no back:
+```
+/** **********
+   - No back, os tipos estão localizados no ReportProperty.type
+   - Cada type, também representa um valor padrão para o front, caso um não seja especificado. 
+     Isso quer dizer que types do back podem gerar automáticamente types no front e vice-versa. 
+Então aqui estará o Tipo para o Back, e o padrão usado no Front 
+************** */
+TYPE             BACK             FRONT
+----------       ----------       ----------
+Integer          Integer          input
+Long             Long             input
+Double           Double           input
+Character        Character        input
+String           String           input
+Boolean          Boolean          checkbox
+BigDecimal       BigDecimal       decimal
+AcsDateTime      AcsDateTime      date
+Search           Integer          search
+Filter           List<Interger>   filter
+
+/* 
+- Muitas vezes somente o type principal não é o suficiente. 
+- E outras vezes, o type no back, pode ser diferente do type padrão no front
+- Também, para tipos como Search e Filter, o front necessita de um group, que por vezes, 
+pode não ser o mesmo gerado pela entity passada no back.
+*/
+```
+
+Tipos do filtro no front:
+```
+/** **********
+   - No front, os tipos estão localizados no PropertyFrontValue.type
+   - Os types aqui dizem respeito ao COMPONENTE HTML que será criado no front.
+   - Cada type, também representa um valor padrão para o back, INDEPENDENTE se um já foi especificado. 
+     Isso quer dizer que types do front são, em maioria, mandatórios ao back. 
+Então aqui estará o Tipo para o Front, e o padrão usado no Back 
+************** */
+TYPE             FRONT            BACK
+----------       ----------       ----------
+Select           select           String
+Radio            radio            String
+Checkbox         checkbox         String
+TextArea         textarea         String
+Decimal          decimal          BigDecimal
+Search           search           Interger
+Filter           filter           List<Interger>
+Date             date             AcsDateTime
+
+// Mas também existe alguns Types que NÃO OBRIGAM um tipo no back.
+// Para esse tipos, o valor padrão usado no back é o Integer
+TYPE      
+----------
+Input
+Number
+
+/* 
+- Da mesma maneira, os types do front nem sempre serão o suficiente
+- Para Search e Inputs, pode ser que o atributo 'group' seja necessário para especificar 
+o grupo que deve usado.
+- E outras vezes, o type no back, pode ser dirente do type padrão no front
+*/ 
+```
+### Explicação mais Detalhada dos Tipos (script .json) ###
+<b>Tipos Search e Filter:</b>
+```
+- Esse são os tipo para entidades.
+- A propriedade 'entity' OBRIGATORIAMENTE deve ser passada.
+- Para o front, ele usa como padrão para o grupo o nome da entidade, porém se o grupo que essa 
+entidade estiver for diferente do nome da entidade, eEntão ele deve ser informado.
+
+Ex.:
+=> Simples 
+   { "name": "idEmpresa", "type": "Search", "entity": "Empresa", "front": { "label": "Empresa" } }
+* Nesse caso, ele vai criar uma propriedade Search no Front do grupo 'empresa' e Integer no back.
+* Essa propriedade gera o mesmo da seguinte:
+   { "name": "idEmpresa", "type": "Search", "entity": "Empresa", "front": { "label": "Empresa", "type": "search", "group": "empresa" } }
+
+=> Com grupo
+Se tivermos a propriedade Funcionário "Operador" e uma outra Funcionário "Vendedor". Devemos separar o grupo 
+dessas duas propriedades:
+  { "name": "idOperador", "type": "Search", "entity": "Funcionario", "front": { "label": "Operador do Caixa", "group": "operador" } }
+e 
+  { "name": "idVendedor", "type": "Search", "entity": "Funcionario", "front": { "label": "Vendido por:", "group": "vendedor" } }
+
+Nesse caso, se não fizessemos isso, ele incluiria o grupo a 'funcionario' que é a entidade base dessa propriedade.
+-> No front, o service chamado será o mesmo para os dois, 'funcionarioService')
+-> No Back, teremos duas propriedades:
+   Integer idOperador;
+   Integer idVendedor;
+
+** Todas as regras se aplicam ao type "filter". O que muda é que no back cria-se uma Lista de Ids,
+e no front, o componente usado é um Filter para escolher multiplas entidades.
+```
+
+<b>Tipos de Select e RadioButton:</b>
+```
+- Esse são os tipo para escolhas e normalmente eles são required.
+- Aqui há a possibilidade de customizarmos os valores usados no front (PropertyFrontValue.options).
+Caso não seja feito, valores padrão serão usados.
+
+Ex.:
+=> Simples
+  { "name": "tipoRelatorio", "front": { "label": "Modo Relatorio", "type": "radio", "options": {"C": "Completo", "R": "Resumido"} } }
+* Nesse caso, ele vai criar: 
+  - back: private String tipoRelatorio = "C";
+  - front: Radio button com as opções "Completo" e "Resumido", com o valor "C" já selecionado;
+
+* Essa propriedade gera o mesmo da seguinte:
+  { "name": "tipoRelatorio", "type": "String", "value": "C", "required": true, "front": { "label": "Modo Relatorio", "type": "radio", "options": {"C": "Completo", "R": "Resumido"} } },
+
+** Todas as regras se aplicam ao type "select". Nada muda no back, e no front, o componente usado é um Select.
+** Sempre utilize o "options" do front para criar já todos os valores necessários.
+** Se você não utilizar um "value", então a primeira opção será usada.
+```
+
+<b>Tipos Numéricos</b>
+```
+- Esse são os tipo para usar campos Númericos ou Decimais
+- Aqui deve-se utilizar as propriedades 'inteiro', 'decimal' e 'zerosLeft' para determianr como o input vai se comportar
+
+Ex.:
+=> Somente Número
+  { "name": "idade", "front": { "label": "Idade", "type": "number", "inteiro": 2 } }
+
+- back: private Integer idade; // Pode-se usar o Type do back para forçar o tipo no back ("type": "String", gera o tipo String no back)
+- front: gera um elmento Input que só permite numéricos com o máximo de dois dígitos inteiros
+  * o zerosLeft, é usado para quando o campo tem q ser preenchido com zeros a esquerda, por padrão ele não preenche.
+* Essa propriedade gera o mesmo da seguinte:
+  { "name": "idade", "type": "Interger", "front": { "label": "Idade", "type": "number", "inteiro": 2 } }
+
+=> Decimais
+  { "name": "valor", "front": { "label": "Valor da Nota", "type": "decimal", "inteiro": 7, "decimal": 3 } }
+
+- back: private BigDecimal valor;
+- front: gera um elemnto Input de Decimais que tem o tamanho 11 (sendo 3 podendo ser decimais e uma virgula)
+  * zerosLeft não é usado para decimais    
+* Essa propriedade gera o mesmo da seguinte:
+   { "name": "valor", "type": "BigDecimal", "front": { "label": "Valor Final", "type": "decimal", "inteiro": 7, "decimal": 3 } }
+
+** Se não informar os decimais, ele usa '2' como padrão
 ```
 
 ### Exemplos Válidos: ###

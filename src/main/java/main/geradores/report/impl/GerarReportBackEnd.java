@@ -211,14 +211,18 @@ public class GerarReportBackEnd implements IGerador {
         pathToFile += "modulo/relatorio/resource/RelatorioResource.java";
 
         ReportGenerator reportGenerator = options.getReportGenerator();
-        String reportType = reportGenerator.getReportModel().getDomain();
+        String reportDomain = reportGenerator.getReportModel().getDomain();
         String role = options.accessAlias.toUpperCase().replaceAll("\\.", "").replaceAll(" ", "_");
+        String serviceName = "service";
+        if(!reportDomain.equalsIgnoreCase("cadastro")) {
+            serviceName = reportDomain + "Service";
+        }
 
         String newLine =
-                "    @GetMapping(\"/" + reportType + "/" + options.defaultRoute + "\")\r\n" +
+                "    @GetMapping(\"/" + reportDomain + "/" + options.defaultRoute + "\")\r\n" +
                 "    @PreAuthorize(HAS_AUTHORITY_"+role+")\r\n" +
                 "    public ResponseEntity<Relatorio> report" + options.entityName + "(" + options.entityName + "FilterReport filter) {\r\n" +
-                "        return ResponseEntity.ok().body(service.gerarReport" + options.entityName + "(filter));\r\n" +
+                "        return ResponseEntity.ok().body(" + serviceName + ".gerarReport" + options.entityName + "(filter));\r\n" +
                 "    }\r\n";
         String tmpFile = "./tmp.txt";
 
@@ -237,10 +241,10 @@ public class GerarReportBackEnd implements IGerador {
         boolean writted = false;
         boolean iniciaBusca = false;
 
-        String reportRoute = "/" + reportType + "/" + options.defaultRoute;
+        String reportRoute = "/" + reportDomain + "/" + options.defaultRoute;
         for (String line : lines) {
             if (!writted) {
-                if(line.contains("@GetMapping") && line.contains(reportType)) {
+                if(line.contains("@GetMapping") && line.contains(reportDomain)) {
                     iniciaBusca = true;
 
                     // Compara o que foi escrito

@@ -170,6 +170,12 @@ public class ReportFileModel {
                 front.setZerosLeft(false);
             if (front.getOptions() == null)
                 front.setOptions(new HashMap<>());
+            else {
+                if(getValue() == null) {
+                    String keyValue = front.getOptions().keySet().stream().findFirst().orElse("");
+                    setValue(keyValue);
+                }
+            }
 
             if (front.getInteiro() == null) {
                 if (front.getType().equalsIgnoreCase("number") || front.getType().equalsIgnoreCase("decimal"))
@@ -184,10 +190,16 @@ public class ReportFileModel {
                 else
                     front.setDecimal(0);
             }
+
+            // Oara tipo select e radio, a propriedade é automaticamente required
+            if(front.getType().equalsIgnoreCase("select") || front.getType().equalsIgnoreCase("radio")) {
+                setRequired(true);
+            }
         }
 
         private void setTypeByFrontType(String type) {
-            if(type.equalsIgnoreCase("radio") || type.equalsIgnoreCase("select") || type.equalsIgnoreCase("checkbox"))
+            if(type.equalsIgnoreCase("radio") || type.equalsIgnoreCase("select") ||
+               type.equalsIgnoreCase("checkbox") || type.equalsIgnoreCase("textarea") )
                 this.setType("String");
             else if(type.equalsIgnoreCase("decimal"))
                 this.setType("BigDecimal");

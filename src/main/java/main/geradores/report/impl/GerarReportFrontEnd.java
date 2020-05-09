@@ -370,7 +370,7 @@ public class GerarReportFrontEnd implements IGerador {
                 "\r\n" +
                 "        this.urlAction = '/"+domainName+"/"+options.defaultRoute+"'; // end-point do relatorio no back\r\n" +
                 "        this.title = '"+title+"';\r\n" +
-                ((initFilterFunction.equals(""))? "\r\n        this.initFilters();\r\n" : "") +
+                ((!initFilterFunction.equals(""))? "\r\n        this.initFilters();\r\n" : "") +
                 "    }\r\n" +
                 "\r\n" +
                 "    // Funções do Fomulário //\r\n" +
@@ -647,8 +647,10 @@ public class GerarReportFrontEnd implements IGerador {
 
         // Material Form
         matFormFieldInner = "<mat-form-field appearance=\"fill\" hideRequiredMarker=\"true\" floatLabel=\"always\"";
-        if(prop.isRequired()) {
-            matFormFieldInner += " required";
+        if(prop.isRequired() &&
+           !(front.getType().equalsIgnoreCase("SELECT") || front.getType().equalsIgnoreCase("RADIO"))
+        ) {
+                matFormFieldInner += " required";
         }
         matFormFieldInner += ">";
 
