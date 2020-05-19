@@ -35,8 +35,8 @@ public class ReportGenerator {
         if(reportModel == null) throw new RuntimeException("O Arquivo passado está configurado errado. Favor use as diretivas '-report -mount' para gerar um arquivo padrão");
         reportModel.normalizeProperties();
 
-        this.reportName = reportModel.getName().toLowerCase();
-        this.className = ClasseNormalizada.normalizeClassName(reportModel.getName());
+        this.reportName = reportModel.getNome().toLowerCase();
+        this.className = ClasseNormalizada.normalizeClassName(reportModel.getNome());
         this.defaultRoute = normalizaRotaPadrao(this.reportName);
 
         System.out.println(this);

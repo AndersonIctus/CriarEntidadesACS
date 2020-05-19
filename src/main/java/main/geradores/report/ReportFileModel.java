@@ -4,56 +4,56 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class ReportFileModel {
-    private String name;
-    private String title;
-    private String domain;
-    private String role;
-    private List<ReportProperty> properties;
+    private String nome;
+    private String titulo;
+    private String dominio;
+    private String permissao;
+    private List<ReportProperty> propriedades;
 
     //region // ----------- GETTERs and SETTERs ----------- //
-    public String getName() {
-        return name;
+    public String getNome() {
+        return nome;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setNome(String nome) {
+        this.nome = nome;
     }
 
-    public String getTitle() {
-        return title;
+    public String getTitulo() {
+        return titulo;
     }
 
-    public void setTitle(String title) {
-        this.title = title;
+    public void setTitulo(String titulo) {
+        this.titulo = titulo;
     }
 
-    public String getDomain() {
-        return domain;
+    public String getDominio() {
+        return dominio;
     }
 
-    public void setDomain(String domain) {
-        this.domain = domain;
+    public void setDominio(String dominio) {
+        this.dominio = dominio;
     }
 
-    public String getRole() {
-        return role;
+    public String getPermissao() {
+        return permissao;
     }
 
-    public void setRole(String role) {
-        this.role = role;
+    public void setPermissao(String permissao) {
+        this.permissao = permissao;
     }
 
-    public List<ReportProperty> getProperties() {
-        return properties;
+    public List<ReportProperty> getPropriedades() {
+        return propriedades;
     }
 
-    public void setProperties(List<ReportProperty> properties) {
-        this.properties = properties;
+    public void setPropriedades(List<ReportProperty> propriedades) {
+        this.propriedades = propriedades;
     }
     //endregion
 
     public void normalizeProperties() {
-        properties = properties.stream()
+        propriedades = propriedades.stream()
                 .filter(Objects::nonNull)
                 .map( prop -> {
                     prop.normalizeValues();
@@ -64,13 +64,13 @@ public class ReportFileModel {
     @Override
     public String toString() {
         String out = "###### REPORT MODEL ######\r\n" +
-                "## name = '" + name + "'\r\n" +
-                "## title = '" + title + "'\r\n" +
-                "## domain = '" + domain + "'\r\n" +
-                "## role = " + role + "\r\n" +
-                "#### ATRIBUTES ####\r\n";
+                "## nome      = '" + nome + "'\r\n" +
+                "## titulo    = '" + titulo + "'\r\n" +
+                "## dominio   = '" + dominio + "'\r\n" +
+                "## permissao = '" + permissao + "'\r\n" +
+                "#### PROPRIEDADES ####\r\n";
 
-        for(ReportProperty prop: properties) {
+        for(ReportProperty prop: propriedades) {
             out += "## " + prop + "\r\n";
         }
 

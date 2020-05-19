@@ -56,6 +56,7 @@ public class GerarReportBackEnd implements IGerador {
                 "import com.innovaro.acs.exceptionhandler.exception.ACSNotFoundException;\r\n"+
                 "import com.innovaro.acs.repository.customtypes.AcsDateTime;\r\n" +
                 "import lombok.Data;\r\n" +
+                "import org.apache.commons.lang3.StringUtils;\r\n" +
                 "\r\n"+
                 "import java.math.BigDecimal;\r\n" +
                 "import java.time.OffsetDateTime;\r\n" +
@@ -67,11 +68,13 @@ public class GerarReportBackEnd implements IGerador {
         String parametersRequired = "";
         String messageProperties = "";
 
-        for(ReportFileModel.ReportProperty prop: reportGenerator.getReportModel().getProperties()) {
-            properties += "    private " + getTypeByProperty(prop.getType()) + " " + prop.getName();
+        for(ReportFileModel.ReportProperty prop: reportGenerator.getReportModel().getPropriedades()) {
+            String typeProp = prop.getType();
+
+            properties += "    private " + getTypeByProperty(typeProp) + " " + prop.getName();
             if(!prop.isRequired()) {
-                if(prop.getValue() != null) {
-                    if(prop.getType().equalsIgnoreCase("String")) {
+                if(prop.getValue() != null && !(typeProp.equalsIgnoreCase("SEARCH") || typeProp.equalsIgnoreCase("FILTER"))) {
+                    if(typeProp.equalsIgnoreCase("String")) {
                         properties += " = \"" + prop.getValue() + "\"";
                     } else {
                         properties += " = " + prop.getValue();
@@ -81,7 +84,7 @@ public class GerarReportBackEnd implements IGerador {
             else {
                 String methodName = prop.getName().substring(0, 1).toUpperCase() + prop.getName().substring(1);
 
-                if(prop.getType().equalsIgnoreCase("String")) {
+                if(typeProp.equalsIgnoreCase("String")) {
                     parametersRequired += "        if (StringUtils.isEmpty(this.get" + methodName + "())) {\r\n";
                 } else {
                     parametersRequired += "        if (this.get" + methodName + "() == null) {\r\n";
@@ -121,9 +124,9 @@ public class GerarReportBackEnd implements IGerador {
                 "    }\r\n" +
                 "\r\n" +
                 "    @Override\r\n" +
-                "    protected Map<String, Object> getParametersFromFilter() {\r\n" +
-                "        Map<String, Object> parameters = new HashMap<>();\r\n" +
-                "        return parameters;\r\n" +
+                "    protected Map<String, Object> getParametrosDoFiltro() {\r\n" +
+                "        Map<String, Object> parametros = new HashMap<>();\r\n" +
+                "        return parametros;\r\n" +
                 "    }\r\n" +
                 "}\r\n" +
                 "";
@@ -139,7 +142,7 @@ public class GerarReportBackEnd implements IGerador {
 
         ReportGenerator reportGenerator = options.getReportGenerator();
         String reportName = "RELATORIO_" + reportGenerator.getReportName().toUpperCase();
-        String reportType = reportGenerator.getReportModel().getDomain();
+        String reportType = reportGenerator.getReportModel().getDominio();
 
         String newLine = "    String " + reportName + " = \"/report/" + reportType +
                          "/" + options.defaultRoute + "/" + options.defaultRoute + ".jasper\";";
@@ -211,18 +214,15 @@ public class GerarReportBackEnd implements IGerador {
         pathToFile += "modulo/relatorio/resource/RelatorioResource.java";
 
         ReportGenerator reportGenerator = options.getReportGenerator();
-        String reportDomain = reportGenerator.getReportModel().getDomain();
+        String reportDomain = reportGenerator.getReportModel().getDominio();
         String role = options.accessAlias.toUpperCase().replaceAll("\\.", "").replaceAll(" ", "_");
-        String serviceName = "service";
-        if(!reportDomain.equalsIgnoreCase("cadastro")) {
-            serviceName = reportDomain + "Service";
-        }
+        String serviceName = reportDomain + "Service";
 
         String newLine =
                 "    @GetMapping(\"/" + reportDomain + "/" + options.defaultRoute + "\")\r\n" +
                 "    @PreAuthorize(HAS_AUTHORITY_"+role+")\r\n" +
-                "    public ResponseEntity<Relatorio> report" + options.entityName + "(" + options.entityName + "FilterReport filter) {\r\n" +
-                "        return ResponseEntity.ok().body(" + serviceName + ".gerarReport" + options.entityName + "(filter));\r\n" +
+                "    public ResponseEntity<Relatorio> relatorio" + options.entityName + "(" + options.entityName + "FilterReport filtro) {\r\n" +
+                "        return ResponseEntity.ok().body(" + serviceName + ".gerarRelatorio" + options.entityName + "(filtro));\r\n" +
                 "    }\r\n";
         String tmpFile = "./tmp.txt";
 
@@ -284,15 +284,15 @@ public class GerarReportBackEnd implements IGerador {
 
         ReportGenerator reportGenerator = options.getReportGenerator();
         String reportName = "RELATORIO_" + reportGenerator.getReportName().toUpperCase();
-        String reportTitle = reportGenerator.getReportModel().getTitle();
-        String reportType = reportGenerator.getReportModel().getDomain();
+        String reportTitle = reportGenerator.getReportModel().getTitulo();
+        String reportType = reportGenerator.getReportModel().getDominio();
 
         pathToFile += getReportServiceName(reportType) + ".java";
 
         String newLine =
-                "    public Relatorio gerarReport" + options.entityName + "(" + options.entityName + "FilterReport filter) {\r\n" +
+                "    public Relatorio gerarRelatorio" + options.entityName + "(" + options.entityName + "FilterReport filtro) {\r\n" +
                 "        try {\r\n" +
-                "            String urlReport = jasperReportService.gerarReportPDF(" + reportName + ", filter.getParameters());\r\n" +
+                "            String urlReport = jasperReportService.gerarReportPDF(" + reportName + ", filtro.getParametros());\r\n" +
                 "            return new Relatorio(urlReport, \"" + reportTitle + "\");\r\n" +
                 "        } catch (SQLException e) {\r\n" +
                 "            throw new ACSBadRequestException(\"error.report.invalido\");\r\n" +
@@ -315,7 +315,7 @@ public class GerarReportBackEnd implements IGerador {
         List<String> lines = Files.readAllLines(readModule);
         boolean writted = false;
 
-        String methodName = "gerarReport" + options.entityName;
+        String methodName = "gerarRelatorio" + options.entityName;
         for (String line : lines) {
             if (!writted) {
                 if(line.startsWith("    public Relatorio")) {

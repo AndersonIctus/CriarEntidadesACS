@@ -9,7 +9,7 @@ public class TesteModelGenerator {
 //				"-moduleestoques\\compra-diversos\\criar-editar-compra-diversos",
 //				"-front-baseitens-compra",
 //				"-back",
-//				"-front",
+				"-front",
 //				"-model",
 				"-audit"
 		);

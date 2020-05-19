@@ -1,12 +1,12 @@
 {
-  "name": "listagem_produtos",
-  "title": "Listar Produtos",
-  "domain": "cadastro",
-  "role": "REL. LISTAGENS",
-  "properties": [
+  "nome": "listagem_produtos",
+  "titulo": "Listar Produtos",
+  "dominio": "cadastro",
+  "permissao": "REL. LISTAGENS",
+  "propriedades": [
     { "name": "idEmpresa", "type": "Search", "entity": "Empresa", "value": 0, "required": true, "front": { "label": "Empresa" } },
+    { "name": "tipoRelatorio", "type": "String", "value": "D", "required": true, "front": { "label": "Apresentação:", "type": "radio", "options": {"R": "Resumido", "D": "Detalhado"} } },
     { "name": "idCombustivel", "type": "Search", "entity": "ProdutoEmpresa", "front": { "label": "Combustível", "group": "combustivel" } },
-    { "name": "tipoRelatorio", "type": "String", "value": "D", "required": true, "front": { "label": "Apresentação", "type": "radio", "options": {"R": "Resumido", "D": "Detalhado"} } },
     { "name": "dataInicial", "type": "AcsDateTime", "required": true, "front": { "label": "Período Inicial" } },
     { "name": "dataFinal", "type": "AcsDateTime" },
     { "name": "serie", "type": "String", "front": { "label": "Série", "type": "number", "inteiro": 3, "zerosLeft": true } },

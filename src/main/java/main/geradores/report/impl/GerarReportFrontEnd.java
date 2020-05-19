@@ -14,7 +14,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -59,8 +58,8 @@ public class GerarReportFrontEnd implements IGerador {
     //region // --- Funções para a criação do Modulo --- //
     private void gerarModule(GenOptions options) throws IOException {
         String path = mainPath;
-        String domainName = options.getReportGenerator().getReportModel().getDomain();
-        String roleDescription = options.getReportGenerator().getReportModel().getRole();
+        String domainName = options.getReportGenerator().getReportModel().getDominio();
+        String roleDescription = options.getReportGenerator().getReportModel().getPermissao();
 
         // ----------------------- Creating Module
         String fileBody =
@@ -108,8 +107,8 @@ public class GerarReportFrontEnd implements IGerador {
     private void gerarComponent(GenOptions options) throws IOException {
         String path = mainPath;
         ReportFileModel reportModel = options.getReportGenerator().getReportModel();
-        String domainName = reportModel.getDomain();
-        String title = reportModel.getTitle();
+        String domainName = reportModel.getDominio();
+        String title = reportModel.getTitulo();
 
         // --------- Gerando Imports
         String imports =
@@ -134,7 +133,7 @@ public class GerarReportFrontEnd implements IGerador {
         List<ReportFileModel.ReportProperty> filterProperties = new ArrayList<>();
 
         // --------- Gerando os properties
-        for(ReportFileModel.ReportProperty prop: reportModel.getProperties()) {
+        for(ReportFileModel.ReportProperty prop: reportModel.getPropriedades()) {
             // Properties (bindForm) ...
             String propLine = "";
             if(prop.getType().equalsIgnoreCase("SEARCH")) {
@@ -405,7 +404,7 @@ public class GerarReportFrontEnd implements IGerador {
         String filters = "";
         boolean hasSearchProperty = false;
         boolean hasFilterProperty = false;
-        for(ReportFileModel.ReportProperty prop: reportModel.getProperties()) {
+        for(ReportFileModel.ReportProperty prop: reportModel.getPropriedades()) {
             filters += "\r\n" + getHtmlElement(prop);
 
             if(prop.getType().equalsIgnoreCase("SEARCH")) {
@@ -430,10 +429,12 @@ public class GerarReportFrontEnd implements IGerador {
         // ----------------------- Creating Component
         String fileBody =
                 "<form [formGroup]=\"formModel\" data-toggle=\"validator\" role=\"form\">\r\n" +
-                "    <others_panel [panelTitle]=\"title\">\r\n" +
+                "    <others_panel [panelTitle]=\"title\" class=\"panel panel--report\">\r\n" +
                 "        <div class=\"panel-content\">\r\n" +
-                "            <acs_relatorio #relatorio_filter class=\"row filter filter--edges m-0 p-0\" (doClear)=\"doClear();\" (visualizarRelatorio)=\"visualizarRelatorio();\">\r\n" +
+                "            <acs_relatorio #relatorio_filter (doClear)=\"doClear();\" (visualizarRelatorio)=\"visualizarRelatorio();\">\r\n" +
+                "                <div class=\"conteudo-sessao\">\r\n" +
                 filters +
+                "                </div>\r\n" +
                 "            </acs_relatorio>\r\n" +
                 "        </div>\r\n" +
                 "    </others_panel>\r\n" +
@@ -446,7 +447,7 @@ public class GerarReportFrontEnd implements IGerador {
     }
 
     private void incluirModuloNoDominio(GenOptions options) throws IOException {
-        String domainName = options.getReportGenerator().getReportModel().getDomain();
+        String domainName = options.getReportGenerator().getReportModel().getDominio();
 
         String pathToFile = mainPath + domainName + "-routing.module.ts";
 
@@ -514,7 +515,7 @@ public class GerarReportFrontEnd implements IGerador {
         String path = mainPath + getDirectoryDomain(options);
         Utils.createDirectory(path);
 
-        String domainName = options.getReportGenerator().getReportModel().getDomain();
+        String domainName = options.getReportGenerator().getReportModel().getDominio();
         String domainClass = domainName.substring(0,1).toUpperCase() + domainName.substring(1);
 
         // ----------------------- Creating Module
@@ -561,7 +562,7 @@ public class GerarReportFrontEnd implements IGerador {
     private void incluirDomainModule(GenOptions options) throws IOException {
         String pathToFile = mainPath + "relatorios-routing.module.ts";
 
-        String domainName = options.getReportGenerator().getReportModel().getDomain();
+        String domainName = options.getReportGenerator().getReportModel().getDominio();
         String domainClass = domainName.substring(0,1).toUpperCase() + domainName.substring(1);
 
         String newLine = "    { path: '"+domainName+"', loadChildren: './"+domainName+"/"+domainName+".module#"+domainClass+"Module' },";
@@ -619,7 +620,7 @@ public class GerarReportFrontEnd implements IGerador {
 
     private String getDirectoryDomain(GenOptions options) {
         ReportGenerator reportGenerator = options.getReportGenerator();
-        return reportGenerator.getReportModel().getDomain() + "/";
+        return reportGenerator.getReportModel().getDominio() + "/";
     }
 
     private String getParamValue(ReportFileModel.ReportProperty prop) {
@@ -634,7 +635,7 @@ public class GerarReportFrontEnd implements IGerador {
     }
 
     private String getHtmlElement(ReportFileModel.ReportProperty prop) {
-        String spc = "                ";
+        String spc = "                    ";
 
         String div = "";
         String matFormField = "";
@@ -657,7 +658,7 @@ public class GerarReportFrontEnd implements IGerador {
         // HTML pelo Type -- Element And Label //
         matLabel = "\t" + "<mat-label><b>" + front.getLabel() + "</b></mat-label>" + "\r\n";
         if(front.getType().equalsIgnoreCase("INPUT")) {
-            div = "<div class=\"form-group col-4 col-sm-4 col-md-3 col-lg-2\">";
+            div = "<div class=\"form-group col-6\">";
             matElement = "\t" + "<input matInput formControlName=\"" + prop.getName() + "\" ";
             if(prop.getValue() != null) {
                 matElement += "placeholder=\""+prop.getValue()+"\"";
@@ -665,20 +666,20 @@ public class GerarReportFrontEnd implements IGerador {
             matElement += ">\r\n";
         }
         else if(front.getType().equalsIgnoreCase("NUMBER")) {
-            div = "<div class=\"form-group col-4 col-sm-4 col-md-3 col-lg-2\">";
+            div = "<div class=\"form-group col-6\">";
             matElement = "\t" + "<input matInput formControlName=\"" + prop.getName() + "\" maxLength=\""+front.getInteiro()+"\" ";
 
             String mask = getNumberMask(front.getInteiro());
             if(front.getZerosLeft()) {
                 matElement += "[numberMask]=\"{ mask: '"+mask+"', zerosLeft: true }\" ";
             } else {
-                matElement += "numberMask=\""+mask+"\" ";
+                matElement += "numberMask=\""+mask.replaceAll("9", "0")+"\" ";
             }
 
             matElement += "placeholder=\""+mask.replaceAll("9", "0")+"\">\r\n";
         }
         else if(front.getType().equalsIgnoreCase("DECIMAL")) {
-            div = "<div class=\"form-group col-4 col-sm-4 col-md-3 col-lg-2\">";
+            div = "<div class=\"form-group col-6\">";
             matElement = "\t" + "<input matInput formControlName=\"" + prop.getName() + "\" maxLength=\""+(front.getInteiro()+front.getDecimal() + 1)+"\" ";
 
             String acsCurrency = "acsCurrencyMask [options]=\"{ prefix: ' ', precision: {min: " + front.getDecimal() + ", max: " + front.getDecimal() + "} }\"";
@@ -687,7 +688,7 @@ public class GerarReportFrontEnd implements IGerador {
             matElement += acsCurrency + " placeholder=\""+mask.replaceAll("9", "0")+"\">\r\n";
         }
         else if(front.getType().equalsIgnoreCase("DATE")) {
-            div = "<div class=\"form-group col-6 col-sm-6 col-md-4 col-lg-3\">";
+            div = "<div class=\"form-group col-6\">";
             matElement = "\t" + "<input formControlName=\"" + prop.getName() + "\" matInput [matDatepicker]=\"" + prop.getName() + "_picker\" " +
                                 "maxLength=\"10\" title=\""+front.getLabel()+"\" placeholder=\"00/00/0000\">\r\n" +
                           "\r\n" +
@@ -705,7 +706,7 @@ public class GerarReportFrontEnd implements IGerador {
         else if(front.getType().equalsIgnoreCase("SELECT")) {
             String opcoes = "opcoes" + prop.getName().substring(0,1).toUpperCase()+prop.getName().substring(1);
 
-            div = "<div class=\"form-group col-6 col-sm-4 col-md-3 col-lg-2\">";
+            div = "<div class=\"form-group col-6\">";
             matFormFieldInner = "<mat-form-field appearance=\"fill\">";
 
             matElement = "\t"  + "<mat-select formControlName=\"" + prop.getName() + "\" title=\"Escolher " + prop.getFront().getLabel() + "\">\n" +
@@ -713,22 +714,34 @@ public class GerarReportFrontEnd implements IGerador {
                     spc + "\t\t" + "</mat-select>\r\n";
         }
         else if(front.getType().equalsIgnoreCase("RADIO")) {
-            String opcoes = "opcoes" + prop.getName().substring(0,1).toUpperCase()+prop.getName().substring(1);
+            if(prop.getName().equals("tipoRelatorio")) {
+                div = "<div class=\"form-group row col-12 m-0 p-0\">";
+                matElement = "<div class=\"form-group col-8\">\r\n" +
+                        spc + "\t\t" + "<mat-radio-group formControlName=\"tipoRelatorio\">\r\n" +
+                        spc + "\t\t\t" + "<mat-radio-button *ngFor=\"let opcao of opcoesTipoRelatorio\" class=\"acs-radio-button\" [value]=\"opcao.value\">{{opcao.name}}</mat-radio-button>\r\n" +
+                        spc + "\t\t" + "</mat-radio-group>\r\n" +
+                        spc + "\t" + "</div>";
 
-            div = "<div class=\"form-group col-12 col-lg-7\">";
+                matFormField = "\t" + "<label class=\"form-group col-4\"><b>Apresentação:</b></label>\r\n" +
+                        spc + "\t" + matElement;
 
-            matElement = ""  + "<mat-radio-group formControlName=\"" + prop.getName() + "\">\r\n" +
-                    spc + "\t\t" + "<label style=\"cursor: pointer;\" *ngFor=\"let opcao of " + opcoes + "\">\r\n" +
-                    spc + "\t\t\t" + "<mat-radio-button [value]=\"opcao.value\" class=\"col-4\"> {{opcao.name}} </mat-radio-button>\r\n" +
-                    spc + "\t\t" + "</label>\r\n" +
-                    spc + "\t" + "</mat-radio-group>";
+            } else {
+                String opcoes = "opcoes" + prop.getName().substring(0,1).toUpperCase()+prop.getName().substring(1);
 
-            matFormField = "\t" + "<b><label class=\"col-12\">"+front.getLabel()+"</label></b>" + "\r\n" +
-                    spc + "\t" + matElement;
+                div = "<div class=\"form-group mat-form-field col-12 m-0 p-0\">";
 
+                matElement = ""  + "<mat-radio-group formControlName=\"" + prop.getName() + "\" class=\"col-6 m-0 p-0\">\r\n" +
+                        spc + "\t\t" + "<label style=\"cursor: pointer;\" *ngFor=\"let opcao of " + opcoes + "\">\r\n" +
+                        spc + "\t\t\t" + "<mat-radio-button [value]=\"opcao.value\" class=\"col-12\"> {{opcao.name}} </mat-radio-button>\r\n" +
+                        spc + "\t\t" + "</label>\r\n" +
+                        spc + "\t" + "</mat-radio-group>";
+
+                matFormField = "\t" + "<label class=\"col-12\"><b>"+front.getLabel()+"</b></label>" + "\r\n" +
+                        spc + "\t" + matElement;
+            }
         }
         else if(front.getType().equalsIgnoreCase("CHECKBOX")) {
-            div = "<div class=\"form-group col-4 col-sm-4 col-md-3 col-lg-3\">";
+            div = "<div class=\"form-group mat-form-field col-6\">";
 
             if(prop.getType().equalsIgnoreCase("String")) {
                 matElement = "\t" + "<mat-checkbox type=\"checkbox\" (change)=\"changeValue($event, '" + prop.getName() + "');\" [checked]=\"isCheked('" + prop.getName() + "')\" class=\"mr-1\"></mat-checkbox>" + "\r\n";
@@ -744,7 +757,7 @@ public class GerarReportFrontEnd implements IGerador {
 
         }
         else if(front.getType().equalsIgnoreCase("SEARCH")) {
-            div = "<div class=\"form-group col-12 col-md-4 col-lg-4\" formGroupName=\""+prop.getFront().getGroup()+"\" " + ((prop.isRequired())? "required" : "") + ">";
+            div = "<div class=\"form-group col-6\" formGroupName=\""+prop.getFront().getGroup()+"\" " + ((prop.isRequired())? "required" : "") + ">";
             matFormFieldInner = "<mat-form-field appearance=\"fill\" hideRequiredMarker=\"true\" floatLabel=\"always\" title=\""+front.getLabel()+"\" style=\"cursor: pointer;\" (click)=\"openSearchDialog('"+prop.getFront().getGroup()+"');\" >";
 
             matElement = "\t" + "<input matInput formControlName=\"descricao_" + prop.getFront().getGroup() + "\" style=\"cursor: pointer;\" readonly>" + "\r\n" +
@@ -757,8 +770,8 @@ public class GerarReportFrontEnd implements IGerador {
 
         }
         else if(front.getType().equalsIgnoreCase("FILTER")) {
-            div = "<div class=\"form-group col-12 col-sm-6 col-md-6 col-lg-3\">";
-            matFormField = "\t<others_input-filter #" + prop.getFront().getGroup() + "Filter [filterDialogComponent]=\"filter_dialog\" class=\"col-12 m-0 p-0\"></others_input-filter>";
+            div = ""; // Nap usa DIV nos filtros
+            matFormField = "\t<others_input-filter #" + prop.getFront().getGroup() + "Filter [filterDialogComponent]=\"filter_dialog\" class=\"col-6\"></others_input-filter>";
 
         }
         else {
@@ -783,10 +796,15 @@ public class GerarReportFrontEnd implements IGerador {
         }
 
         // Montando DIV //
-        div = spc + div + "\r\n" +
-              spc + matFormField + "\r\n" +
-              errors +
-              spc + "</div>\r\n";
+        if(div.equals("")) {
+            div = spc + matFormField + "\r\n\r\n";
+
+        } else {
+            div = spc + div + "\r\n" +
+                  spc + matFormField + "\r\n" +
+                  errors +
+                  spc + "</div>\r\n";
+        }
 
         return spc + "<!-- " + prop.getName().toUpperCase() + " -->" + "\r\n" + div;
     }

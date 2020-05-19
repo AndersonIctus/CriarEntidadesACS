@@ -60,10 +60,10 @@ Foi criada essa estrutura para facilitar a montagem das classes e arquivos de 'b
 // ************ Aqui o modelo que cria o Json ***************
 // Classe com os atributos necessário para criar a estrutura
 class ReportFileModel {
-    String name;         // Nome do report (pode ser o nome do arquivo jasper sem a extenção separado por underline [ex.: listagem_produtos]
-    String title;        // Titulo do Report [Ex: Listagem de Produtos]
-    String domain;       // Domínio do Report (aqui segue o nome das pastas do tipo de relatório) [Ex.: "cadastro" ou "operacional"]
-    String role;         // Regra de acesso do relatorio [Ex.: "REL. OPERACIONAL RESUMO" ou "REL. LISTAGENS"]
+    String nome;         // Nome do Relatorio (pode ser o nome do arquivo jasper sem a extenção separado por underline [ex.: listagem_produtos]
+    String titulo;       // Titulo do Relatorio [Ex: Listagem de Produtos]
+    String dominio;      // Domínio do Relatorio (aqui segue o nome das pastas do tipo de relatório) [Ex.: "cadastro" ou "operacional"]
+    String permissao;    // Permissão de acesso do Relatorio [Ex.: "REL. OPERACIONAL RESUMO" ou "REL. LISTAGENS"]
     List<ReportProperty> properties; // Lista de Propriedades/atributos do relatorio (O Objetivo é colocar os campos obrigatorios, não obrigatórios e ocultos usados no relatorio)
 }
 
@@ -92,11 +92,11 @@ class PropertyFrontValue {
 // ***** Aqui o exemplo de como o arquivo deve ficar ********
 // ****** Mínimo de detalhes Possível
 {
-  "name": "listagem_produtos",
-  "title": "Listar Produtos",
-  "reportType": "cadastro",
-  "role": "REL. LISTAGENS",
-  "properties": [
+  "nome": "listagem_produtos",
+  "titulo": "Listar Produtos",
+  "dominio": "cadastro",
+  "permissao": "REL. LISTAGENS",
+  "propriedades": [
     { "name": "idEmpresa", "entity": "Empresa", "front": { "type": "search" } },
     { "name": "tipoRelatorio", "front": { "type": "radio" } },
     { "name": "serie", "front": { "type": "number" } },
@@ -108,11 +108,11 @@ class PropertyFrontValue {
 
 // ****** Máximo de detalhes Possível (E necessário)
 {
-  "name": "listagem_produtos",
-  "title": "Listar Produtos",
-  "reportType": "cadastro",
-  "role": "REL. LISTAGENS",
-  "properties": [
+  "nome": "listagem_produtos",
+  "titulo": "Listar Produtos",
+  "dominio": "cadastro",
+  "permissao": "REL. LISTAGENS",
+  "propriedades": [
     { "name": "idEmpresa", "type": "Search", "entity": "Empresa", "value": "0", "required": true, "front": { "label": "Empresa", "type": "search", "group": "empresa" } },
     { "name": "tipoRelatorio", "type": "String", "value": "D", "required": true, "front": { "label": "Apresentação", "type": "radio", "options": {"R": "Resumido", "D": "Detalhado"} } },
     { "name": "serie", "type": "String", "value": "0", "required": false, "front": { "label": "Série", "type": "number", "inteiro": 3, "zerosLeft": true } },
