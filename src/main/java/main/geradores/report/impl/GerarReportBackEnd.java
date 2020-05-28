@@ -33,11 +33,15 @@ public class GerarReportBackEnd implements IGerador {
             System.out.println("Pulando a geração dos arquivos para o BackEnd ...");
         }
         else {
-            gerarReportFilter(options);
+            if (options.generateModel) {
+                gerarReportFilter(options);
+            }
 
-            includeConstDiretoriosRelatorios(options);
-            includeResourceLine(options);
-            includeServiceLine(options);
+            if (!options.onlyModel) {
+                includeConstDiretoriosRelatorios(options);
+                includeResourceLine(options);
+                includeServiceLine(options);
+            }
         }
 
         System.out.println();

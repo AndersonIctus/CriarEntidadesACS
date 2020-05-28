@@ -398,24 +398,26 @@ public class GerarFrontEnd implements IGerador {
         serviceName = serviceName.substring(0, 1).toLowerCase() + serviceName.substring(1);
 
         String classBody = "" +
-                "<others_panel>" + "\r\n" +
-                "  <div class=\"panel-header m-0 row\">" + "\r\n" +
-                "    <h2 class=\"mr-auto mb-0\">{{ title }}</h2>" + "\r\n" +
-                "    <crud_create [enabled]=\"auth.hasIncludePermission()\"></crud_create>" + "\r\n" +
-                "  </div>" + "\r\n" +
+                "<form [formGroup]=\"formModel\" data-toggle=\"validator\" role=\"form\">\r\n" +
+                "    <others_panel>" + "\r\n" +
+                "      <div class=\"panel-header m-0 row\">" + "\r\n" +
+                "        <h2 class=\"mr-auto mb-0\">{{ title }}</h2>" + "\r\n" +
+                "        <crud_create [enabled]=\"auth.hasIncludePermission()\"></crud_create>" + "\r\n" +
+                "      </div>" + "\r\n" +
                 "\r\n" +
-                "  <div class=\"panel-content mat-elevation-z8 pb-1\">" + "\r\n" +
-                "    <table_data-simple #table class=\"listar-" + options.frontBaseFolder + "\" [data_service]=\"" + serviceName + "\" sortActive=\"id\" >" + "\r\n" +
-                "      <td acsTableColumn=\"id\" *tableColumn=\"'id'; header:'Cod.'; sort_header: true; let row\">{{ row.id }}</td>" + "\r\n" +
+                "      <div class=\"panel-content mat-elevation-z8 pb-1\">" + "\r\n" +
+                "        <table_data-simple #table class=\"listar-" + options.frontBaseFolder + "\" [data_service]=\"" + serviceName + "\" sortActive=\"id\" >" + "\r\n" +
+                "          <td acsTableColumn=\"id\" *tableColumn=\"'id'; header:'Cod.'; sort_header: true; let row\">{{ row.id }}</td>" + "\r\n" +
                 "\r\n" +
-                "      <!-- EDIT AND DELETE ROW -->" + "\r\n" +
-                "      <td acsTableColumn=\"edit_delete\" [sticky]=\"true\" tabindex=\"-1\" *tableColumn=\"'edit_delete'; let row\">" + "\r\n" +
-                "        <crud_edit [entity_id]=\"row.id\"></crud_edit>" + "\r\n" +
-                "        <crud_delete (click)=\"modelAtual = row\" [enabled]=\"auth.hasUpdatePermission()\"></crud_delete>" + "\r\n" +
-                "      </td>" + "\r\n" +
-                "    </table_data-simple>" + "\r\n" +
-                "  </div>" + "\r\n" +
-                "</others_panel>" + "\r\n" +
+                "          <!-- EDIT AND DELETE ROW -->" + "\r\n" +
+                "          <td acsTableColumn=\"edit_delete\" [sticky]=\"true\" tabindex=\"-1\" *tableColumn=\"'edit_delete'; let row\">" + "\r\n" +
+                "            <crud_edit [entity_id]=\"row.id\"></crud_edit>" + "\r\n" +
+                "            <crud_delete (click)=\"modelAtual = row\" [enabled]=\"auth.hasUpdatePermission()\"></crud_delete>" + "\r\n" +
+                "          </td>" + "\r\n" +
+                "        </table_data-simple>" + "\r\n" +
+                "      </div>" + "\r\n" +
+                "    </others_panel>" + "\r\n" +
+                "</form>\r\n" +
                 "\r\n" +
                 "<!-- Modal -->" + "\r\n" +
                 "<dialogs_delete bodyText=\"Deseja excluir o MODELO '{{ modelAtual?.id }}'?\" (delete_button_click)=\"deleteModel()\"></dialogs_delete>" + "\r\n" +
@@ -447,37 +449,39 @@ public class GerarFrontEnd implements IGerador {
         String serviceName = options.entityName + "Service";
         serviceName = serviceName.substring(0, 1).toLowerCase() + serviceName.substring(1);
 
-        String classBody = "import { Component, OnInit, ViewChild } from '@angular/core';" + "\r\n" +
-                "import { ToastyService } from 'ng2-toasty';" + "\r\n" +
-                "\r\n" +
-                "import { ErrorHandlerService } from '../../../../services/error-handler.service';" + "\r\n" +
-                "import { AuthBaseService } from '../../../../cadastros/auth-base.service';" + "\r\n" +
-                "\r\n" +
-                "import { SimpleDataTableComponent } from '../../../../shared/components/table/simple-data-table/simple-data-table.component';" + "\r\n" +
+        String classBody = "import { Component, OnInit } from '@angular/core';" + "\r\n" +
                 "\r\n" +
                 "import { " + options.entityName + " } from '../../../../model/" + options.entityName + "';" + "\r\n" +
                 "import { " + options.entityName + "Service } from '../../../../services/" + options.defaultRoute + ".service';" + "\r\n" +
+                "\r\n" +
+                "import { ListagemBaseComponent } from '../../../shared/base/listagem-base-component';\r\n" +
+                "import { ListagemBaseService } from '../../../shared/base/listagem-base.service';\r\n" +
                 "\r\n" +
                 "@Component({" + "\r\n" +
                 "  templateUrl: './listar-" + options.frontBaseFolder + ".component.html'," + "\r\n" +
                 "  styleUrls: ['./listar-" + options.frontBaseFolder + ".component.scss']" + "\r\n" +
                 "})\r\n" +
-                "export class Listar" + options.frontBaseName + "Component implements OnInit {" + "\r\n" +
-                "  title = '" + options.entityName + "';" + "\r\n" +
+                "export class Listar" + options.frontBaseName + "Component extends ListagemBaseComponent implements OnInit {" + "\r\n" +
                 "  modelAtual: " + options.entityName + ";" + "\r\n" +
-                "\r\n" +
-                "  @ViewChild('table') table: SimpleDataTableComponent;" + "\r\n" +
                 "\r\n" +
                 "  constructor(\r\n" +
                 "    public " + serviceName + ": " + options.entityName + "Service,\r\n" +
                 "    \r\n" +
-                "    public errorHandler: ErrorHandlerService, " + "\r\n" +
-                "    public toasty: ToastyService," + "\r\n" +
-                "    public auth: AuthBaseService" + "\r\n" +
-                "  ) { }\r\n" +
+                "    public baseServices: ListagemBaseService" + "\r\n" +
+                "  ) { super(baseServices); }\r\n" +
                 "\r\n" +
                 "  ngOnInit(): void {\r\n" +
+                "     super.ngOnInit();\r\n" +
+                "     this.title = '" + options.entityName + "';" + "\r\n" +
                 "     this.auth.cadastroPermission = '" + options.accessAlias + "';" + "\r\n" +
+                "  }\r\n" +
+                "\r\n" +
+                "  bindFormValidators(): void {\r\n" +
+                "    super.bindFormValidatorsPadrao();\r\n" +
+                "  }\r\n" +
+                "\r\n" +
+                "  getParametros(): string {\r\n" +
+                "    throw new Error('Method not implemented.');\r\n" +
                 "  }\r\n" +
                 "\r\n" +
                 "  deleteModel() {" + "\r\n" +
