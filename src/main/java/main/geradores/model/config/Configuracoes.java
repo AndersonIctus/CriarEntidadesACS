@@ -56,7 +56,7 @@ public class Configuracoes {
             "      \"ITENS_CONTAGEM\": \"ItemContagem\"," + "\r\n" +
             "      \"ITENS_DEVOLUCOES\": \"ItemDevolucao\"," + "\r\n" +
             "      \"ITENS_NOTA\": \"ItemNota\"," + "\r\n" +
-            "      \"ITENS_RECEBIMENTO\": \"ItemRecebido\"," + "\r\n" +
+            "      \"ITENS_RECEBIMENTO\": \"ItemRecebimento\"," + "\r\n" +
             "      \"ITENS_TRANSF_DIV\": \"ItemTransferenciaDiverso\"," + "\r\n" +
             "      \"ITENS_VENDA\": \"ItemVenda\"," + "\r\n" +
             "      \"MANIFESTO_NOTAS\": \"ManifestoNota\"," + "\r\n" +

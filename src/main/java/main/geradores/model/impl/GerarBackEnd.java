@@ -739,16 +739,13 @@ public class GerarBackEnd implements IGerador {
         String classBody = "package com.innovaro.acs.repository;\r\n" +
                 "\r\n" +
                 "import com.innovaro.acs.model." + options.entityName + ";\r\n" +
-                ((pkClass)
-                        ? "import com.innovaro.acs.model.embeddedid." + options.entityName + "PK;\r\n"
-                        : "") +
+                "import com.innovaro.acs.repository.base.RepositorioBase;\r\n" +
                 "import com.innovaro.acs.repository.impl." + options.entityName + "RepositoryQuery;\r\n" +
-                "import org.springframework.data.jpa.repository.JpaRepository;\r\n" +
                 "\r\n" +
                 "/** ********************************************** \r\n" +
                 " * Classe criada AUTOMATICAMENTE a partir do programa 'CriarEntidadesACS'\r\n" +
                 " ** ********************************************** */\r\n" +
-                "public interface " + options.entityName + "Repository extends " + options.entityName + "RepositoryQuery, JpaRepository<" + options.entityName + ", " + jpaClassKey + "> {\r\n" +
+                "public interface " + options.entityName + "Repository extends " + options.entityName + "RepositoryQuery, RepositorioBase<" + options.entityName + ", " + jpaClassKey + "> {\r\n" +
                 "\r\n" +
                 "}";
 
@@ -842,14 +839,12 @@ public class GerarBackEnd implements IGerador {
                     "public class " + options.entityName + "Resource extends BaseResource<" + options.entityName + ", " + options.entityName + "Filter, " + options.entityName + "Repository> {\r\n" +
                     "	\r\n" +
                     serviceVariable +
-                    "	// @Transactional\r\n" +
                     "	@GetMapping()\r\n" +
                     "	// @PreAuthorize(\"hasAuthority('ACESSAR " + options.accessAlias + "')\")\r\n" +
                     "	public Page<" + options.entityName + "> search(" + options.entityName + "Filter filter, Pageable pageable, String orderBy) {\r\n" +
                     "	    return super.search(filter, pageable, orderBy);\r\n" +
                     "	}\r\n" +
                     "   \r\n" +
-                    "	// @Transactional\r\n" +
                     "	@GetMapping(value = {\"/max/{atributo}\"}, produces=MediaType.APPLICATION_JSON_VALUE)\r\n" +
                     "	// @PreAuthorize(\"hasAuthority('ACESSAR " + options.accessAlias + "')\")\r\n" +
                     "	public String max(@PathVariable String atributo, " + options.entityName + "Filter filter) {\r\n" +
@@ -858,16 +853,17 @@ public class GerarBackEnd implements IGerador {
                     "   \r\n" +
 
                     // ******* LISTING *******
-                    "	@Transactional\r\n" +
                     "	@GetMapping(\"/list\")\r\n" +
                     "	// @PreAuthorize(\"hasAuthority('ACESSAR " + options.accessAlias + "')\")\r\n" +
-                    "	public Page<Map<String,?>> searchListar(" + options.entityName + "Filter filter, Pageable pageable) {\r\n" +
+                    "	public Page<Map<String,?>> searchListar(ArrayList<String> projection, " + options.entityName + "Filter filter, Pageable pageable) {\r\n" +
                     "		// filter.addToGroupBy(\"id" + options.entityName + "\");\r\n" +
                     "		\r\n" +
-                    "		String[] projection = { \"id" + options.entityName + "\", \"descricao\" };\r\n" +
-                    "		Page<Map<String,?>> pageProjectionMap = repository.getPageProjectionMapFor(projection, filter, pageable);\r\n" +
+                    "       if(projection == null) {\r\n" +
+                    "           projection = new ArrayList<>();\r\n" +
+                    "       }\r\n" +
+                    "       projection.addAll(Arrays.asList(\"id" + options.entityName + "\", \"descricao\"));" +
                     "		\r\n" +
-                    "		return pageProjectionMap;\r\n" +
+                    "		return repository.getPageProjectionMapFor(projection, filter, pageable);\r\n" +
                     "	}\r\n" +
                     "   \r\n" +
 
@@ -931,27 +927,29 @@ public class GerarBackEnd implements IGerador {
         //////////////////////////////////////////////////////////////////////////////////////////////////
 
         imports = // Imports Gerais !!
+                "import java.util.ArrayList;\r\n" +
+                "import java.util.Arrays;\r\n" +
                 "import java.util.Map;\r\n" +
-                        "\r\n" +
-                        "import javax.servlet.http.HttpServletResponse;\r\n" +
-                        "import javax.transaction.Transactional;\r\n" +
-                        "import javax.validation.Valid;\r\n" +
-                        "\r\n" +
-                        "import org.springframework.beans.factory.annotation.Autowired;\r\n" +
-                        "import org.springframework.boot.autoconfigure.EnableAutoConfiguration;\r\n" +
-                        "import org.springframework.data.domain.Page;\r\n" +
-                        "import org.springframework.data.domain.Pageable;\r\n" +
-                        "import org.springframework.http.HttpStatus;\r\n" +
-                        "import org.springframework.http.MediaType;\r\n" +
-                        "import org.springframework.http.ResponseEntity;\r\n" +
-                        "import org.springframework.security.access.prepost.PreAuthorize;\r\n" +
-                        "import org.springframework.web.bind.annotation.*;\r\n" +
-                        "\r\n" +
-                        "import com.innovaro.acs.event.RecursoCriadoEvent;\r\n" +
-                        "import com.innovaro.acs.repository." + options.entityName + "Repository;\r\n" +
-                        "import com.innovaro.acs.repository.filter." + options.entityName + "Filter;\r\n" +
-                        "import com.innovaro.acs.service." + options.entityName + "Service;\r\n" +
-                        "import com.innovaro.acs.model." + options.entityName + ";\r\n";
+                "\r\n" +
+                "import javax.servlet.http.HttpServletResponse;\r\n" +
+                "import javax.transaction.Transactional;\r\n" +
+                "import javax.validation.Valid;\r\n" +
+                "\r\n" +
+                "import org.springframework.beans.factory.annotation.Autowired;\r\n" +
+                "import org.springframework.boot.autoconfigure.EnableAutoConfiguration;\r\n" +
+                "import org.springframework.data.domain.Page;\r\n" +
+                "import org.springframework.data.domain.Pageable;\r\n" +
+                "import org.springframework.http.HttpStatus;\r\n" +
+                "import org.springframework.http.MediaType;\r\n" +
+                "import org.springframework.http.ResponseEntity;\r\n" +
+                "import org.springframework.security.access.prepost.PreAuthorize;\r\n" +
+                "import org.springframework.web.bind.annotation.*;\r\n" +
+                "\r\n" +
+                "import com.innovaro.acs.event.RecursoCriadoEvent;\r\n" +
+                "import com.innovaro.acs.repository." + options.entityName + "Repository;\r\n" +
+                "import com.innovaro.acs.repository.filter." + options.entityName + "Filter;\r\n" +
+                "import com.innovaro.acs.service." + options.entityName + "Service;\r\n" +
+                "import com.innovaro.acs.model." + options.entityName + ";\r\n";
 
         //////////////////////////////////////////////////////////////////////////////////////////////////
         for (Property prop : options.getOptionsKeys()) {
@@ -997,12 +995,12 @@ public class GerarBackEnd implements IGerador {
                     break;
             }
 
-            if (modelFindVariables.equals("") == false) {
+            if (!modelFindVariables.equals("")) {
                 modelFindVariables += ", ";
             }
             modelFindVariables += prop.getVariableName();
 
-            if (updateBeansCopy.equals("") == false) {
+            if (!updateBeansCopy.equals("")) {
                 updateBeansCopy += ", ";
             }
             updateBeansCopy += "\"" + prop.getVariableName() + "\"";
@@ -1017,7 +1015,7 @@ public class GerarBackEnd implements IGerador {
                     createModelSalvo += "\t\t" + "model.set" + className + "(new " + className + "(" + prop.getVariableName() + "));\r\n";
 
                     String novoImport = "import com.innovaro.acs.model." + className;
-                    if (imports.contains(novoImport) == false) // Se acrescenta o import se ele já não existir !
+                    if (!imports.contains(novoImport)) // Se acrescenta o import se ele já não existir !
                         imports += novoImport + ";\r\n";
                 } else {
                     createModelSalvo += "\t\t" + "// variavel '" + prop.getVariableName() + "' não é autogerada! \r\n";
@@ -1068,14 +1066,12 @@ public class GerarBackEnd implements IGerador {
                 "\t" + "@Autowired" + "\r\n" +
                 "\t" + "private " + options.entityName + "Service service;" + "\r\n" +
                 "\t" + "\r\n" +
-                "\t" + "// @Transactional\r\n" +
                 "\t" + "@GetMapping()\r\n" +
                 "\t" + "// @PreAuthorize(HAS_AUTHORITY_ACESSAR_"+ options.accessAlias + ")\r\n" +
                 "\t" + "public Page<" + options.entityName + "> search(" + options.entityName + "Filter filter, Pageable pageable, String orderBy) {\r\n" +
                 "\t\t" + "return super.search(filter, pageable, orderBy);\r\n" +
                 "\t" + "}\r\n" +
                 "\r\n" +
-                "\t" + "// @Transactional\r\n" +
                 "\t" + "@GetMapping(value = {\"/max/{atributo}\"}, produces = MediaType.APPLICATION_JSON_VALUE)\r\n" +
                 "\t" + "// @PreAuthorize(HAS_AUTHORITY_ACESSAR_"+ options.accessAlias + ")\r\n" +
                 "\t" + "public String max(@PathVariable String atributo, " + options.entityName + "Filter filter) {\r\n" +
@@ -1084,16 +1080,13 @@ public class GerarBackEnd implements IGerador {
                 "\r\n" +
 
                 // ******* LISTING *******
-                "\t" + "@Transactional\r\n" +
                 "\t" + "@GetMapping(\"/list\")\r\n" +
                 "\t" + "// @PreAuthorize(HAS_AUTHORITY_ACESSAR_"+ options.accessAlias + ")\r\n" +
-                "\t" + "public Page<Map<String,?>> searchListar(" + options.entityName + "Filter filter, Pageable pageable) {\r\n" +
+                "\t" + "public Page<Map<String,?>> searchListar(ArrayList<String> projection, " + options.entityName + "Filter filter, Pageable pageable) {\r\n" +
                 listGroupBy +
+                "\t\t" + "projection.addAll(Arrays.asList(" + listProjections + "));\r\n" +
                 "\t\t" + "\r\n" +
-                "\t\t" + "String[] projection = { " + listProjections + " };\r\n" +
-                "\t\t" + "Page<Map<String,?>> pageProjectionMap = repository.getPageProjectionMapFor(projection, filter, pageable);\r\n" +
-                "\t\t" + "\r\n" +
-                "\t\t" + "return pageProjectionMap;\r\n" +
+                "\t\t" + "return repository.getPageProjectionMapFor(projection, filter, pageable);\r\n" +
                 "\t" + "}\r\n" +
                 "\r\n" +
 
