@@ -24,6 +24,8 @@ public class GenOptions {
     public boolean generateModel = true; // Gera modelos por padrão
     public boolean generateEmpresaEntity = false; // A empresa não é entidade por padrão
     public boolean generateResourceService = true; // A classe de service é sempre gerada !
+    public boolean generateFormaPagamento = false; // Indica que vai ser gerado as classes de forma de pagamento !
+
     public boolean onlyBackEnd = false; // Flag para indicar que somente o back end será gerado !
     public boolean onlyFrontEnd = false; // Flag para indicar que somente o front end será gerado !
     public boolean onlyModel = false; // Flag para indicar que somente o MODEL será gerado !
@@ -84,6 +86,7 @@ public class GenOptions {
                 + "# modelFile       -> '" + ((modelFile == null) ? "<modelo padrão>" : modelFile) + "' \r\n"
                 + "###### Flags: \r\n"
                 + "# generateModel -> '" + generateModel + "' \r\n"
+                + "# generatePgto  -> '" + generateFormaPagamento + "' \r\n"
                 + "# onlyBackEnd   -> '" + onlyBackEnd + "' \r\n"
                 + "# onlyFrontEnd  -> '" + onlyFrontEnd + "' \r\n"
                 + "# fullFrontEnd  -> '" + fullFrontEnd + "' \r\n"

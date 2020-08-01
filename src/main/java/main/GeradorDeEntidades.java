@@ -3,6 +3,7 @@ package main;
 import main.geradores.GenOptions;
 import main.geradores.IGerador;
 import main.geradores.Utils;
+import main.geradores.formaPgto.impl.GerarFrontEndPagamento;
 import main.geradores.model.ModelGenerator;
 import main.geradores.model.impl.GerarBackEnd;
 import main.geradores.model.impl.GerarFrontEnd;
@@ -64,7 +65,7 @@ public class GeradorDeEntidades {
             }
         }
 
-        // -- Verificar os parametros passados -- //
+        //region // -- Verificar os parametros passados -- //
         for (int i = 2; i < args.length; i++) {
             String param = args[i];
 
@@ -111,6 +112,7 @@ public class GeradorDeEntidades {
             else if (param.equalsIgnoreCase("-auditionMode") || param.equalsIgnoreCase("-audit"))
                 Utils.aditionModeOn();
         }
+        //endregion
 
         if (options.getModelGenerator() != null) {
             ModelGenerator mg = options.getModelGenerator();
@@ -152,6 +154,25 @@ public class GeradorDeEntidades {
             }
         }
 
+
+
+        // Caso esteja usando a forma de pagamento
+        if (args[0].equalsIgnoreCase("-formaPagamento") || args[0].equalsIgnoreCase("-fp")) {
+            options.generateModel = false;
+            options.generateFormaPagamento = true;
+
+            options.frontBaseName = options.getFrontNameFrom(options.entityName);
+            options.frontBaseFolder = options.entityName;
+            options.frontModuleName = "movimentos";
+
+            options.entityName = "Recebimento";
+            options.defaultRoute = "recebimentos";
+
+            if (options.accessAlias == null) {
+                options.accessAlias = options.frontBaseName.toUpperCase();
+            }
+        }
+
         if (options.accessAlias == null) {
             options.accessAlias = "ALIAS_PADRAO";
         }
@@ -173,6 +194,12 @@ public class GeradorDeEntidades {
             );
         }
         // Options para Gerador de Entidades
+        else if(options.generateFormaPagamento) {
+            geradores = Arrays.asList(
+                    new GerarBackEnd(),
+                    new GerarFrontEndPagamento()
+            );
+        }
         else {
             geradores = Arrays.asList(
                     new GerarBackEnd(),

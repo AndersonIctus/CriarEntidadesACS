@@ -32,7 +32,9 @@ public class Principal {
 
             if (args[0].equalsIgnoreCase("-generate") || args[0].equalsIgnoreCase("-g") ||
                     args[0].equalsIgnoreCase("-modelFile") || args[0].equalsIgnoreCase("-mf") ||
-                    args[0].equalsIgnoreCase("-report") || args[0].equalsIgnoreCase("-rt") ) {
+                    args[0].equalsIgnoreCase("-report") || args[0].equalsIgnoreCase("-rt") ||
+                    args[0].equalsIgnoreCase("-formaPagamento") || args[0].equalsIgnoreCase("-fp")
+            ) {
                 GeradorDeEntidades.gerarEntidadeFrom(args);
             } else {
                 printOpcoes();
@@ -51,9 +53,10 @@ public class Principal {
     private static void printOpcoes() {
         String opcoes = "";
         opcoes += "-> Utilize uma das diretivas \r\n"
-                + "\t\t-generate [ou -g] <nomeEntidade> [flags ou options] \tpara gerar as classes para essa entidade !\r\n"
+                + "\t\t-generate [ou -g] <nomeEntidade> [flags ou options] \t para gerar as classes para essa entidade !\r\n"
                 + "\t\t-modelFile [ou -mf] <path_to_file> [flags ou options] \t Arquivo SCRIPT que pode ser usado como base para a criação do Modelo.\r\n"
                 + "\t\t-report [ou -rt] <path_to_file> [flags ou options] \t Arquivo para ser usado como base para a criação dos Arquivos de Relatório.\r\n"
+                + "\t\t-formaPagamento [ou -fp] <grupo_pagamento> [flags ou options] \t Gera a Estrutura e os Arquivos para uma nova Forma de Pagamento.\r\n"
                 + "\r\n"
 
                 + "FLAGS: \r\n"

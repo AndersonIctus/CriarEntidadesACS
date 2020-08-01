@@ -21,7 +21,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public class GerarFrontEnd implements IGerador {
-    private static String mainPath = "..\\front\\src\\app\\";
+    protected static String mainPath = "..\\front\\src\\app\\";
 
     @Override
     public void gerarArquivos(GenOptions options) throws IOException {
@@ -50,7 +50,7 @@ public class GerarFrontEnd implements IGerador {
                     GerarFrontEnd.mainPath += "modulos\\" + options.frontModuleName + "\\" + options.frontBaseFolder + "\\";
                 }
 
-                // Criar pasta do novo  módulo
+                // Criar pasta do novo módulo
                 Utils.createDirectory(GerarFrontEnd.mainPath);
                 if (!options.frontModuleName.contains("\\")) { // So gera se não tiver sub-modulos
                     gerarModule(options);
@@ -60,33 +60,33 @@ public class GerarFrontEnd implements IGerador {
                     System.out.println("------------------------------------------------------------------------------\r\n");
                 }
 
-                // Listagem
-                Utils.createDirectory(GerarFrontEnd.mainPath + "listar-" + options.frontBaseFolder + "\\");
-                gerarTelaListar(options);
-                gerarSassListar(options);
-                gerarComponentListar(options);
-
-                // Criar / Editar
-                Utils.createDirectory(GerarFrontEnd.mainPath + "criar-editar-" + options.frontBaseFolder + "\\");
-                gerarTelaCriarEditar(options);
-                gerarSassCriarEditar(options);
-                gerarComponentCriarEditar(options);
-
-                // Criar
-                Utils.createDirectory(GerarFrontEnd.mainPath + "criar-editar-" + options.frontBaseFolder + "\\criar-" + options.frontBaseFolder);
-                gerarComponentCriar(options);
-
-                // Editar
-                Utils.createDirectory(GerarFrontEnd.mainPath + "criar-editar-" + options.frontBaseFolder + "\\editar-" + options.frontBaseFolder);
-                gerarComponentEditar(options);
-
-                // Incluir o novo modulo no Routing Module Escolhido
-                if (!options.frontModuleName.contains("\\")) { // So gera se não tiver sub-modulos
-                    incluirCadastroModulo(options);
-                } else {
-                    System.out.println("Pulando inclusão nas rotas PADRAO, pois trata-se de um sub-modulo");
-                    System.out.println("------------------------------------------------------------------------------\r\n");
-                }
+//                // Listagem
+//                Utils.createDirectory(GerarFrontEnd.mainPath + "listar-" + options.frontBaseFolder + "\\");
+//                gerarTelaListar(options);
+//                gerarSassListar(options);
+//                gerarComponentListar(options);
+//
+//                // Criar / Editar
+//                Utils.createDirectory(GerarFrontEnd.mainPath + "criar-editar-" + options.frontBaseFolder + "\\");
+//                gerarTelaCriarEditar(options);
+//                gerarSassCriarEditar(options);
+//                gerarComponentCriarEditar(options);
+//
+//                // Criar
+//                Utils.createDirectory(GerarFrontEnd.mainPath + "criar-editar-" + options.frontBaseFolder + "\\criar-" + options.frontBaseFolder);
+//                gerarComponentCriar(options);
+//
+//                // Editar
+//                Utils.createDirectory(GerarFrontEnd.mainPath + "criar-editar-" + options.frontBaseFolder + "\\editar-" + options.frontBaseFolder);
+//                gerarComponentEditar(options);
+//
+//                // Incluir o novo modulo no Routing Module Escolhido
+//                if (!options.frontModuleName.contains("\\")) { // So gera se não tiver sub-modulos
+//                    incluirCadastroModulo(options);
+//                } else {
+//                    System.out.println("Pulando inclusão nas rotas PADRAO, pois trata-se de um sub-modulo");
+//                    System.out.println("------------------------------------------------------------------------------\r\n");
+//                }
             }
         }
 
@@ -95,7 +95,7 @@ public class GerarFrontEnd implements IGerador {
         System.out.println("===============================================");
     }
 
-    private void incluirCadastroModulo(GenOptions options) throws IOException {
+    protected void incluirCadastroModulo(GenOptions options) throws IOException {
         String pathToFile = options.mainFront;
 
         if (options.frontModuleName.equalsIgnoreCase("cadastros")) {
@@ -157,14 +157,14 @@ public class GerarFrontEnd implements IGerador {
         new File(tmpFile).renameTo(new File(pathToFile));
     }
 
-    private void writeToFile(Path path, byte[] bytes, StandardOpenOption... append) throws IOException {
+    protected void writeToFile(Path path, byte[] bytes, StandardOpenOption... append) throws IOException {
         Files.write(path, bytes, append);
     }
 
     /////////////////////////////////////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////////////////
 
-    private void gerarModelo(GenOptions options) throws IOException {
+    protected void gerarModelo(GenOptions options) throws IOException {
         boolean pkClass = false; // options.generateEmpresaEntity
 
         String path = GerarFrontEnd.mainPath + "model\\";
@@ -287,7 +287,7 @@ public class GerarFrontEnd implements IGerador {
     }
 
     // ----------------------------------------------------------------------------------------- //
-    private void gerarServico(GenOptions options) throws IOException {
+    protected void gerarServico(GenOptions options) throws IOException {
         boolean pkClass = false;
 
         String path = GerarFrontEnd.mainPath + "services\\";
@@ -318,10 +318,11 @@ public class GerarFrontEnd implements IGerador {
         System.out.println("------------------------------------------------------------------------------\r\n");
     }
 
-    private void gerarModule(GenOptions options) throws IOException {
+    protected void gerarModule(GenOptions options) throws IOException {
         String path = GerarFrontEnd.mainPath;
 
-        String classBody = "import { NgModule } from '@angular/core';\r\n" +
+        String classBody =
+                "import { NgModule } from '@angular/core';\r\n" +
                 "import { CommonModule } from '@angular/common';\r\n" +
                 "\r\n" +
                 "import { UtilsModule } from '../../../shared/utils/utils.module';\r\n" +
@@ -335,8 +336,6 @@ public class GerarFrontEnd implements IGerador {
                 "import { Criar" + options.frontBaseName + "Component } from './criar-editar-" + options.frontBaseFolder + "/criar-" + options.frontBaseFolder + "/criar-" + options.frontBaseFolder + ".component';\r\n" +
                 "import { Editar" + options.frontBaseName + "Component } from './criar-editar-" + options.frontBaseFolder + "/editar-" + options.frontBaseFolder + "/editar-" + options.frontBaseFolder + ".component';\r\n" +
                 "\r\n" +
-                // "import { "+options.entityName+"Service } from '../../../services/"+options.defaultRoute+".service';\r\n" +
-                // "\r\n" +
                 "@NgModule({\r\n" +
                 "  imports: [" + "\r\n" +
                 "    CommonModule,\r\n" +
@@ -350,10 +349,7 @@ public class GerarFrontEnd implements IGerador {
                 "\r\n" +
                 "    " + options.frontBaseName + "RoutingModule\r\n" +
                 "  ],\r\n" +
-                "  declarations: [" + "Listar" + options.frontBaseName + "Component, " + "Criar" + options.frontBaseName + "Component, " + "Editar" + options.frontBaseName + "Component],\r\n" +
-                "  providers: [\r\n" +
-                // "    "+options.entityName+"Service,\r\n" +
-                "  ]\r\n" +
+                "  declarations: [" + "Listar" + options.frontBaseName + "Component, " + "Criar" + options.frontBaseName + "Component, " + "Editar" + options.frontBaseName + "Component]\r\n" +
                 "})\r\n" +
                 "export class " + options.frontBaseName + "Module { }";
 
@@ -362,7 +358,7 @@ public class GerarFrontEnd implements IGerador {
         System.out.println("------------------------------------------------------------------------------\r\n");
     }
 
-    private void gerarRoutingModule(GenOptions options) throws IOException {
+    protected void gerarRoutingModule(GenOptions options) throws IOException {
         String path = GerarFrontEnd.mainPath;
 
         String classBody = "import { NgModule } from '@angular/core';\r\n" +
@@ -392,7 +388,7 @@ public class GerarFrontEnd implements IGerador {
     }
 
     // ----------------------------- FAZENDO A LISTAGEM -----------------------------
-    private void gerarTelaListar(GenOptions options) throws IOException {
+    protected void gerarTelaListar(GenOptions options) throws IOException {
         String path = GerarFrontEnd.mainPath + "listar-" + options.frontBaseFolder + "\\";
         String serviceName = options.entityName + "Service";
         serviceName = serviceName.substring(0, 1).toLowerCase() + serviceName.substring(1);
@@ -428,7 +424,7 @@ public class GerarFrontEnd implements IGerador {
         System.out.println("------------------------------------------------------------------------------\r\n");
     }
 
-    private void gerarSassListar(GenOptions options) throws IOException {
+    protected void gerarSassListar(GenOptions options) throws IOException {
         String path = GerarFrontEnd.mainPath + "listar-" + options.frontBaseFolder + "\\";
 
         String classBody = "" +
@@ -443,7 +439,7 @@ public class GerarFrontEnd implements IGerador {
         System.out.println("------------------------------------------------------------------------------\r\n");
     }
 
-    private void gerarComponentListar(GenOptions options) throws IOException {
+    protected void gerarComponentListar(GenOptions options) throws IOException {
         String path = GerarFrontEnd.mainPath + "listar-" + options.frontBaseFolder + "\\";
 
         String serviceName = options.entityName + "Service";
@@ -503,7 +499,7 @@ public class GerarFrontEnd implements IGerador {
     }
 
     // --------------------------- FAZENDO CRIAR - EDITAR ---------------------------
-    private void gerarTelaCriarEditar(GenOptions options) throws IOException {
+    protected void gerarTelaCriarEditar(GenOptions options) throws IOException {
         String path = GerarFrontEnd.mainPath + "criar-editar-" + options.frontBaseFolder + "\\";
 
         String classBody = "" +
@@ -532,7 +528,7 @@ public class GerarFrontEnd implements IGerador {
         System.out.println("------------------------------------------------------------------------------\r\n");
     }
 
-    private void gerarSassCriarEditar(GenOptions options) throws IOException {
+    protected void gerarSassCriarEditar(GenOptions options) throws IOException {
         String path = GerarFrontEnd.mainPath + "criar-editar-" + options.frontBaseFolder + "\\";
 
         String classBody = "";
@@ -542,7 +538,7 @@ public class GerarFrontEnd implements IGerador {
         System.out.println("------------------------------------------------------------------------------\r\n");
     }
 
-    private void gerarComponentCriarEditar(GenOptions options) throws IOException {
+    protected void gerarComponentCriarEditar(GenOptions options) throws IOException {
         String path = GerarFrontEnd.mainPath + "criar-editar-" + options.frontBaseFolder + "\\";
 
         String serviceName = options.entityName + "Service";
@@ -617,7 +613,7 @@ public class GerarFrontEnd implements IGerador {
     }
 
     // ------------------------------- FAZENDO CRIAR --------------------------------
-    private void gerarComponentCriar(GenOptions options) throws IOException {
+    protected void gerarComponentCriar(GenOptions options) throws IOException {
         String serviceName = options.entityName + "Service";
         serviceName = serviceName.substring(0, 1).toLowerCase() + serviceName.substring(1);
 
@@ -662,7 +658,7 @@ public class GerarFrontEnd implements IGerador {
         System.out.println("------------------------------------------------------------------------------\r\n");
     }
 
-    private void gerarComponentEditar(GenOptions options) throws IOException {
+    protected void gerarComponentEditar(GenOptions options) throws IOException {
         String serviceName = options.entityName + "Service";
         serviceName = serviceName.substring(0, 1).toLowerCase() + serviceName.substring(1);
 
