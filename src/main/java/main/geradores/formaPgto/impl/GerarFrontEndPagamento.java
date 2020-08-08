@@ -41,8 +41,6 @@ public class GerarFrontEndPagamento extends GerarFrontEnd {
             Utils.createDirectory(GerarFrontEnd.mainPath);
             if (!options.frontModuleName.contains("\\")) { // So gera se não tiver sub-modulos
                 gerarModule(options);
-                gerarModulePrestacao(options);
-                gerarModuleGerencia(options);
                 gerarRoutingModule(options);
             }
             else {
@@ -56,43 +54,19 @@ public class GerarFrontEndPagamento extends GerarFrontEnd {
             gerarSassListar(options);
             gerarComponentListar(options);
 
-            Utils.createDirectory(GerarFrontEnd.mainPath + "listar-" + options.frontBaseFolder + "\\prestacao");
-            gerarComponentListarPrestacao(options);
-            gerarComponentListarCaixaPrestacao(options);
-
-            Utils.createDirectory(GerarFrontEnd.mainPath + "listar-" + options.frontBaseFolder + "\\gerencia");
-            gerarComponentListarGerencia(options);
-            gerarComponentListarCaixaGerencia(options);
-
             // ----------- Criar / Editar
             Utils.createDirectory(GerarFrontEnd.mainPath + "criar-editar-" + options.frontBaseFolder + "\\");
             gerarTelaCriarEditar(options);
             gerarSassCriarEditar(options);
             gerarComponentCriarEditar(options);
 
-            // ----------- Criar
+            // Criar
             Utils.createDirectory(GerarFrontEnd.mainPath + "criar-editar-" + options.frontBaseFolder + "\\criar-" + options.frontBaseFolder);
             gerarComponentCriar(options);
 
-            Utils.createDirectory(GerarFrontEnd.mainPath + "criar-editar-" + options.frontBaseFolder + "\\criar-" + options.frontBaseFolder + "\\prestacao");
-            gerarComponentCriarPrestacao(options);
-            gerarComponentCriarCaixaPrestacao(options);
-
-            Utils.createDirectory(GerarFrontEnd.mainPath + "criar-editar-" + options.frontBaseFolder + "\\criar-" + options.frontBaseFolder + "\\gerencia");
-            gerarComponentCriarGerencia(options);
-            gerarComponentCriarCaixaGerencia(options);
-
-            // ----------- Editar
+            // Editar
             Utils.createDirectory(GerarFrontEnd.mainPath + "criar-editar-" + options.frontBaseFolder + "\\editar-" + options.frontBaseFolder);
             gerarComponentEditar(options);
-
-            Utils.createDirectory(GerarFrontEnd.mainPath + "criar-editar-" + options.frontBaseFolder + "\\editar-" + options.frontBaseFolder + "\\prestacao");
-            gerarComponentEditarPrestacao(options);
-            gerarComponentEditarCaixaPrestacao(options);
-
-            Utils.createDirectory(GerarFrontEnd.mainPath + "criar-editar-" + options.frontBaseFolder + "\\editar-" + options.frontBaseFolder + "\\gerencia");
-            gerarComponentEditarGerencia(options);
-            gerarComponentEditarCaixaGerencia(options);
 
             // Incluir o novo modulo no Routing Module Escolhido
             if (!options.frontModuleName.contains("\\")) { // So gera se não tiver sub-modulos
@@ -130,13 +104,9 @@ public class GerarFrontEndPagamento extends GerarFrontEnd {
                 "\r\n" +
                 "import { AcsRecebimentoModule } from '../shared/acs-recebimento/acs-recebimento.module';\r\n" +
                 "\r\n" +
-                "import { Listar" + options.frontBaseName + "PrestacaoComponent } from './listar-" + options.frontBaseFolder + "/prestacao/listar-" + options.frontBaseFolder + "-prestacao.component';\r\n" +
-                "import { Criar" + options.frontBaseName + "PrestacaoComponent } from './criar-editar-" + options.frontBaseFolder + "/criar-" + options.frontBaseFolder + "/prestacao/criar-" + options.frontBaseFolder + "-prestacao.component';\r\n" +
-                "import { Editar" + options.frontBaseName + "PrestacaoComponent } from './criar-editar-" + options.frontBaseFolder + "/editar-" + options.frontBaseFolder + "/prestacao/editar-" + options.frontBaseFolder + "-prestacao.component';\r\n" +
-                "\r\n" +
-                "import { Listar" + options.frontBaseName + "GerenciaComponent } from './listar-" + options.frontBaseFolder + "/gerencia/listar-" + options.frontBaseFolder + "-gerencia.component';\r\n" +
-                "import { Criar" + options.frontBaseName + "GerenciaComponent } from './criar-editar-" + options.frontBaseFolder + "/criar-" + options.frontBaseFolder + "/gerencia/criar-" + options.frontBaseFolder + "-gerencia.component';\r\n" +
-                "import { Editar" + options.frontBaseName + "GerenciaComponent } from './criar-editar-" + options.frontBaseFolder + "/editar-" + options.frontBaseFolder + "/gerencia/editar-" + options.frontBaseFolder + "-gerencia.component';\r\n" +
+                "import { Listar" + options.frontBaseName + "Component } from './listar-" + options.frontBaseFolder + "/listar-" + options.frontBaseFolder + ".component';\r\n" +
+                "import { Criar" + options.frontBaseName + "Component } from './criar-editar-" + options.frontBaseFolder + "/criar-" + options.frontBaseFolder + "/criar-" + options.frontBaseFolder + ".component';\r\n" +
+                "import { Editar" + options.frontBaseName + "Component } from './criar-editar-" + options.frontBaseFolder + "/editar-" + options.frontBaseFolder + "/editar-" + options.frontBaseFolder + ".component';\r\n" +
                 "\r\n" +
                 "@NgModule({\r\n" +
                 "  imports: [" + "\r\n" +
@@ -153,106 +123,13 @@ public class GerarFrontEndPagamento extends GerarFrontEnd {
                 "    AcsRecebimentoModule\r\n" +
                 "  ],\r\n" +
                 "  declarations: [\r\n" +
-                "        Listar" + options.frontBaseName + "PrestacaoComponent, " + "Criar" + options.frontBaseName + "PrestacaoComponent, " + "Editar" + options.frontBaseName + "PrestacaoComponent,\r\n" +
-                "        Listar" + options.frontBaseName + "GerenciaComponent, " + "Criar" + options.frontBaseName + "GerenciaComponent, " + "Editar" + options.frontBaseName + "GerenciaComponent\r\n" +
+                "        Listar" + options.frontBaseName + "Component, " + "Criar" + options.frontBaseName + "Component, " + "Editar" + options.frontBaseName + "Component\r\n" +
                 "  ]\r\n" +
                 "})\r\n" +
                 "export class " + options.frontBaseName + "Module { }";
 
         Utils.writeContentTo(path + options.frontBaseFolder + ".module.ts", classBody);
         System.out.println("Generated Module '" + options.frontBaseFolder + ".module.ts' into '" + path + "'");
-        System.out.println("------------------------------------------------------------------------------\r\n");
-    }
-
-    private void gerarModulePrestacao(GenOptions options) throws IOException {
-        String path = GerarFrontEnd.mainPath;
-
-        String classBody =
-            "import { NgModule } from '@angular/core';\r\n" +
-            "import { CommonModule } from '@angular/common';\r\n" +
-            "import { UtilsModule } from '../../../shared/utils/utils.module';\r\n" +
-            "import { MaterialModule, MaterialDateModule } from '../../../shared/utils/material-module.module';\r\n" +
-            "\r\n" +
-            "import { SharedComponentsModule } from '../../../shared/components/shared-components.module';\r\n" +
-            "import { SharedDirectivesModule } from '../../../shared/directive/shared-directives.module';\r\n" +
-            "import { SharedPipesModule } from '../../../shared/pipes/shared-pipes.module';\r\n" +
-            "\r\n" +
-            "import { " + options.frontBaseName + "PrestacaoRoutingModule } from './" + options.frontBaseFolder + "-routing.module';\r\n" +
-            "\r\n" +
-            "import { AcsRecebimentoModule } from '../shared/acs-recebimento/acs-recebimento.module';\r\n" +
-            "\r\n" +
-            "import { Listar" + options.frontBaseName + "CaixaPrestacaoComponent } from './listar-" + options.frontBaseFolder + "/prestacao/listar-" + options.frontBaseFolder + "-caixa-prestacao.component';\r\n" +
-            "import { Criar" + options.frontBaseName + "CaixaPrestacaoComponent } from './criar-editar-" + options.frontBaseFolder + "/criar-" + options.frontBaseFolder + "/prestacao/criar-" + options.frontBaseFolder + "-caixa-prestacao.component';\r\n" +
-            "import { Editar" + options.frontBaseName + "CaixaPrestacaoComponent } from './criar-editar-" + options.frontBaseFolder + "/editar-" + options.frontBaseFolder + "/prestacao/editar-" + options.frontBaseFolder + "-caixa-prestacao.component';\r\n" +
-            "\r\n" +
-            "@NgModule({\r\n" +
-            "  imports: [" + "\r\n" +
-            "    CommonModule,\r\n" +
-            "    MaterialModule,\r\n" +
-            "    MaterialDateModule,\r\n" +
-            "    UtilsModule,\r\n" +
-            "\r\n" +
-            "    SharedComponentsModule,\r\n" +
-            "    SharedDirectivesModule,\r\n" +
-            "    SharedPipesModule,\r\n" +
-            "\r\n" +
-            "    " + options.frontBaseName + "PrestacaoRoutingModule,\r\n" +
-            "    AcsRecebimentoModule\r\n" +
-            "  ],\r\n" +
-            "  declarations: [\r\n" +
-            "        Listar" + options.frontBaseName + "CaixaPrestacaoComponent, " + "Criar" + options.frontBaseName + "CaixaPrestacaoComponent, " + "Editar" + options.frontBaseName + "CaixaPrestacaoComponent\r\n" +
-            "  ]\r\n" +
-            "})\r\n" +
-            "export class " + options.frontBaseName + "PrestacaoModule { }";
-
-        Utils.writeContentTo(path + options.frontBaseFolder + "-prestacao.module.ts", classBody);
-        System.out.println("Generated Module '" + options.frontBaseFolder + "-prestacao.module.ts' into '" + path + "'");
-        System.out.println("------------------------------------------------------------------------------\r\n");
-    }
-
-    private void gerarModuleGerencia(GenOptions options) throws IOException {
-        String path = GerarFrontEnd.mainPath;
-
-        String classBody =
-                "import { NgModule } from '@angular/core';\r\n" +
-                "import { CommonModule } from '@angular/common';\r\n" +
-                "import { UtilsModule } from '../../../shared/utils/utils.module';\r\n" +
-                "import { MaterialModule, MaterialDateModule } from '../../../shared/utils/material-module.module';\r\n" +
-                "\r\n" +
-                "import { SharedComponentsModule } from '../../../shared/components/shared-components.module';\r\n" +
-                "import { SharedDirectivesModule } from '../../../shared/directive/shared-directives.module';\r\n" +
-                "import { SharedPipesModule } from '../../../shared/pipes/shared-pipes.module';\r\n" +
-                "\r\n" +
-                "import { " + options.frontBaseName + "GerenciaRoutingModule } from './" + options.frontBaseFolder + "-routing.module';\r\n" +
-                "\r\n" +
-                "import { AcsRecebimentoModule } from '../shared/acs-recebimento/acs-recebimento.module';\r\n" +
-                "\r\n" +
-                "import { Listar" + options.frontBaseName + "CaixaGerenciaComponent } from './listar-" + options.frontBaseFolder + "/gerencia/listar-" + options.frontBaseFolder + "-caixa-gerencia.component';\r\n" +
-                "import { Criar" + options.frontBaseName + "CaixaGerenciaComponent } from './criar-editar-" + options.frontBaseFolder + "/criar-" + options.frontBaseFolder + "/gerencia/criar-" + options.frontBaseFolder + "-caixa-gerencia.component';\r\n" +
-                "import { Editar" + options.frontBaseName + "CaixaGerenciaComponent } from './criar-editar-" + options.frontBaseFolder + "/editar-" + options.frontBaseFolder + "/gerencia/editar-" + options.frontBaseFolder + "-caixa-gerencia.component';\r\n" +
-                "\r\n" +
-                "@NgModule({\r\n" +
-                "  imports: [" + "\r\n" +
-                "    CommonModule,\r\n" +
-                "    MaterialModule,\r\n" +
-                "    MaterialDateModule,\r\n" +
-                "    UtilsModule,\r\n" +
-                "\r\n" +
-                "    SharedComponentsModule,\r\n" +
-                "    SharedDirectivesModule,\r\n" +
-                "    SharedPipesModule,\r\n" +
-                "\r\n" +
-                "    " + options.frontBaseName + "GerenciaRoutingModule,\r\n" +
-                "    AcsRecebimentoModule\r\n" +
-                "  ],\r\n" +
-                "  declarations: [\r\n" +
-                "        Listar" + options.frontBaseName + "CaixaGerenciaComponent, " + "Criar" + options.frontBaseName + "CaixaGerenciaComponent, " + "Editar" + options.frontBaseName + "CaixaGerenciaComponent\r\n" +
-                "  ]\r\n" +
-                "})\r\n" +
-                "export class " + options.frontBaseName + "GerenciaModule { }";
-
-        Utils.writeContentTo(path + options.frontBaseFolder + "-gerencia.module.ts", classBody);
-        System.out.println("Generated Module '" + options.frontBaseFolder + "-gerencia.module.ts' into '" + path + "'");
         System.out.println("------------------------------------------------------------------------------\r\n");
     }
 
@@ -268,73 +145,38 @@ public class GerarFrontEndPagamento extends GerarFrontEnd {
             "import { AuthGuard } from '../../../general/general-interceptors/guard/auth-guard';\r\n" +
             "\r\n" +
             "// Componentes para Prestação \r\n" +
-            "import { Listar" + options.frontBaseName + "PrestacaoComponent } from './listar-" + options.frontBaseFolder + "/prestacao/listar-" + options.frontBaseFolder + "-prestacao.component';\r\n" +
-            "import { Criar" + options.frontBaseName + "PrestacaoComponent } from './criar-editar-" + options.frontBaseFolder + "/criar-" + options.frontBaseFolder + "/prestacao/criar-" + options.frontBaseFolder + "-prestacao.component';\r\n" +
-            "import { Editar" + options.frontBaseName + "PrestacaoComponent } from './criar-editar-" + options.frontBaseFolder + "/editar-" + options.frontBaseFolder + "/prestacao/editar-" + options.frontBaseFolder + "-prestacao.component';\r\n" +
-            "\r\n" +
-            "import { Listar" + options.frontBaseName + "CaixaPrestacaoComponent } from './listar-" + options.frontBaseFolder + "/prestacao/listar-" + options.frontBaseFolder + "-caixa-prestacao.component';\r\n" +
-            "import { Criar" + options.frontBaseName + "CaixaPrestacaoComponent } from './criar-editar-" + options.frontBaseFolder + "/criar-" + options.frontBaseFolder + "/prestacao/criar-" + options.frontBaseFolder + "-caixa-prestacao.component';\r\n" +
-            "import { Editar" + options.frontBaseName + "CaixaPrestacaoComponent } from './criar-editar-" + options.frontBaseFolder + "/editar-" + options.frontBaseFolder + "/prestacao/editar-" + options.frontBaseFolder + "-caixa-prestacao.component';\r\n" +
-            "\r\n" +
-            "// Componentes para Gerência \r\n" +
-            "import { Listar" + options.frontBaseName + "GerenciaComponent } from './listar-" + options.frontBaseFolder + "/gerencia/listar-" + options.frontBaseFolder + "-gerencia.component';\r\n" +
-            "import { Criar" + options.frontBaseName + "GerenciaComponent } from './criar-editar-" + options.frontBaseFolder + "/criar-" + options.frontBaseFolder + "/gerencia/criar-" + options.frontBaseFolder + "-gerencia.component';\r\n" +
-            "import { Editar" + options.frontBaseName + "GerenciaComponent } from './criar-editar-" + options.frontBaseFolder + "/editar-" + options.frontBaseFolder + "/gerencia/editar-" + options.frontBaseFolder + "-gerencia.component';\r\n" +
-            "\r\n" +
-            "import { Listar" + options.frontBaseName + "CaixaGerenciaComponent } from './listar-" + options.frontBaseFolder + "/gerencia/listar-" + options.frontBaseFolder + "-caixa-gerencia.component';\r\n" +
-            "import { Criar" + options.frontBaseName + "CaixaGerenciaComponent } from './criar-editar-" + options.frontBaseFolder + "/criar-" + options.frontBaseFolder + "/gerencia/criar-" + options.frontBaseFolder + "-caixa-gerencia.component';\r\n" +
-            "import { Editar" + options.frontBaseName + "CaixaGerenciaComponent } from './criar-editar-" + options.frontBaseFolder + "/editar-" + options.frontBaseFolder + "/gerencia/editar-" + options.frontBaseFolder + "-caixa-gerencia.component';\r\n" +
+            "import { Listar" + options.frontBaseName + "Component } from './listar-" + options.frontBaseFolder + "/listar-" + options.frontBaseFolder + ".component';\r\n" +
+            "import { Criar" + options.frontBaseName + "Component } from './criar-editar-" + options.frontBaseFolder + "/criar-" + options.frontBaseFolder + "/criar-" + options.frontBaseFolder + ".component';\r\n" +
+            "import { Editar" + options.frontBaseName + "Component } from './criar-editar-" + options.frontBaseFolder + "/editar-" + options.frontBaseFolder + "/editar-" + options.frontBaseFolder + ".component';\r\n" +
             "\r\n" +
             "const preferenceFields = 'clientePadrao.id,permTrocoVc,reqAutorizacaoCt,reqNsuCt,opcaoValorVendaTrocoVc';\r\n" +
             "\r\n" +
             "// rota padrao = /" + options.frontModuleName + "/" + options.frontBaseFolder + "\r\n" +
             "const routes: Routes = [\r\n" +
             "  { path: '', redirectTo: '/" + options.frontModuleName + "/" + options.frontBaseFolder + "/venda', pathMatch: 'full' },\r\n" +
-            getRoutingPath(options, "venda", "Prestacao") + ",\r\n"+
-            getRoutingPath(options, "gerencia", "Gerencia") + "\r\n"+
+            getRoutingPath(options, "venda") + ",\r\n"+
+            getRoutingPath(options, "gerencia") + "\r\n"+
             "];\r\n" +
             "@NgModule({\r\n" +
             "  imports: [RouterModule.forChild(routes)],\r\n" +
             "  exports: [ ]\r\n" +
             "})\r\n" +
-            "export class " + options.frontBaseName + "RoutingModule { }\r\n" +
-            "\r\n" +
-            "/////////////////////////////////////////////////////////////////////////////////////////////////////////////\r\n" +
-            "// rota padrao = /movimentos/caixas-de-venda/:idPrestacao/" + options.frontBaseFolder + "\r\n" +
-            "const routesPrestacao: Routes = [\r\n" +
-            getRoutingPath(options, "venda", "CaixaPrestacao") + "\r\n"+
-            "];\r\n" +
-            "@NgModule({\r\n" +
-            "  imports: [RouterModule.forChild(routesPrestacao)],\r\n" +
-            "  exports: [ ]\r\n" +
-            "})\r\n" +
-            "export class " + options.frontBaseName + "PrestacaoRoutingModule { }\r\n" +
-            "\r\n" +
-            "/////////////////////////////////////////////////////////////////////////////////////////////////////////////\r\n" +
-            "// rota padrao = /movimentos/caixas-da-gerencia/:idCaixaGerencia/" + options.frontBaseFolder + "\r\n" +
-            "const routesGerencia: Routes = [\r\n" +
-            getRoutingPath(options, "gerencia", "CaixaGerencia") + "\r\n"+
-            "];\r\n" +
-            "@NgModule({\r\n" +
-            "  imports: [RouterModule.forChild(routesGerencia)],\r\n" +
-            "  exports: [ ]\r\n" +
-            "})\r\n" +
-            "export class " + options.frontBaseName + "GerenciaRoutingModule { }\r\n";
+            "export class " + options.frontBaseName + "RoutingModule { }\r\n";
 
         Utils.writeContentTo(path + options.frontBaseFolder + "-routing.module.ts", classBody);
         System.out.println("Generated Routing Module '" + options.frontBaseFolder + "-routing.module.ts' into '" + path + "'");
         System.out.println("------------------------------------------------------------------------------\r\n");
     }
 
-    private String getRoutingPath(GenOptions options, String pathBase, String contexto) {
+    private String getRoutingPath(GenOptions options, String pathBase) {
         return  "  " + "{\r\n" +
                 "      " + "path: '" + pathBase + "',\r\n" +
                 "      " + "children: [\r\n" +
-                "          " + "{ path: '', component: Listar" + options.frontBaseName + contexto + "Component, canActivate: [AuthGuard],\r\n" +
+                "          " + "{ path: '', component: Listar" + options.frontBaseName + "Component, canActivate: [AuthGuard],\r\n" +
                 "          " + "    data: { roles: ['SUPER', 'ACESSAR " + options.accessAlias + "'] }},\r\n" +
-                "          " + "{ path: 'create', component: Criar" + options.frontBaseName + contexto + "Component, canActivate: [AuthGuard],\r\n" +
+                "          " + "{ path: 'create', component: Criar" + options.frontBaseName + "Component, canActivate: [AuthGuard],\r\n" +
                 "          " + "    data: { roles: ['SUPER', 'INCLUIR " + options.accessAlias + "'], prefFields: preferenceFields }, resolve: { prefSistema: ParametrosSistemaResolver }},\r\n" +
-                "          " + "{ path: ':idRecebimento', component: Editar" + options.frontBaseName + contexto + "Component, canActivate: [AuthGuard],\r\n" +
+                "          " + "{ path: ':idRecebimento', component: Editar" + options.frontBaseName + "Component, canActivate: [AuthGuard],\r\n" +
                 "          " + "    data: { prefFields: preferenceFields }, resolve: { prefSistema: ParametrosSistemaResolver }}\r\n" +
                 "      " + "]\r\n" +
                 "  " + "}";
@@ -353,7 +195,7 @@ public class GerarFrontEndPagamento extends GerarFrontEnd {
                 "        <div class=\"panel-header m-0 row\">" + "\r\n" +
                 "            <h2 class=\"mr-auto mb-0\">{{ title }}</h2>" + "\r\n" +
                 "\r\n" +
-                "            <div *ngIf=\"isListagemTipoCaixa()\" class=\"mr-2\">" + "\r\n" +
+                "            <div *ngIf=\"isListagemOrigemCaixa()\" class=\"mr-2\">" + "\r\n" +
                 "                <button type=\"button\" mat-raised-button type=\"button\" class=\"btn btn--rounded text-bold pl-2\" (click)=\"voltarParaPrestacoesGerencia()\">" + "\r\n" +
                 "                    <mat-icon>account_balance</mat-icon> {{ listagemCaixaText }}" + "\r\n" +
                 "                </button>" + "\r\n" +
@@ -467,13 +309,12 @@ public class GerarFrontEndPagamento extends GerarFrontEnd {
         serviceName = serviceName.substring(0, 1).toLowerCase() + serviceName.substring(1);
 
         String classBody =
-            "import { OnInit, ViewChild, AfterContentInit } from '@angular/core';" + "\r\n" +
+            "import { OnInit, ViewChild, AfterContentInit, Component } from '@angular/core';" + "\r\n" +
             "import { Validators } from '@angular/forms';" + "\r\n" +
             "import { ActivatedRoute } from '@angular/router';" + "\r\n" +
             "\r\n" +
             "import { Util } from '../../../../shared/utils/Util';" + "\r\n" +
             "import { AcsDateTime } from '../../../../shared/utils/AcsDateTime';" + "\r\n" +
-            "import { ConstContextoCaixaDeOrigem } from '../../shared/base/ConstContextoCaixaDeOrigem';" + "\r\n" +
             "import { ConstTipoFinalizadora } from '../../../../shared/models/constants/ConstTipoFinalizadora';" + "\r\n" +
             "\r\n" +
             "import { " + options.entityName + " } from '../../../../model/" + options.entityName + "';" + "\r\n" +
@@ -483,10 +324,18 @@ public class GerarFrontEndPagamento extends GerarFrontEnd {
             "import { ListagemBaseService } from '../../../../shared/base/listagem-base.service';" + "\r\n" +
             "import { ListagemRecebimentoComponent } from '../../shared/acs-recebimento/listagem-recebimento/listagem-recebimento.component';" + "\r\n" +
             "\r\n" +
+            "import { ListagemContexto } from '../../shared/acs-recebimento/contexto-recebimento/listar/ListagemContexto';" + "\r\n" +
+            "import { ContextoRecebimentoFactory } from '../../shared/acs-recebimento/contexto-recebimento/ContextoRecebimentoFactory';" + "\r\n" +
+            "\r\n" +
             "import { debounceTime } from 'rxjs/operators';" + "\r\n" +
             "\r\n" +
-            "export abstract class Listar" + options.frontBaseName + "Component extends ListagemBaseComponent implements OnInit, AfterContentInit {" + "\r\n" +
+            "@Component({" + "\r\n" +
+            "    templateUrl: './listar-" + options.frontBaseFolder + ".component.html'," + "\r\n" +
+            "    styleUrls: ['./listar-" + options.frontBaseFolder + ".component.scss']" + "\r\n" +
+            "})" + "\r\n" +
+            "export class Listar" + options.frontBaseName + "Component extends ListagemBaseComponent implements OnInit, AfterContentInit {" + "\r\n" +
             "    modelAtual: " + options.entityName + ";" + "\r\n" +
+            "    contexto: ListagemContexto;" + "\r\n" +
             "\r\n" +
             "    qtdFinalizadoras: number = 0;" + "\r\n" +
             "    valorTotalListado: number = 0;" + "\r\n" +
@@ -501,22 +350,38 @@ public class GerarFrontEndPagamento extends GerarFrontEnd {
             "    @ViewChild('acs_listagem_recebimento') acsListagemRecebimento: ListagemRecebimentoComponent;" + "\r\n" +
             "\r\n" +
             "    constructor(\r\n" +
-            "      public contexto: ConstContextoCaixaDeOrigem," + "\r\n" +
             "      public " + serviceName + ": " + options.entityName + "Service,\r\n" +
             "\r\n" +
             "      public activatedRoute: ActivatedRoute," + "\r\n" +
             "      public baseServices: ListagemBaseService" + "\r\n" +
             "    ) { super(baseServices); }\r\n" +
             "\r\n" +
-            "    ngOnInit(): void {\r\n" +
-            "       super.ngOnInit();\r\n" +
-            "       this.auth.cadastroPermission = '" + options.accessAlias + "';" + "\r\n" +
+            "    ngOnInit(): void {" + "\r\n" +
+            "       // Resolvendo o Contexto !" + "\r\n" +
+            "       this.contexto = ContextoRecebimentoFactory.createListagemContexto(this.router, this.bag, this.activatedRoute.snapshot.params);" + "\r\n" +
+            "       this.contexto.setTitle('" + options.frontBaseName + "');" + "\r\n" +
             "\r\n" +
-            "       this.table.dataParameter = this.getFilterList();" + "\r\n" +
+            "       super.ngOnInit();" + "\r\n" +
+            "       this.title = this.contexto.getTitle();" + "\r\n" +
+            "       this.listagemCaixaText = this.contexto.getCaixaText();" + "\r\n" +
+            "\r\n" +
+            "       this.auth.cadastroPermission = '" + options.accessAlias + "';" + "\r\n" +
             "\r\n" +
             "       // Definições dos filtros" + "\r\n" +
             "       this.iniciarFiltros();" + "\r\n" +
             "       this.acsListagemRecebimento.setValidacaoCallDialog( this.validarUsoFiltro.bind(this) );" + "\r\n" +
+            "\r\n" +
+            "       // Verificando o contexto a de algum partir da CAIXA" + "\r\n" +
+            "       if(this.contexto.isOrigemCaixa()) {" + "\r\n" +
+            "           super.setLimpaDadosNoCarregamento(false);" + "\r\n" +
+            "           this.acsListagemRecebimento.setValuesPrestacaoGerencia(this.contexto.getValuePrestacaoGerencia());" + "\r\n" +
+            "\r\n" +
+            "       } else {" + "\r\n" +
+            "           this.contexto.navegarAPartirDe('" + options.frontBaseFolder + "'); // Se cair aqui e a URL for a mesma, a navegação não ocorre !" + "\r\n" +
+            "       }" + "\r\n" +
+            "\r\n" +
+            "       this.table.urlAction = '/list-" + options.frontBaseFolder + "';" + "\r\n" +
+            "       this.table.dataParameter = this.getFilterList();" + "\r\n" +
             "    }\r\n" +
             "\r\n" +
             "    ngAfterContentInit(): void {" + "\r\n" +
@@ -556,7 +421,7 @@ public class GerarFrontEndPagamento extends GerarFrontEnd {
             "        ////////////////////////////////////////////////////////" + "\r\n" +
             "        // CABEÇALHO DO ACS LISTAGEM" + "\r\n" +
             "        this.acsListagemRecebimento.empresa = this.empresa;" + "\r\n" +
-            "        this.acsListagemRecebimento.contexto = this.contexto;" + "\r\n" +
+            "        this.acsListagemRecebimento.contexto = this.contexto.getContextoCaixaDeOrigem();" + "\r\n" +
             "        this.acsListagemRecebimento.finalizadoras = [ConstTipoFinalizadora.finalizadora];" + "\r\n" +
             "    }" + "\r\n" +
             "\r\n" +
@@ -611,8 +476,23 @@ public class GerarFrontEndPagamento extends GerarFrontEnd {
             "           filterList.push(`finalizadora=${filtro['finalizadora']}`);" + "\r\n" +
             "       }" + "\r\n" +
             "\r\n" +
-            "       filterList.push(`contextoCaixaDeOrigem=${this.contexto}`);" + "\r\n" +
+            "       filterList.push(`contextoCaixaDeOrigem=${this.contexto.getContextoCaixaDeOrigem()}`);" + "\r\n" +
             "       return filterList.join('&');" + "\r\n" +
+            "    }" + "\r\n" +
+            "\r\n" +
+            "    // Override " + "\r\n" +
+            "    limparCampos() {" + "\r\n" +
+            "        if(this.contexto.isOrigemCaixa()) {" + "\r\n" +
+            "            this.bindFormValidators();" + "\r\n" +
+            "\r\n" +
+            "            this.acsListagemRecebimento.setValuesPrestacaoGerencia(this.contexto.getValuePrestacaoGerencia());" + "\r\n" +
+            "            super.filtrarEOrdenar();" + "\r\n" +
+            "\r\n" +
+            "            this.submitted = false;" + "\r\n" +
+            "\r\n" +
+            "        } else {" + "\r\n" +
+            "            super.limparCampos();" + "\r\n" +
+            "        }" + "\r\n" +
             "    }" + "\r\n" +
             "\r\n" +
             "    // ---------------- FUNCOES DE DATA PARAMETER ---------------- \\" + "\r\n" +
@@ -655,7 +535,7 @@ public class GerarFrontEndPagamento extends GerarFrontEnd {
             "    deleteModel() {" + "\r\n" +
             "        this.table.isLoadingResults = true;" + "\r\n" +
             "        this.recebimentoService" + "\r\n" +
-            "            .customDelete(`/${this.modelAtual.id}/contexto/${this.contexto}`)" + "\r\n" +
+            "            .customDelete(`/${this.modelAtual.id}/${this.contexto.getUrlContexto()}`)" + "\r\n" +
             "            .then(() => {" + "\r\n" +
             "                this.table.isLoadingResults = false;" + "\r\n" +
             "                this.table.filterDataTable((dataTable: Recebimento[]): Recebimento[] => {" + "\r\n" +
@@ -672,10 +552,9 @@ public class GerarFrontEndPagamento extends GerarFrontEnd {
             "\r\n" +
             "    // ------------------------- METODOS PARA A PRESTAÇÃO E GERÊNCIA ------------------------- //" + "\r\n" +
             "    // Metodo para voltar apra as prestações (Sem implementação, pois o botão só serve para o contexto de prestações)" + "\r\n" +
-            "    abstract voltarParaPrestacoesGerencia();" + "\r\n" +
-            "\r\n" +
-            "    // Método para validações custom da listagem" + "\r\n" +
-            "    abstract validacaoDeIncluao(): boolean;" + "\r\n" +
+            "    voltarParaPrestacoesGerencia() {" + "\r\n" +
+            "        this.contexto.voltarParaPrestacoesGerencia();" + "\r\n" +
+            "    }" + "\r\n" +
             "\r\n" +
             "    tratamentoDeInclusao() {" + "\r\n" +
             "        // 1 - Verifica se tem permissão para incluir !" + "\r\n" +
@@ -684,269 +563,24 @@ public class GerarFrontEndPagamento extends GerarFrontEnd {
             "            return;" + "\r\n" +
             "        }" + "\r\n" +
             "\r\n" +
-            "        if(!this.validacaoDeIncluao()) {" + "\r\n" +
+            "        // Verifica a inclusao no Contexto !" + "\r\n" +
+            "        try {" + "\r\n" +
+            "            this.contexto.validacaoDeInclusao();" + "\r\n" +
+            "        } catch (error) {" + "\r\n" +
+            "            this.toasty.error(error.message);" + "\r\n" +
             "            return;" + "\r\n" +
             "        }" + "\r\n" +
             "\r\n" +
             "        this.router.navigate(['create'], {relativeTo: this.activatedRoute});" + "\r\n" +
             "    }" + "\r\n" +
             "\r\n" +
-            "    isListagemTipoCaixa() {" + "\r\n" +
-            "        return this.contexto === ConstContextoCaixaDeOrigem.CAIXA_GERENCIA || this.contexto === ConstContextoCaixaDeOrigem.CAIXA_PRESTACAO;" + "\r\n" +
+            "    isListagemOrigemCaixa() {" + "\r\n" +
+            "        return this.contexto.isOrigemCaixa();" + "\r\n" +
             "    }" + "\r\n" +
             "}" + "\r\n";
 
         Utils.writeContentTo(path + "listar-" + options.frontBaseFolder + ".component.ts", classBody);
         System.out.println("Generated LIST COMPONENT TS '" + "listar-" + options.frontBaseFolder + ".component.ts' into '" + path + "'");
-        System.out.println("------------------------------------------------------------------------------\r\n");
-    }
-
-    private void gerarComponentListarPrestacao(GenOptions options) throws IOException {
-        String path = GerarFrontEnd.mainPath + "listar-" + options.frontBaseFolder + "\\prestacao\\";
-
-        String classBody =
-                "import { Component, OnInit } from '@angular/core';" + "\r\n" +
-                "import { ActivatedRoute } from '@angular/router';" + "\r\n" +
-                "\r\n" +
-                "import { Listar" + options.frontBaseName + "Component } from '../listar-" + options.frontBaseFolder + ".component';" + "\r\n" +
-                "import { ConstContextoCaixaDeOrigem } from '../../../shared/base/ConstContextoCaixaDeOrigem';" + "\r\n" +
-                "\r\n" +
-                "import { RecebimentoService } from '../../../../../services/recebimentos.service';" + "\r\n" +
-                "import { ListagemBaseService } from '../../../../../shared/base/listagem-base.service';" + "\r\n" +
-                "\r\n" +
-                "@Component({" + "\r\n" +
-                "    templateUrl: '../listar-" + options.frontBaseFolder + ".component.html'," + "\r\n" +
-                "    styleUrls: ['../listar-" + options.frontBaseFolder + ".component.scss']" + "\r\n" +
-                "})" + "\r\n" +
-                "export class Listar" + options.frontBaseName + "PrestacaoComponent extends Listar" + options.frontBaseName + "Component implements OnInit {" + "\r\n" +
-                "    constructor(" + "\r\n" +
-                "        public recebimentoService: RecebimentoService," + "\r\n" +
-                "\r\n" +
-                "        public activatedRoute: ActivatedRoute," + "\r\n" +
-                "        public baseServices: ListagemBaseService" + "\r\n" +
-                "    ) { super(ConstContextoCaixaDeOrigem.PRESTACAO, recebimentoService, activatedRoute, baseServices); }" + "\r\n" +
-                "\r\n" +
-                "    ngOnInit(): void {" + "\r\n" +
-                "        super.ngOnInit();" + "\r\n" +
-                "        this.title = '" + options.frontBaseName + " [Caixa de Venda]';" + "\r\n" +
-                "    }" + "\r\n" +
-                "\r\n" +
-                "    // ------------------------- METODOS PARA A PRESTAÇÃO E GERÊNCIA ------------------------- //" + "\r\n" +
-                "    validacaoDeIncluao(): boolean { return true; }" + "\r\n" +
-                "    voltarParaPrestacoesGerencia() { }" + "\r\n" +
-                "}\r\n" +
-                "";
-
-        Utils.writeContentTo(path + "listar-" + options.frontBaseFolder + "-prestacao.component.ts", classBody);
-        System.out.println("Generated LIST COMPONENT TS '" + "listar-" + options.frontBaseFolder + "-prestacao.component.ts' into '" + path + "'");
-        System.out.println("------------------------------------------------------------------------------\r\n");
-    }
-
-    private void gerarComponentListarCaixaPrestacao(GenOptions options) throws IOException {
-        String path = GerarFrontEnd.mainPath + "listar-" + options.frontBaseFolder + "\\prestacao\\";
-
-        String classBody =
-            "import { Component, OnInit } from '@angular/core';" + "\r\n" +
-            "import { ActivatedRoute } from '@angular/router';" + "\r\n" +
-            "\r\n" +
-            "import { Listar" + options.frontBaseName + "PrestacaoComponent } from './listar-" + options.frontBaseFolder + "-prestacao.component';" + "\r\n" +
-            "import { ConstContextoCaixaDeOrigem } from '../../../shared/base/ConstContextoCaixaDeOrigem';" + "\r\n" +
-            "\r\n" +
-            "import { RecebimentoService } from '../../../../../services/recebimentos.service';" + "\r\n" +
-            "import { ListagemBaseService } from '../../../../../shared/base/listagem-base.service';" + "\r\n" +
-            "\r\n" +
-            "import { ConstCaixasDeVenda } from '../../../caixas-de-venda/ConstCaixasDeVenda';" + "\r\n" +
-            "import { Prestacao } from '../../../../../model/Prestacao';" + "\r\n" +
-            "\r\n" +
-            "@Component({" + "\r\n" +
-            "    templateUrl: '../listar-" + options.frontBaseFolder + ".component.html'," + "\r\n" +
-            "    styleUrls: ['../listar-" + options.frontBaseFolder + ".component.scss']" + "\r\n" +
-            "})" + "\r\n" +
-            "export class Listar" + options.frontBaseName + "CaixaPrestacaoComponent extends Listar" + options.frontBaseName + "PrestacaoComponent implements OnInit {" + "\r\n" +
-            "    prestacao: Prestacao;" + "\r\n" +
-            "\r\n" +
-            "    constructor(" + "\r\n" +
-            "        public recebimentoService: RecebimentoService," + "\r\n" +
-            "\r\n" +
-            "        public activatedRoute: ActivatedRoute," + "\r\n" +
-            "        public baseServices: ListagemBaseService" + "\r\n" +
-            "    ) { super(recebimentoService, activatedRoute, baseServices); }" + "\r\n" +
-            "\r\n" +
-            "    ngOnInit(): void {" + "\r\n" +
-            "        this.contexto = ConstContextoCaixaDeOrigem.CAIXA_PRESTACAO;" + "\r\n" +
-            "        this.listagemCaixaText = 'Prestação';" + "\r\n" +
-            "\r\n" +
-            "        super.ngOnInit();" + "\r\n" +
-            "        this.title = '" + options.frontBaseName + " [Caixa de Venda - Prestação]';" + "\r\n" +
-            "        super.setLimpaDadosNoCarregamento(false);" + "\r\n" +
-            "\r\n" +
-            "        this.prestacao = this.bag.getData(ConstCaixasDeVenda.PRESTACAO_BAG);" + "\r\n" +
-            "        if( this.prestacao === undefined ) {" + "\r\n" +
-            "            this.router.navigate([`/movimentos/" + options.frontBaseFolder + "/venda/`]);" + "\r\n" +
-            "            return;" + "\r\n" +
-            "        }" + "\r\n" +
-            "\r\n" +
-            "        this.baseServices.bag.setData(ConstCaixasDeVenda.PRESTACAO_BAG, this.prestacao); // Guarda a prestação na listagem" + "\r\n" +
-            "        this.acsListagemRecebimento.setValuesPrestacaoGerencia(this.prestacao);" + "\r\n" +
-            "\r\n" +
-            "        // Pegando novamente os valores da listagem" + "\r\n" +
-            "        this.table.dataParameter = this.getFilterList();" + "\r\n" +
-            "    }" + "\r\n" +
-            "\r\n" +
-            "    limparCampos() {" + "\r\n" +
-            "        this.bindFormValidators();" + "\r\n" +
-            "\r\n" +
-            "        this.acsListagemRecebimento.setValuesPrestacaoGerencia(this.prestacao);" + "\r\n" +
-            "        super.filtrarEOrdenar();" + "\r\n" +
-            "        this.submitted = false;" + "\r\n" +
-            "    }" + "\r\n" +
-            "\r\n" +
-            "    // ------------------------- METODOS PARA A PRESTAÇÃO E GERÊNCIA ------------------------- //" + "\r\n" +
-            "    validacaoDeIncluao() {" + "\r\n" +
-            "        if(this.prestacao.bloqueado === 'S') {" + "\r\n" +
-            "            this.toasty.error(`A Prestação está bloqueada para a Data e não pode incluir!`);" + "\r\n" +
-            "            return false;" + "\r\n" +
-            "        }" + "\r\n" +
-            "\r\n" +
-            "        return true;" + "\r\n" +
-            "    }" + "\r\n" +
-            "\r\n" +
-            "    voltarParaPrestacoesGerencia() {" + "\r\n" +
-            "        // Força Limpar o SessionStorage da listagem" + "\r\n" +
-            "        super.removerDados();" + "\r\n" +
-            "\r\n" +
-            "        this.bag.setData(ConstCaixasDeVenda.PRESTACAO_BAG, this.prestacao);" + "\r\n" +
-            "        this.router.navigate([`/movimentos/caixas-de-venda/${this.prestacao.id}`]);" + "\r\n" +
-            "    }" + "\r\n" +
-            "}\r\n";
-
-        Utils.writeContentTo(path + "listar-" + options.frontBaseFolder + "-caixa-prestacao.component.ts", classBody);
-        System.out.println("Generated LIST COMPONENT TS '" + "listar-" + options.frontBaseFolder + "-caixa-prestacao.component.ts' into '" + path + "'");
-        System.out.println("------------------------------------------------------------------------------\r\n");
-    }
-
-    private void gerarComponentListarGerencia(GenOptions options) throws IOException {
-        String path = GerarFrontEnd.mainPath + "listar-" + options.frontBaseFolder + "\\gerencia\\";
-
-        String classBody =
-                "import { Component, OnInit } from '@angular/core';" + "\r\n" +
-                "import { ActivatedRoute } from '@angular/router';" + "\r\n" +
-                "\r\n" +
-                "import { Listar" + options.frontBaseName + "Component } from '../listar-" + options.frontBaseFolder + ".component';" + "\r\n" +
-                "import { ConstContextoCaixaDeOrigem } from '../../../shared/base/ConstContextoCaixaDeOrigem';" + "\r\n" +
-                "\r\n" +
-                "import { RecebimentoService } from '../../../../../services/recebimentos.service';" + "\r\n" +
-                "import { ListagemBaseService } from '../../../../../shared/base/listagem-base.service';" + "\r\n" +
-                "\r\n" +
-                "@Component({" + "\r\n" +
-                "    templateUrl: '../listar-" + options.frontBaseFolder + ".component.html'," + "\r\n" +
-                "    styleUrls: ['../listar-" + options.frontBaseFolder + ".component.scss']" + "\r\n" +
-                "})" + "\r\n" +
-                "export class Listar" + options.frontBaseName + "GerenciaComponent extends Listar" + options.frontBaseName + "Component implements OnInit {" + "\r\n" +
-                "    constructor(" + "\r\n" +
-                "        public recebimentoService: RecebimentoService," + "\r\n" +
-                "\r\n" +
-                "        public activatedRoute: ActivatedRoute," + "\r\n" +
-                "        public baseServices: ListagemBaseService" + "\r\n" +
-                "    ) { super(ConstContextoCaixaDeOrigem.GERENCIA, recebimentoService, activatedRoute, baseServices); }" + "\r\n" +
-                "\r\n" +
-                "    ngOnInit(): void {" + "\r\n" +
-                "        super.ngOnInit();" + "\r\n" +
-                "        this.title = '" + options.frontBaseName + " [Caixa da Gerência]';" + "\r\n" +
-                "    }" + "\r\n" +
-                "\r\n" +
-                "    // ------------------------- METODOS PARA A PRESTAÇÃO E GERÊNCIA ------------------------- //" + "\r\n" +
-                "    validacaoDeIncluao(): boolean { return true; }" + "\r\n" +
-                "    voltarParaPrestacoesGerencia() { }" + "\r\n" +
-                "}\r\n" +
-                "";
-
-        Utils.writeContentTo(path + "listar-" + options.frontBaseFolder + "-gerencia.component.ts", classBody);
-        System.out.println("Generated LIST COMPONENT TS '" + "listar-" + options.frontBaseFolder + "-gerencia.component.ts' into '" + path + "'");
-        System.out.println("------------------------------------------------------------------------------\r\n");
-    }
-
-    private void gerarComponentListarCaixaGerencia(GenOptions options) throws IOException {
-        String path = GerarFrontEnd.mainPath + "listar-" + options.frontBaseFolder + "\\gerencia\\";
-
-        String classBody =
-                "import { Component, OnInit } from '@angular/core';" + "\r\n" +
-                "import { ActivatedRoute } from '@angular/router';" + "\r\n" +
-                "\r\n" +
-                "import { Listar" + options.frontBaseName + "GerenciaComponent } from './listar-" + options.frontBaseFolder + "-gerencia.component';" + "\r\n" +
-                "import { ConstContextoCaixaDeOrigem } from '../../../shared/base/ConstContextoCaixaDeOrigem';" + "\r\n" +
-                "\r\n" +
-                "import { RecebimentoService } from '../../../../../services/recebimentos.service';" + "\r\n" +
-                "import { ListagemBaseService } from '../../../../../shared/base/listagem-base.service';" + "\r\n" +
-                "\r\n" +
-                "import { ConstCaixasDaGerencia } from '../../../caixas-da-gerencia/ConstCaixasDaGerencia';" + "\r\n" +
-                "import { CaixaGerencia } from '../../../../../model/CaixaGerencia';" + "\r\n" +
-                "import { ConstSituacao } from '../../../../../shared/models/constants/ConstSituacao';" + "\r\n" +
-                "\r\n" +
-                "@Component({" + "\r\n" +
-                "    templateUrl: '../listar-" + options.frontBaseFolder + ".component.html'," + "\r\n" +
-                "    styleUrls: ['../listar-" + options.frontBaseFolder + ".component.scss']" + "\r\n" +
-                "})" + "\r\n" +
-                "export class Listar" + options.frontBaseName + "CaixaGerenciaComponent extends Listar" + options.frontBaseName + "GerenciaComponent implements OnInit {" + "\r\n" +
-                "    caixaGerencia: CaixaGerencia;" + "\r\n" +
-                "\r\n" +
-                "    constructor(" + "\r\n" +
-                "        public recebimentoService: RecebimentoService," + "\r\n" +
-                "\r\n" +
-                "        public activatedRoute: ActivatedRoute," + "\r\n" +
-                "        public baseServices: ListagemBaseService" + "\r\n" +
-                "    ) { super(recebimentoService, activatedRoute, baseServices); }" + "\r\n" +
-                "\r\n" +
-                "    ngOnInit(): void {" + "\r\n" +
-                "        this.contexto = ConstContextoCaixaDeOrigem.CAIXA_GERENCIA;" + "\r\n" +
-                "        this.listagemCaixaText = 'Gerência';" + "\r\n" +
-                "\r\n" +
-                "        super.ngOnInit();" + "\r\n" +
-                "        this.title = '" + options.frontBaseName + " [Caixa da Gerência - Gerência]';" + "\r\n" +
-                "        super.setLimpaDadosNoCarregamento(false);" + "\r\n" +
-                "\r\n" +
-                "        this.caixaGerencia = this.bag.getData(ConstCaixasDaGerencia.GERENCIA_BAG);" + "\r\n" +
-                "        if( this.caixaGerencia === undefined ) {" + "\r\n" +
-                "            this.router.navigate([`/movimentos/" + options.frontBaseFolder + "/gerencia/`]);" + "\r\n" +
-                "            return;" + "\r\n" +
-                "        }" + "\r\n" +
-                "\r\n" +
-                "        this.baseServices.bag.setData(ConstCaixasDaGerencia.GERENCIA_BAG, this.caixaGerencia); // Guarda a caixa gerencia na listagem" + "\r\n" +
-                "        this.acsListagemRecebimento.setValuesPrestacaoGerencia(this.caixaGerencia);" + "\r\n" +
-                "\r\n" +
-                "        // Pegando novamente os valores da listagem" + "\r\n" +
-                "        this.table.dataParameter = this.getFilterList();" + "\r\n" +
-                "    }" + "\r\n" +
-                "\r\n" +
-                "    limparCampos() {" + "\r\n" +
-                "        this.bindFormValidators();" + "\r\n" +
-                "\r\n" +
-                "        this.acsListagemRecebimento.setValuesPrestacaoGerencia(this.caixaGerencia);" + "\r\n" +
-                "        super.filtrarEOrdenar();" + "\r\n" +
-                "        this.submitted = false;" + "\r\n" +
-                "    }" + "\r\n" +
-                "\r\n" +
-                "    // ------------------------- METODOS PARA A PRESTAÇÃO E GERÊNCIA ------------------------- //" + "\r\n" +
-                "    validacaoDeIncluao() {" + "\r\n" +
-                "        if(this.caixaGerencia.situacao === ConstSituacao.FECHADO) {" + "\r\n" +
-                "            this.toasty.error(`A Caixa Gerência está fechada para a Data e não pode incluir um Novo Convênio!`);" + "\r\n" +
-                "            return false;" + "\r\n" +
-                "        }" + "\r\n" +
-                "\r\n" +
-                "        return true;" + "\r\n" +
-                "    }" + "\r\n" +
-                "\r\n" +
-                "    voltarParaPrestacoesGerencia() {" + "\r\n" +
-                "        // Força Limpar o SessionStorage da listagem" + "\r\n" +
-                "        super.removerDados();" + "\r\n" +
-                "\r\n" +
-                "        this.bag.setData(ConstCaixasDaGerencia.GERENCIA_BAG, this.caixaGerencia);" + "\r\n" +
-                "        this.router.navigate([`/movimentos/caixas-da-gerencia/${this.caixaGerencia.id}`]);" + "\r\n" +
-                "    }" + "\r\n" +
-                "}\r\n";
-
-        Utils.writeContentTo(path + "listar-" + options.frontBaseFolder + "-caixa-gerencia.component.ts", classBody);
-        System.out.println("Generated LIST COMPONENT TS '" + "listar-" + options.frontBaseFolder + "-caixa-gerencia.component.ts' into '" + path + "'");
         System.out.println("------------------------------------------------------------------------------\r\n");
     }
     //endregion
@@ -1032,6 +666,8 @@ public class GerarFrontEndPagamento extends GerarFrontEnd {
             "import { SearchDialogComponent, SearchResponseModel } from '../../../../shared/components/dialogs/search-dialog/search-dialog.component';" + "\r\n" +
             "import { CriarEditarRecebimentoComponent, TipoRecebimentoEvent, RecebimentoEvent } from '../../shared/acs-recebimento/criar-editar-recebimento/criar-editar-recebimento.component';" + "\r\n" +
             "\r\n" +
+            "import { CriarEditarContexto } from '../../shared/acs-recebimento/contexto-recebimento/criar-editar/CriarEditarContexto';" + "\r\n" +
+            "import { ContextoRecebimentoFactory } from '../../shared/acs-recebimento/contexto-recebimento/ContextoRecebimentoFactory';" + "\r\n" +
             "import { ConstContextoCaixaDeOrigem } from '../../shared/base/ConstContextoCaixaDeOrigem';" + "\r\n" +
             "import { ConstTipoFinalizadora } from '../../../../shared/models/constants/ConstTipoFinalizadora';" + "\r\n" +
             "\r\n" +
@@ -1044,6 +680,7 @@ public class GerarFrontEndPagamento extends GerarFrontEnd {
             "export abstract class CriarEditar" + options.frontBaseName + "Component extends CadastroBaseComponent implements OnInit {\r\n" +
             "    id" + options.entityName + ": number;" + "\r\n" +
             "    preferencia: Sistema;" + "\r\n" +
+            "    contexto: CriarEditarContexto;" + "\r\n" +
             "\r\n" +
             "    @ViewChild('acs_criar_editar_recebimento') acsCriarEditarRecebimento: CriarEditarRecebimentoComponent;" + "\r\n" +
             "    @ViewChild('search_dialog') search_dialog: SearchDialogComponent;" + "\r\n" +
@@ -1053,7 +690,6 @@ public class GerarFrontEndPagamento extends GerarFrontEnd {
             "    ];" + "\r\n" +
             "\r\n" +
             "    constructor(\r\n" +
-            "        public contexto: ConstContextoCaixaDeOrigem," + "\r\n" +
             "        public " + serviceName + ": " + options.entityName + "Service,\r\n" +
             "        public clienteEmpresaService: ClienteEmpresaService," + "\r\n" +
             "\r\n" +
@@ -1062,11 +698,14 @@ public class GerarFrontEndPagamento extends GerarFrontEnd {
             "    ) { super('" + options.accessAlias + "', baseServices); }\r\n" +
             "\r\n" +
             "    ngOnInit(): void {\r\n" +
+            "        // Resolvendo o Contexto !" + "\r\n" +
+            "        this.contexto = ContextoRecebimentoFactory.createCriarEditarContexto(this.router, this.bag, this.activatedRoute.snapshot.params);" + "\r\n" +
             "        this.preferencia = this.activatedRoute.snapshot.data.prefSistema;" + "\r\n" +
+            "\r\n" +
             "        super.ngOnInit();\r\n" +
             "\r\n" +
             "        this.acsCriarEditarRecebimento.empresa = this.empresa;" + "\r\n" +
-            "        this.acsCriarEditarRecebimento.contexto = this.contexto;" + "\r\n" +
+            "        this.acsCriarEditarRecebimento.contexto = this.contexto.getContextoCaixaDeOrigem();" + "\r\n" +
             "        this.acsCriarEditarRecebimento.finalizadoras = [ConstTipoFinalizadora.finalizadora];" + "\r\n" +
             "    }\r\n" +
             "\r\n" +
@@ -1188,6 +827,17 @@ public class GerarFrontEndPagamento extends GerarFrontEnd {
             "\r\n" +
             "       // ***************** CHANGE VALIDATORS ***************** //" + "\r\n" +
             "       this.defineChangeValidators();" + "\r\n" +
+            "\r\n" +
+            "       //" + "\r\n" +
+            "       if(this.contexto.getContextoCaixaDeOrigem() === ConstContextoCaixaDeOrigem.CAIXA_GERENCIA) {" + "\r\n" +
+            "           // Removendo o obrigatorio do PDV" + "\r\n" +
+            "           this.formModel.get('turno').setValidators(null);" + "\r\n" +
+            "           this.formModel.get('pdv.id').setValidators(null);" + "\r\n" +
+            "           this.formModel.get('idCaixa').setValidators(null);" + "\r\n" +
+            "\r\n" +
+            "           // Incluindo obrigatoriedade do Caixa Gerencia" + "\r\n" +
+            "           this.formModel.get('idCaixaGerencia').setValidators(Validators.required);" + "\r\n" +
+            "       }" + "\r\n" +
             "    }\r\n" +
             "\r\n" +
             "    defineChangeValidators() {" + "\r\n" +
@@ -1242,9 +892,8 @@ public class GerarFrontEndPagamento extends GerarFrontEnd {
         System.out.println("Generated CREATE/EDIT COMPONENT TS '" + "criar-editar-" + options.frontBaseFolder + ".component.ts' into '" + path + "'");
         System.out.println("------------------------------------------------------------------------------\r\n");
     }
-    //endregion
 
-    // region // -------------------- GERACAO DO CRIAR --------------------- //
+    // CRIAR
     @Override
     protected void gerarComponentCriar(GenOptions options) throws IOException {
         String serviceName = options.entityName + "Service";
@@ -1253,10 +902,9 @@ public class GerarFrontEndPagamento extends GerarFrontEnd {
         String path = GerarFrontEnd.mainPath + "criar-editar-" + options.frontBaseFolder + "\\criar-" + options.frontBaseFolder + "\\";
 
         String classBody = "" +
-                "import { OnInit } from '@angular/core';" + "\r\n" +
+                "import { OnInit, Component } from '@angular/core';" + "\r\n" +
                 "import { ActivatedRoute } from '@angular/router';" + "\r\n" +
                 "\r\n" +
-                "import { ConstContextoCaixaDeOrigem } from '../../../shared/base/ConstContextoCaixaDeOrigem';" + "\r\n" +
                 "import { CriarEditar" + options.frontBaseName + "Component } from '../criar-editar-" + options.frontBaseFolder + ".component';" + "\r\n" +
                 "\r\n" +
                 "import { CadastroBaseService } from '../../../../../cadastros/cadastro-base.service';" + "\r\n" +
@@ -1266,25 +914,40 @@ public class GerarFrontEndPagamento extends GerarFrontEnd {
                 "import { " + options.entityName + " } from '../../../../../model/" + options.entityName + "';" + "\r\n" +
                 "import { Observable } from 'rxjs';" + "\r\n" +
                 "\r\n" +
-                "export abstract class Criar" + options.frontBaseName + "Component extends CriarEditar" + options.frontBaseName + "Component implements OnInit {" + "\r\n" +
+                "@Component({" + "\r\n" +
+                "    templateUrl: '../criar-editar-" + options.frontBaseFolder + ".component.html'," + "\r\n" +
+                "    styleUrls: [ '../criar-editar-" + options.frontBaseFolder + ".component.scss' ]" + "\r\n" +
+                "})" + "\r\n" +
+                "export class Criar" + options.frontBaseName + "Component extends CriarEditar" + options.frontBaseName + "Component implements OnInit {" + "\r\n" +
                 "    constructor(" + "\r\n" +
-                "        public contexto: ConstContextoCaixaDeOrigem," + "\r\n" +
                 "        public " + serviceName + ": " + options.entityName + "Service," + "\r\n" +
                 "        public clienteEmpresaService: ClienteEmpresaService," + "\r\n" +
                 "\r\n" +
                 "        public activatedRoute: ActivatedRoute," + "\r\n" +
                 "        public baseServices: CadastroBaseService" + "\r\n" +
                 "    ) {" + "\r\n" +
-                "        super(contexto, " + serviceName + ", clienteEmpresaService, activatedRoute, baseServices);" + "\r\n" +
+                "        super(" + serviceName + ", clienteEmpresaService, activatedRoute, baseServices);" + "\r\n" +
                 "    }" + "\r\n" +
                 "\r\n" +
                 "    ngOnInit() {" + "\r\n" +
                 "        super.ngOnInit();" + "\r\n" +
+                "        this.contexto.setTitle('Novo " + options.frontBaseName + "');" + "\r\n" +
+                "\r\n" +
+                "        this.title = this.contexto.getTitle();" + "\r\n" +
+                "        this.routerLink = this.contexto.getRouterLinkAPartirDe('" + options.frontBaseFolder + "');" + "\r\n" +
+                "\r\n" +
+                "        // Verificando o contexto a partir de algum CAIXA" + "\r\n" +
+                "        if(this.contexto.isOrigemCaixa()) {" + "\r\n" +
+                "            this.acsCriarEditarRecebimento.setValuesPrestacaoGerencia(this.contexto.getValuePrestacaoGerencia());" + "\r\n" +
+                "        } else {" + "\r\n" +
+                "            if(this.contexto.isUrlCaixa())" + "\r\n" +
+                "                this.contexto.navegarAPartirDe('" + options.frontBaseFolder + "'); // Se cair aqui e a URL for a mesma, a navegação não ocorre !" + "\r\n" +
+                "        }" + "\r\n" +
                 "    }" + "\r\n" +
                 "\r\n" +
                 "    gravarModel(rawValue: any): Observable<any> {" + "\r\n" +
                 "        return this.recebimentoService" + "\r\n" +
-                "            .observePersist( new Recebimento(rawValue), `/contexto/${this.contexto}` )" + "\r\n" +
+                "            .observePersist( new Recebimento(rawValue), `/${this.contexto.getUrlContexto()}` )" + "\r\n" +
                 "            .map( () => {" + "\r\n" +
                 "                this.toasty.success('" + options.frontBaseName + " adicionado com sucesso!');" + "\r\n" +
                 "                this.router.navigate([this.routerLink]);" + "\r\n" +
@@ -1298,236 +961,7 @@ public class GerarFrontEndPagamento extends GerarFrontEnd {
         System.out.println("------------------------------------------------------------------------------\r\n");
     }
 
-    private void gerarComponentCriarPrestacao(GenOptions options) throws IOException {
-        String serviceName = options.entityName + "Service";
-        serviceName = serviceName.substring(0, 1).toLowerCase() + serviceName.substring(1);
-
-        String path = GerarFrontEnd.mainPath + "criar-editar-" + options.frontBaseFolder + "\\criar-" + options.frontBaseFolder + "\\prestacao\\";
-
-        String classBody = "" +
-                "import { Component, OnInit } from '@angular/core';" + "\r\n" +
-                "import { ActivatedRoute } from '@angular/router';" + "\r\n" +
-                "\r\n" +
-                "import { ConstContextoCaixaDeOrigem } from '../../../../shared/base/ConstContextoCaixaDeOrigem';" + "\r\n" +
-                "import { Criar" + options.frontBaseName + "Component } from '../criar-" + options.frontBaseFolder + ".component';" + "\r\n" +
-                "\r\n" +
-                "import { CadastroBaseService } from '../../../../../../cadastros/cadastro-base.service';" + "\r\n" +
-                "import { " + options.entityName + "Service } from '../../../../../../services/" + options.defaultRoute + ".service';" + "\r\n" +
-                "import { ClienteEmpresaService } from '../../../../../../services/cliente-empresa.service';" + "\r\n" +
-                "\r\n" +
-                "@Component({" + "\r\n" +
-                "    templateUrl: '../../criar-editar-" + options.frontBaseFolder + ".component.html'," + "\r\n" +
-                "    styleUrls: [ '../../criar-editar-" + options.frontBaseFolder + ".component.scss' ]" + "\r\n" +
-                "})" + "\r\n" +
-                "export class Criar" + options.frontBaseName + "PrestacaoComponent extends Criar" + options.frontBaseName + "Component implements OnInit {" + "\r\n" +
-                "    constructor(" + "\r\n" +
-                "        public " + serviceName + ": " + options.entityName + "Service," + "\r\n" +
-                "        public clienteEmpresaService: ClienteEmpresaService," + "\r\n" +
-                "\r\n" +
-                "        public activatedRoute: ActivatedRoute," + "\r\n" +
-                "        public baseServices: CadastroBaseService" + "\r\n" +
-                "    ) {" + "\r\n" +
-                "        super(ConstContextoCaixaDeOrigem.PRESTACAO, " + serviceName + ", clienteEmpresaService, activatedRoute, baseServices);" + "\r\n" +
-                "    }" + "\r\n" +
-                "\r\n" +
-                "    ngOnInit() {" + "\r\n" +
-                "        super.ngOnInit();" + "\r\n" +
-                "\r\n" +
-                "        this.title = 'Novo " + options.frontBaseName + " [Caixa de Venda]';" + "\r\n" +
-                "        this.routerLink = '/movimentos/" + options.frontBaseFolder + "/venda';" + "\r\n" +
-                "    }" + "\r\n" +
-                "}" + "\r\n" +
-                "";
-
-        Utils.writeContentTo(path + "criar-" + options.frontBaseFolder + "-prestacao.component.ts", classBody);
-        System.out.println("Generated CREATE COMPONENT TS 'criar-" + options.frontBaseFolder + "-prestacao.component.ts' into '" + path + "'");
-        System.out.println("------------------------------------------------------------------------------\r\n");
-    }
-
-    private void gerarComponentCriarCaixaPrestacao(GenOptions options) throws IOException {
-        String serviceName = options.entityName + "Service";
-        serviceName = serviceName.substring(0, 1).toLowerCase() + serviceName.substring(1);
-
-        String path = GerarFrontEnd.mainPath + "criar-editar-" + options.frontBaseFolder + "\\criar-" + options.frontBaseFolder + "\\prestacao\\";
-
-        String classBody = "" +
-                "import { Component, OnInit } from '@angular/core';" + "\r\n" +
-                "import { ActivatedRoute } from '@angular/router';" + "\r\n" +
-                "\r\n" +
-                "import { ConstContextoCaixaDeOrigem } from '../../../../shared/base/ConstContextoCaixaDeOrigem';" + "\r\n" +
-                "import { Criar" + options.frontBaseName + "PrestacaoComponent } from './criar-" + options.frontBaseFolder + "-prestacao.component';" + "\r\n" +
-                "\r\n" +
-                "import { CadastroBaseService } from '../../../../../../cadastros/cadastro-base.service';" + "\r\n" +
-                "import { " + options.entityName + "Service } from '../../../../../../services/" + options.defaultRoute + ".service';" + "\r\n" +
-                "import { ClienteEmpresaService } from '../../../../../../services/cliente-empresa.service';" + "\r\n" +
-                "\r\n" +
-                "import { Prestacao } from '../../../../../../model/Prestacao';" + "\r\n" +
-                "import { ConstCaixasDeVenda } from '../../../../caixas-de-venda/ConstCaixasDeVenda';" + "\r\n" +
-                "\r\n" +
-                "@Component({" + "\r\n" +
-                "    templateUrl: '../../criar-editar-" + options.frontBaseFolder + ".component.html'," + "\r\n" +
-                "    styleUrls: [ '../../criar-editar-" + options.frontBaseFolder + ".component.scss' ]" + "\r\n" +
-                "})" + "\r\n" +
-                "export class Criar" + options.frontBaseName + "CaixaPrestacaoComponent extends Criar" + options.frontBaseName + "PrestacaoComponent implements OnInit {" + "\r\n" +
-                "    prestacao: Prestacao; // Usado para o acesso via prestação de contas " + "\r\n" +
-                "\r\n" +
-                "    constructor(" + "\r\n" +
-                "        public " + serviceName + ": " + options.entityName + "Service," + "\r\n" +
-                "        public clienteEmpresaService: ClienteEmpresaService," + "\r\n" +
-                "\r\n" +
-                "        public activatedRoute: ActivatedRoute," + "\r\n" +
-                "        public baseServices: CadastroBaseService" + "\r\n" +
-                "    ) {" + "\r\n" +
-                "        super(" + serviceName + ", clienteEmpresaService, activatedRoute, baseServices);" + "\r\n" +
-                "    }" + "\r\n" +
-                "\r\n" +
-                "    ngOnInit() {" + "\r\n" +
-                "        this.contexto = ConstContextoCaixaDeOrigem.CAIXA_PRESTACAO;" + "\r\n" +
-                "        super.ngOnInit();" + "\r\n" +
-                "\r\n" +
-                "        this.title = 'Novo " + options.frontBaseName + " [Caixa de Venda - Prestação]';" + "\r\n" +
-                "        this.prestacao = this.bag.getData(ConstCaixasDeVenda.PRESTACAO_BAG);" + "\r\n" +
-                "        if( !(this.prestacao !== undefined || this.activatedRoute.snapshot.params.idPrestacao) ) {" + "\r\n" +
-                "            this.router.navigate([`/movimentos/" + options.frontBaseFolder + "/venda/`]);" + "\r\n" +
-                "            return;" + "\r\n" +
-                "        }" + "\r\n" +
-                "\r\n" +
-                "        // Setando os valores" + "\r\n" +
-                "        this.bag.setData(ConstCaixasDeVenda.PRESTACAO_BAG, this.prestacao);" + "\r\n" +
-                "        this.acsCriarEditarRecebimento.setValuesPrestacaoGerencia(this.prestacao);" + "\r\n" +
-                "\r\n" +
-                "        this.routerLink = `/movimentos/caixas-de-venda/${this.prestacao.id}/" + options.frontBaseFolder + "/venda`;" + "\r\n" +
-                "    }" + "\r\n" +
-                "}" + "\r\n" +
-                "";
-
-        Utils.writeContentTo(path + "criar-" + options.frontBaseFolder + "-caixa-prestacao.component.ts", classBody);
-        System.out.println("Generated CREATE COMPONENT TS 'criar-" + options.frontBaseFolder + "-caixa-prestacao.component.ts' into '" + path + "'");
-        System.out.println("------------------------------------------------------------------------------\r\n");
-    }
-
-    private void gerarComponentCriarGerencia(GenOptions options) throws IOException {
-        String serviceName = options.entityName + "Service";
-        serviceName = serviceName.substring(0, 1).toLowerCase() + serviceName.substring(1);
-
-        String path = GerarFrontEnd.mainPath + "criar-editar-" + options.frontBaseFolder + "\\criar-" + options.frontBaseFolder + "\\gerencia\\";
-
-        String classBody = "" +
-                "import { Component, OnInit } from '@angular/core';" + "\r\n" +
-                "import { Validators } from '@angular/forms';" + "\r\n" +
-                "import { ActivatedRoute } from '@angular/router';" + "\r\n" +
-                "\r\n" +
-                "import { ConstContextoCaixaDeOrigem } from '../../../../shared/base/ConstContextoCaixaDeOrigem';" + "\r\n" +
-                "import { Criar" + options.frontBaseName + "Component } from '../criar-" + options.frontBaseFolder + ".component';" + "\r\n" +
-                "\r\n" +
-                "import { CadastroBaseService } from '../../../../../../cadastros/cadastro-base.service';" + "\r\n" +
-                "import { " + options.entityName + "Service } from '../../../../../../services/" + options.defaultRoute + ".service';" + "\r\n" +
-                "import { ClienteEmpresaService } from '../../../../../../services/cliente-empresa.service';" + "\r\n" +
-                "\r\n" +
-                "@Component({" + "\r\n" +
-                "    templateUrl: '../../criar-editar-" + options.frontBaseFolder + ".component.html'," + "\r\n" +
-                "    styleUrls: [ '../../criar-editar-" + options.frontBaseFolder + ".component.scss' ]" + "\r\n" +
-                "})" + "\r\n" +
-                "export class Criar" + options.frontBaseName + "GerenciaComponent extends Criar" + options.frontBaseName + "Component implements OnInit {" + "\r\n" +
-                "    constructor(" + "\r\n" +
-                "        public " + serviceName + ": " + options.entityName + "Service," + "\r\n" +
-                "        public clienteEmpresaService: ClienteEmpresaService," + "\r\n" +
-                "\r\n" +
-                "        public activatedRoute: ActivatedRoute," + "\r\n" +
-                "        public baseServices: CadastroBaseService" + "\r\n" +
-                "    ) {" + "\r\n" +
-                "        super(ConstContextoCaixaDeOrigem.GERENCIA, " + serviceName + ", clienteEmpresaService, activatedRoute, baseServices);" + "\r\n" +
-                "    }" + "\r\n" +
-                "\r\n" +
-                "    ngOnInit() {" + "\r\n" +
-                "        super.ngOnInit();" + "\r\n" +
-                "\r\n" +
-                "        this.title = 'Novo " + options.frontBaseName + " [Caixa da Gerência]';" + "\r\n" +
-                "        this.routerLink = '/movimentos/" + options.frontBaseFolder + "/gerencia';" + "\r\n" +
-                "    }" + "\r\n" +
-                "\r\n" +
-                "    bindFormValidators() {" + "\r\n" +
-                "        super.bindFormValidators();" + "\r\n" +
-                "\r\n" +
-                "        // Removendo o obrigatorio do PDV" + "\r\n" +
-                "        this.formModel.get('turno').setValidators(null);" + "\r\n" +
-                "        this.formModel.get('pdv.id').setValidators(null);" + "\r\n" +
-                "        this.formModel.get('idCaixa').setValidators(null);" + "\r\n" +
-                "\r\n" +
-                "        // Incluindo obrigatoriedade do Caixa Gerencia" + "\r\n" +
-                "        this.formModel.get('idCaixaGerencia').setValidators(Validators.required);" + "\r\n" +
-                "    }" + "\r\n" +
-                "}" + "\r\n" +
-                "";
-
-        Utils.writeContentTo(path + "criar-" + options.frontBaseFolder + "-gerencia.component.ts", classBody);
-        System.out.println("Generated CREATE COMPONENT TS 'criar-" + options.frontBaseFolder + "-gerencia.component.ts' into '" + path + "'");
-        System.out.println("------------------------------------------------------------------------------\r\n");
-    }
-
-    private void gerarComponentCriarCaixaGerencia(GenOptions options) throws IOException {
-        String serviceName = options.entityName + "Service";
-        serviceName = serviceName.substring(0, 1).toLowerCase() + serviceName.substring(1);
-
-        String path = GerarFrontEnd.mainPath + "criar-editar-" + options.frontBaseFolder + "\\criar-" + options.frontBaseFolder + "\\gerencia\\";
-
-        String classBody = "" +
-                "import { Component, OnInit } from '@angular/core';" + "\r\n" +
-                "import { ActivatedRoute } from '@angular/router';" + "\r\n" +
-                "\r\n" +
-                "import { ConstContextoCaixaDeOrigem } from '../../../../shared/base/ConstContextoCaixaDeOrigem';" + "\r\n" +
-                "import { Criar" + options.frontBaseName + "GerenciaComponent } from './criar-" + options.frontBaseFolder + "-gerencia.component';" + "\r\n" +
-                "\r\n" +
-                "import { CadastroBaseService } from '../../../../../../cadastros/cadastro-base.service';" + "\r\n" +
-                "import { " + options.entityName + "Service } from '../../../../../../services/" + options.defaultRoute + ".service';" + "\r\n" +
-                "import { ClienteEmpresaService } from '../../../../../../services/cliente-empresa.service';" + "\r\n" +
-                "\r\n" +
-                "import { CaixaGerencia } from '../../../../../../model/CaixaGerencia';" + "\r\n" +
-                "import { ConstCaixasDaGerencia } from '../../../../caixas-da-gerencia/ConstCaixasDaGerencia';" + "\r\n" +
-                "\r\n" +
-                "@Component({" + "\r\n" +
-                "    templateUrl: '../../criar-editar-" + options.frontBaseFolder + ".component.html'," + "\r\n" +
-                "    styleUrls: [ '../../criar-editar-" + options.frontBaseFolder + ".component.scss' ]" + "\r\n" +
-                "})" + "\r\n" +
-                "export class Criar" + options.frontBaseName + "CaixaGerenciaComponent extends Criar" + options.frontBaseName + "GerenciaComponent implements OnInit {" + "\r\n" +
-                "    caixaGerencia: CaixaGerencia; // Usado para o acesso via gerencia " + "\r\n" +
-                "\r\n" +
-                "    constructor(" + "\r\n" +
-                "        public " + serviceName + ": " + options.entityName + "Service," + "\r\n" +
-                "        public clienteEmpresaService: ClienteEmpresaService," + "\r\n" +
-                "\r\n" +
-                "        public activatedRoute: ActivatedRoute," + "\r\n" +
-                "        public baseServices: CadastroBaseService" + "\r\n" +
-                "    ) {" + "\r\n" +
-                "        super(" + serviceName + ", clienteEmpresaService, activatedRoute, baseServices);" + "\r\n" +
-                "    }" + "\r\n" +
-                "\r\n" +
-                "    ngOnInit() {" + "\r\n" +
-                "        this.contexto = ConstContextoCaixaDeOrigem.CAIXA_GERENCIA;" + "\r\n" +
-                "        super.ngOnInit();" + "\r\n" +
-                "\r\n" +
-                "        this.title = 'Novo " + options.frontBaseName + " [Caixa da Gerência - Gerência]';" + "\r\n" +
-                "        this.caixaGerencia = this.bag.getData(ConstCaixasDaGerencia.GERENCIA_BAG);" + "\r\n" +
-                "        if( !(this.caixaGerencia !== undefined || this.activatedRoute.snapshot.params.idCaixaGerencia) ) {" + "\r\n" +
-                "            this.router.navigate([`/movimentos/" + options.frontBaseFolder + "/gerencia/`]);" + "\r\n" +
-                "            return;" + "\r\n" +
-                "        }" + "\r\n" +
-                "\r\n" +
-                "       // Setando os valores" + "\r\n" +
-                "       this.bag.setData(ConstCaixasDaGerencia.GERENCIA_BAG, this.caixaGerencia);" + "\r\n" +
-                "       this.acsCriarEditarRecebimento.setValuesPrestacaoGerencia(this.caixaGerencia);" + "\r\n" +
-                "       this.routerLink = `/movimentos/caixas-da-gerencia/${this.caixaGerencia.id}/" + options.frontBaseFolder + "/gerencia`;" + "\r\n" +
-                "    }" + "\r\n" +
-                "}" + "\r\n" +
-                "";
-
-        Utils.writeContentTo(path + "criar-" + options.frontBaseFolder + "-caixa-gerencia.component.ts", classBody);
-        System.out.println("Generated CREATE COMPONENT TS 'criar-" + options.frontBaseFolder + "-caixa-gerencia.component.ts' into '" + path + "'");
-        System.out.println("------------------------------------------------------------------------------\r\n");
-    }
-    //endregion
-
-    // region // -------------------- GERACAO DO EDITAR -------------------- //
+    // EDITAR
     @Override
     protected void gerarComponentEditar(GenOptions options) throws IOException {
         String serviceName = options.entityName + "Service";
@@ -1536,12 +970,11 @@ public class GerarFrontEndPagamento extends GerarFrontEnd {
         String path = GerarFrontEnd.mainPath + "criar-editar-" + options.frontBaseFolder + "\\editar-" + options.frontBaseFolder + "\\";
 
         String classBody = "" +
-                "import { OnInit } from '@angular/core';" + "\r\n" +
+                "import { OnInit, Component } from '@angular/core';" + "\r\n" +
                 "import { Validators } from '@angular/forms';" + "\r\n" +
                 "import { ActivatedRoute } from '@angular/router';" + "\r\n" +
                 "\r\n" +
                 "import { CriarEditar" + options.frontBaseName + "Component } from '../criar-editar-" + options.frontBaseFolder + ".component';" + "\r\n" +
-                "import { ConstContextoCaixaDeOrigem } from '../../../shared/base/ConstContextoCaixaDeOrigem';" + "\r\n" +
                 "\r\n" +
                 "import { CadastroBaseService } from '../../../../../cadastros/cadastro-base.service';" + "\r\n" +
                 "import { " + options.entityName + "Service } from '../../../../../services/" + options.defaultRoute + ".service';" + "\r\n" +
@@ -1551,26 +984,36 @@ public class GerarFrontEndPagamento extends GerarFrontEnd {
                 "\r\n" +
                 "import { Observable } from 'rxjs';" + "\r\n" +
                 "\r\n" +
-                "export abstract class Editar" + options.frontBaseName + "Component extends CriarEditar" + options.frontBaseName + "Component implements OnInit {\r\n" +
+                "@Component({" + "\r\n" +
+                "    templateUrl: '../criar-editar-" + options.frontBaseFolder + ".component.html'," + "\r\n" +
+                "    styleUrls: ['../criar-editar-" + options.frontBaseFolder + ".component.scss',]" + "\r\n" +
+                "})" + "\r\n" +
+                "export class Editar" + options.frontBaseName + "Component extends CriarEditar" + options.frontBaseName + "Component implements OnInit {\r\n" +
                 "    constructor(\r\n" +
-                "        public contexto: ConstContextoCaixaDeOrigem," + "\r\n" +
                 "        public " + serviceName + ": " + options.entityName + "Service," + "\r\n" +
                 "        public clienteEmpresaService: ClienteEmpresaService," + "\r\n" +
                 "\r\n" +
                 "        public activatedRoute: ActivatedRoute," + "\r\n" +
                 "        public baseServices: CadastroBaseService" + "\r\n" +
                 "    ) {" + "\r\n" +
-                "        super(contexto, " + serviceName + ", clienteEmpresaService, activatedRoute, baseServices);" + "\r\n" +
+                "        super(" + serviceName + ", clienteEmpresaService, activatedRoute, baseServices);" + "\r\n" +
                 "    }" + "\r\n" +
                 "\r\n" +
                 "    ngOnInit() {" + "\r\n" +
                 "        this.editarView = true;" + "\r\n" +
-                "        this.activatedRoute.params" + "\r\n" +
-                "            .subscribe(params => {" + "\r\n" +
-                "                this.idRecebimento = params.idRecebimento;" + "\r\n" +
-                "            });" + "\r\n" +
+                "        this.idRecebimento = this.activatedRoute.snapshot.params.idRecebimento;" + "\r\n" +
                 "\r\n" +
                 "        super.ngOnInit();" + "\r\n" +
+                "        this.contexto.setTitle('Alterar " + options.frontBaseName + "');" + "\r\n" +
+                "\r\n" +
+                "        this.title = this.contexto.getTitle();" + "\r\n" +
+                "        this.routerLink = this.contexto.getRouterLinkAPartirDe('" + options.frontBaseFolder + "');" + "\r\n" +
+                "\r\n" +
+                "        // Verificando o contexto a partir de algum CAIXA" + "\r\n" +
+                "        if(!this.contexto.isOrigemCaixa()) {" + "\r\n" +
+                "            if(this.contexto.isUrlCaixa())" + "\r\n" +
+                "                this.contexto.navegarAPartirDe('" + options.frontBaseFolder + "'); // Se cair aqui e a URL for a mesma, a navegação não ocorre !" + "\r\n" +
+                "        }" + "\r\n" +
                 "\r\n" +
                 "        // Preencher valores com o que foi buscado" + "\r\n" +
                 "        this.recebimentoService" + "\r\n" +
@@ -1588,7 +1031,7 @@ public class GerarFrontEndPagamento extends GerarFrontEnd {
                 "        this.formModel.get('dataCaixa').setValue(model.dataCaixa.toDate());" + "\r\n" +
                 "        this.formModel.get('turno').setValue(model.turno);" + "\r\n" +
                 "\r\n" +
-                "        if(this.acsCriarEditarRecebimento.isContextoPrestacao()) {" + "\r\n" +
+                "        if(this.acsCriarEditarRecebimento.isContextoVenda()) {" + "\r\n" +
                 "            this.formModel.get('pdv.id').setValue(model.pdv.id);" + "\r\n" +
                 "            this.formModel.get('pdv.descricao').setValue(model.pdv.descricao);" + "\r\n" +
                 "        }" + "\r\n" +
@@ -1698,7 +1141,7 @@ public class GerarFrontEndPagamento extends GerarFrontEnd {
                 "\r\n" +
                 "    gravarModel(rawValue: any): Observable<any> {" + "\r\n" +
                 "        return this.recebimentoService" + "\r\n" +
-                "            .observeUpdate( new Recebimento(rawValue), this.idRecebimento, `/contexto/${this.contexto}` )" + "\r\n" +
+                "            .observeUpdate( new Recebimento(rawValue), this.idRecebimento, `/${this.contexto.getUrlContexto()}` )" + "\r\n" +
                 "            .map( () => {" + "\r\n" +
                 "                this.toasty.success('" + options.frontBaseName + " Atualizado com Sucesso!');" + "\r\n" +
                 "                this.router.navigate([this.routerLink]);" + "\r\n" +
@@ -1711,220 +1154,6 @@ public class GerarFrontEndPagamento extends GerarFrontEnd {
         System.out.println("Generated EDIT   COMPONENT TS '" + "editar-" + options.frontBaseFolder + ".component.ts' into '" + path + "'");
         System.out.println("------------------------------------------------------------------------------\r\n");
     }
-
-    private void gerarComponentEditarPrestacao(GenOptions options) throws IOException {
-        String path = GerarFrontEnd.mainPath + "criar-editar-" + options.frontBaseFolder + "\\editar-" + options.frontBaseFolder + "\\prestacao\\";
-
-        String classBody = "" +
-                "import { Component, OnInit } from '@angular/core';" + "\r\n" +
-                "import { ActivatedRoute } from '@angular/router';" + "\r\n" +
-                "\r\n" +
-                "import { " + options.entityName + "Service } from '../../../../../../services/" + options.defaultRoute + ".service';" + "\r\n" +
-                "import { ClienteEmpresaService } from '../../../../../../services/cliente-empresa.service';" + "\r\n" +
-                "\r\n" +
-                "import { CadastroBaseService } from '../../../../../../cadastros/cadastro-base.service';" + "\r\n" +
-                "\r\n" +
-                "import { Editar" + options.frontBaseName + "Component } from '../editar-" + options.frontBaseFolder + ".component';" + "\r\n" +
-                "import { ConstContextoCaixaDeOrigem } from '../../../../shared/base/ConstContextoCaixaDeOrigem';" + "\r\n" +
-                "\r\n" +
-                "@Component({" + "\r\n" +
-                "    templateUrl: '../../criar-editar-" + options.frontBaseFolder + ".component.html'," + "\r\n" +
-                "    styleUrls: ['../../criar-editar-" + options.frontBaseFolder + ".component.scss',]" + "\r\n" +
-                "})" + "\r\n" +
-                "export class Editar" + options.frontBaseName + "PrestacaoComponent extends Editar" + options.frontBaseName + "Component implements OnInit {" + "\r\n" +
-                "    constructor(" + "\r\n" +
-                "        public recebimentoService: RecebimentoService," + "\r\n" +
-                "        public clienteEmpresaService: ClienteEmpresaService," + "\r\n" +
-                "\r\n" +
-                "        public activatedRoute: ActivatedRoute," + "\r\n" +
-                "        public baseServices: CadastroBaseService" + "\r\n" +
-                "    ) {" + "\r\n" +
-                "        super(ConstContextoCaixaDeOrigem.PRESTACAO, recebimentoService, clienteEmpresaService, activatedRoute, baseServices);" + "\r\n" +
-                "    }" + "\r\n" +
-                "\r\n" +
-                "    ngOnInit(): void {" + "\r\n" +
-                "        super.ngOnInit();" + "\r\n" +
-                "\r\n" +
-                "        this.title = 'Alterar " + options.frontBaseName + " [Caixa de Venda]';" + "\r\n" +
-                "        this.routerLink = '/movimentos/" + options.frontBaseFolder + "/venda';" + "\r\n" +
-                "    }" + "\r\n" +
-                "}" + "\r\n" +
-                "";
-
-        Utils.writeContentTo(path + "editar-" + options.frontBaseFolder + "-prestacao.component.ts", classBody);
-        System.out.println("Generated EDIT   COMPONENT TS '" + "editar-" + options.frontBaseFolder + "-prestacao.component.ts' into '" + path + "'");
-        System.out.println("------------------------------------------------------------------------------\r\n");
-    }
-
-    private void gerarComponentEditarCaixaPrestacao(GenOptions options) throws IOException {
-        String path = GerarFrontEnd.mainPath + "criar-editar-" + options.frontBaseFolder + "\\editar-" + options.frontBaseFolder + "\\prestacao\\";
-
-        String classBody = "" +
-                "import { Component, OnInit } from '@angular/core';" + "\r\n" +
-                "import { ActivatedRoute } from '@angular/router';" + "\r\n" +
-                "\r\n" +
-                "import { " + options.entityName + "Service } from '../../../../../../services/" + options.defaultRoute + ".service';" + "\r\n" +
-                "import { ClienteEmpresaService } from '../../../../../../services/cliente-empresa.service';" + "\r\n" +
-                "\r\n" +
-                "import { CadastroBaseService } from '../../../../../../cadastros/cadastro-base.service';" + "\r\n" +
-                "\r\n" +
-                "import { Editar" + options.frontBaseName + "PrestacaoComponent } from './editar-" + options.frontBaseFolder + "-prestacao.component';" + "\r\n" +
-                "import { ConstContextoCaixaDeOrigem } from '../../../../shared/base/ConstContextoCaixaDeOrigem';" + "\r\n" +
-                "import { ConstCaixasDeVenda } from '../../../../caixas-de-venda/ConstCaixasDeVenda';" + "\r\n" +
-                "import { Prestacao } from '../../../../../../model/Prestacao';" + "\r\n" +
-                "\r\n" +
-                "@Component({" + "\r\n" +
-                "    templateUrl: '../../criar-editar-" + options.frontBaseFolder + ".component.html'," + "\r\n" +
-                "    styleUrls: ['../../criar-editar-" + options.frontBaseFolder + ".component.scss',]" + "\r\n" +
-                "})" + "\r\n" +
-                "export class Editar" + options.frontBaseName + "CaixaPrestacaoComponent extends Editar" + options.frontBaseName + "PrestacaoComponent implements OnInit {" + "\r\n" +
-                "    prestacao: Prestacao; // Usado para o acesso via prestação de contas" + "\r\n" +
-                "\r\n" +
-                "    constructor(" + "\r\n" +
-                "        public recebimentoService: RecebimentoService," + "\r\n" +
-                "        public clienteEmpresaService: ClienteEmpresaService," + "\r\n" +
-                "\r\n" +
-                "        public activatedRoute: ActivatedRoute," + "\r\n" +
-                "        public baseServices: CadastroBaseService" + "\r\n" +
-                "    ) {" + "\r\n" +
-                "        super(recebimentoService, clienteEmpresaService, activatedRoute, baseServices);" + "\r\n" +
-                "    }" + "\r\n" +
-                "\r\n" +
-                "    ngOnInit(): void {" + "\r\n" +
-                "        this.contexto = ConstContextoCaixaDeOrigem.CAIXA_PRESTACAO;" + "\r\n" +
-                "        super.ngOnInit();" + "\r\n" +
-                "\r\n" +
-                "        this.title = 'Alterar " + options.frontBaseName + " [Caixa de Venda - Prestação]';" + "\r\n" +
-                "\r\n" +
-                "        this.prestacao = this.bag.getData(ConstCaixasDeVenda.PRESTACAO_BAG);" + "\r\n" +
-                "        if( !(this.prestacao !== undefined || this.activatedRoute.snapshot.params.idPrestacao) ) {" + "\r\n" +
-                "            this.router.navigate([`/movimentos/" + options.frontBaseFolder + "/venda/`]);" + "\r\n" +
-                "            return;" + "\r\n" +
-                "        }" + "\r\n" +
-                "\r\n" +
-                "        this.bag.setData(ConstCaixasDeVenda.PRESTACAO_BAG, this.prestacao);" + "\r\n" +
-                "        this.routerLink = `/movimentos/caixas-de-venda/${this.prestacao.id}/" + options.frontBaseFolder + "/venda`;" + "\r\n" +
-                "    }" + "\r\n" +
-                "}" + "\r\n" +
-                "";
-
-        Utils.writeContentTo(path + "editar-" + options.frontBaseFolder + "-caixa-prestacao.component.ts", classBody);
-        System.out.println("Generated EDIT   COMPONENT TS '" + "editar-" + options.frontBaseFolder + "-caixa-prestacao.component.ts' into '" + path + "'");
-        System.out.println("------------------------------------------------------------------------------\r\n");
-    }
-
-    private void gerarComponentEditarGerencia(GenOptions options) throws IOException {
-        String path = GerarFrontEnd.mainPath + "criar-editar-" + options.frontBaseFolder + "\\editar-" + options.frontBaseFolder + "\\gerencia\\";
-
-        String classBody = "" +
-                "import { Component, OnInit } from '@angular/core';" + "\r\n" +
-                "import { ActivatedRoute } from '@angular/router';" + "\r\n" +
-                "import { Validators } from '@angular/forms';" + "\r\n" +
-                "\r\n" +
-                "import { " + options.entityName + "Service } from '../../../../../../services/" + options.defaultRoute + ".service';" + "\r\n" +
-                "import { ClienteEmpresaService } from '../../../../../../services/cliente-empresa.service';" + "\r\n" +
-                "\r\n" +
-                "import { CadastroBaseService } from '../../../../../../cadastros/cadastro-base.service';" + "\r\n" +
-                "\r\n" +
-                "import { Editar" + options.frontBaseName + "Component } from '../editar-" + options.frontBaseFolder + ".component';" + "\r\n" +
-                "import { ConstContextoCaixaDeOrigem } from '../../../../shared/base/ConstContextoCaixaDeOrigem';" + "\r\n" +
-                "\r\n" +
-                "@Component({" + "\r\n" +
-                "    templateUrl: '../../criar-editar-" + options.frontBaseFolder + ".component.html'," + "\r\n" +
-                "    styleUrls: ['../../criar-editar-" + options.frontBaseFolder + ".component.scss',]" + "\r\n" +
-                "})" + "\r\n" +
-                "export class Editar" + options.frontBaseName + "GerenciaComponent extends Editar" + options.frontBaseName + "Component implements OnInit {" + "\r\n" +
-                "    constructor(" + "\r\n" +
-                "        public recebimentoService: RecebimentoService," + "\r\n" +
-                "        public clienteEmpresaService: ClienteEmpresaService," + "\r\n" +
-                "\r\n" +
-                "        public activatedRoute: ActivatedRoute," + "\r\n" +
-                "        public baseServices: CadastroBaseService" + "\r\n" +
-                "    ) {" + "\r\n" +
-                "        super(ConstContextoCaixaDeOrigem.GERENCIA, recebimentoService, clienteEmpresaService, activatedRoute, baseServices);" + "\r\n" +
-                "    }" + "\r\n" +
-                "\r\n" +
-                "    ngOnInit(): void {" + "\r\n" +
-                "        super.ngOnInit();" + "\r\n" +
-                "\r\n" +
-                "        this.title = 'Alterar " + options.frontBaseName + " [Caixa da Gerência]';" + "\r\n" +
-                "        this.routerLink = '/movimentos/" + options.frontBaseFolder + "/gerencia';" + "\r\n" +
-                "    }" + "\r\n" +
-                "\r\n" +
-                "    bindFormValidators() {" + "\r\n" +
-                "        super.bindFormValidators();" + "\r\n" +
-                "\r\n" +
-                "        // removendo o obrigatorio do PDV" + "\r\n" +
-                "        this.formModel.get('turno').setValidators(null);" + "\r\n" +
-                "        this.formModel.get('pdv.id').setValidators(null);" + "\r\n" +
-                "        this.formModel.get('idCaixa').setValidators(null);" + "\r\n" +
-                "\r\n" +
-                "        // Incluindo obrigatoriedade do Caixa Gerencia" + "\r\n" +
-                "        this.formModel.get('idCaixaGerencia').setValidators(Validators.required);" + "\r\n" +
-                "    }" + "\r\n" +
-                "}" + "\r\n" +
-                "";
-
-        Utils.writeContentTo(path + "editar-" + options.frontBaseFolder + "-gerencia.component.ts", classBody);
-        System.out.println("Generated EDIT   COMPONENT TS '" + "editar-" + options.frontBaseFolder + "-gerencia.component.ts' into '" + path + "'");
-        System.out.println("------------------------------------------------------------------------------\r\n");
-    }
-
-    private void gerarComponentEditarCaixaGerencia(GenOptions options) throws IOException {
-        String path = GerarFrontEnd.mainPath + "criar-editar-" + options.frontBaseFolder + "\\editar-" + options.frontBaseFolder + "\\gerencia\\";
-
-        String classBody = "" +
-                "import { Component, OnInit } from '@angular/core';" + "\r\n" +
-                "import { ActivatedRoute } from '@angular/router';" + "\r\n" +
-                "\r\n" +
-                "import { " + options.entityName + "Service } from '../../../../../../services/" + options.defaultRoute + ".service';" + "\r\n" +
-                "import { ClienteEmpresaService } from '../../../../../../services/cliente-empresa.service';" + "\r\n" +
-                "\r\n" +
-                "import { CadastroBaseService } from '../../../../../../cadastros/cadastro-base.service';" + "\r\n" +
-                "\r\n" +
-                "import { Editar" + options.frontBaseName + "GerenciaComponent } from './editar-" + options.frontBaseFolder + "-gerencia.component';" + "\r\n" +
-                "import { ConstContextoCaixaDeOrigem } from '../../../../shared/base/ConstContextoCaixaDeOrigem';" + "\r\n" +
-                "import { ConstCaixasDaGerencia } from '../../../../caixas-da-gerencia/ConstCaixasDaGerencia';" + "\r\n" +
-                "import { CaixaGerencia } from '../../../../../../model/CaixaGerencia';" + "\r\n" +
-                "\r\n" +
-                "@Component({" + "\r\n" +
-                "    templateUrl: '../../criar-editar-" + options.frontBaseFolder + ".component.html'," + "\r\n" +
-                "    styleUrls: ['../../criar-editar-" + options.frontBaseFolder + ".component.scss',]" + "\r\n" +
-                "})" + "\r\n" +
-                "export class Editar" + options.frontBaseName + "CaixaGerenciaComponent extends Editar" + options.frontBaseName + "GerenciaComponent implements OnInit {" + "\r\n" +
-                "    caixaGerencia: CaixaGerencia; // Usado para o acesso via caixa da gerencia" + "\r\n" +
-                "\r\n" +
-                "    constructor(" + "\r\n" +
-                "        public recebimentoService: RecebimentoService," + "\r\n" +
-                "        public clienteEmpresaService: ClienteEmpresaService," + "\r\n" +
-                "\r\n" +
-                "        public activatedRoute: ActivatedRoute," + "\r\n" +
-                "        public baseServices: CadastroBaseService" + "\r\n" +
-                "    ) {" + "\r\n" +
-                "        super(recebimentoService, clienteEmpresaService, activatedRoute, baseServices);" + "\r\n" +
-                "    }" + "\r\n" +
-                "\r\n" +
-                "    ngOnInit(): void {" + "\r\n" +
-                "        this.contexto = ConstContextoCaixaDeOrigem.CAIXA_GERENCIA;" + "\r\n" +
-                "        super.ngOnInit();" + "\r\n" +
-                "\r\n" +
-                "        this.title = 'Alterar " + options.frontBaseName + " [Caixa da Gerência - Gerência]';" + "\r\n" +
-                "        this.caixaGerencia = this.bag.getData(ConstCaixasDaGerencia.GERENCIA_BAG);" + "\r\n" +
-                "        if( !(this.caixaGerencia !== undefined || this.activatedRoute.snapshot.params.idCaixaGerencia) ) {" + "\r\n" +
-                "            this.router.navigate([`/movimentos/" + options.frontBaseFolder + "/gerencia/`]);" + "\r\n" +
-                "            return;" + "\r\n" +
-                "        }" + "\r\n" +
-                "\r\n" +
-                "        this.bag.setData(ConstCaixasDaGerencia.GERENCIA_BAG, this.caixaGerencia);" + "\r\n" +
-                "        this.routerLink = `/movimentos/caixas-da-gerencia/${this.caixaGerencia.id}/" + options.frontBaseFolder + "/gerencia`;" + "\r\n" +
-                "    }" + "\r\n" +
-                "}" + "\r\n" +
-                "";
-
-        Utils.writeContentTo(path + "editar-" + options.frontBaseFolder + "-caixa-gerencia.component.ts", classBody);
-        System.out.println("Generated EDIT   COMPONENT TS '" + "editar-" + options.frontBaseFolder + "-caixa-gerencia.component.ts' into '" + path + "'");
-        System.out.println("------------------------------------------------------------------------------\r\n");
-    }
     //endregion
 
     // region // -------------------- GERACAO DOS MODULOS -------------------- //
@@ -1932,7 +1161,7 @@ public class GerarFrontEndPagamento extends GerarFrontEnd {
         String pathToFile = options.mainFront;
 
         pathToFile += "modulos\\movimentos\\caixas-de-venda\\caixas-de-venda-routing.module.ts";
-        String newLine = "            { path: '" + options.frontBaseFolder + "', loadChildren: '../" + options.frontBaseFolder + "/" + options.frontBaseFolder + "-prestacao.module#" + options.frontBaseName + "PrestacaoModule' }";
+        String newLine = "            { path: '" + options.frontBaseFolder + "', loadChildren: '../" + options.frontBaseFolder + "/" + options.frontBaseFolder + ".module#" + options.frontBaseName + "Module' }";
 
         writeLineModule(options.frontBaseFolder, pathToFile, newLine);
     }
@@ -1941,7 +1170,7 @@ public class GerarFrontEndPagamento extends GerarFrontEnd {
         String pathToFile = options.mainFront;
 
         pathToFile += "modulos\\movimentos\\caixas-da-gerencia\\caixas-da-gerencia-routing.module.ts";
-        String newLine = "                  { path: '" + options.frontBaseFolder + "', loadChildren: '../" + options.frontBaseFolder + "/" + options.frontBaseFolder + "-gerencia.module#" + options.frontBaseName + "GerenciaModule' }";
+        String newLine = "                  { path: '" + options.frontBaseFolder + "', loadChildren: '../" + options.frontBaseFolder + "/" + options.frontBaseFolder + ".module#" + options.frontBaseName + "Module' }";
 
         writeLineModule(options.frontBaseFolder, pathToFile, newLine);
     }

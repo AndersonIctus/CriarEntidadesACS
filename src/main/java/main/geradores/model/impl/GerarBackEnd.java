@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class GerarBackEnd implements IGerador {
-    private static String mainPath = ".\\src\\main\\java\\com\\innovaro\\acs\\";
+    protected static String mainPath = ".\\src\\main\\java\\com\\innovaro\\acs\\";
 
     @Override
     public void gerarArquivos(GenOptions options) throws IOException {
@@ -1387,7 +1387,7 @@ public class GerarBackEnd implements IGerador {
         new File(tmpFile).renameTo(new File(pathToFile));
     }
 
-    private void writeToFile(Path path, byte[] bytes, StandardOpenOption... append) throws IOException {
+    protected void writeToFile(Path path, byte[] bytes, StandardOpenOption... append) throws IOException {
         // System.out.print( new String(bytes) );
         Files.write(path, bytes, append);
     }

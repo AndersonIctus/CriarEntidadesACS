@@ -3,6 +3,7 @@ package main;
 import main.geradores.GenOptions;
 import main.geradores.IGerador;
 import main.geradores.Utils;
+import main.geradores.formaPgto.impl.GerarBackEndPagamento;
 import main.geradores.formaPgto.impl.GerarFrontEndPagamento;
 import main.geradores.model.ModelGenerator;
 import main.geradores.model.impl.GerarBackEnd;
@@ -196,7 +197,7 @@ public class GeradorDeEntidades {
         // Options para Gerador de Entidades
         else if(options.generateFormaPagamento) {
             geradores = Arrays.asList(
-                    new GerarBackEnd(),
+                    new GerarBackEndPagamento(),
                     new GerarFrontEndPagamento()
             );
         }
