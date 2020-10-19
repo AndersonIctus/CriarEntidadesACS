@@ -53,10 +53,10 @@ public class Principal {
     private static void printOpcoes() {
         String opcoes = "";
         opcoes += "-> Utilize uma das diretivas \r\n"
-                + "\t\t-generate [ou -g] <nomeEntidade> [flags ou options] \t para gerar as classes para essa entidade !\r\n"
-                + "\t\t-modelFile [ou -mf] <path_to_file> [flags ou options] \t Arquivo SCRIPT que pode ser usado como base para a criação do Modelo.\r\n"
-                + "\t\t-report [ou -rt] <path_to_file> [flags ou options] \t Arquivo para ser usado como base para a criação dos Arquivos de Relatório.\r\n"
-                + "\t\t-formaPagamento [ou -fp] <grupo_pagamento> [flags ou options] \t Gera a Estrutura e os Arquivos para uma nova Forma de Pagamento.\r\n"
+                + "   -generate [ou -g] <nomeEntidade> [flags ou options] \t\t\t Para gerar as classes para essa entidade !\r\n"
+                + "   -modelFile [ou -mf] <path_to_file> [flags ou options] \t\t Arquivo SCRIPT que pode ser usado como base para a criação do Modelo.\r\n"
+                + "   -report [ou -rt] <path_to_file> [flags ou options] \t\t\t Arquivo para ser usado como base para a criação dos Arquivos de Relatório.\r\n"
+                + "   -formaPagamento [ou -fp] <grupo_pagamento> [flags ou options] \t Gera a Estrutura e os Arquivos para uma nova Forma de Pagamento.\r\n"
                 + "\r\n"
 
                 + "FLAGS: \r\n"
@@ -66,8 +66,8 @@ public class Principal {
                 + " -onlyModel [ou -model] \t\t\t\t Gera somente os arquivos de Modelo.\r\n"
                 + " -onlyFrontEnd [ou -front] \t\t\t\t Gera somente os arquivos de FRONT - END.\r\n"
                 + " -fullFrontEnd [ou -ffe] \t\t\t\t Gera todos os arquivos no FRONT - END.\r\n"
-                + " -parseScript [ou -ps] \t\t\t\t Faz um Novo Arquivo de Scripting para ser usado como base na geração dos modelos.\r\n"
-                + " -mount [ou -mt] \t\t\t\t Usado para gerar um arquivo de base para ser usado nos relatórios.\r\n"
+                + " -parseScript [ou -ps] \t\t\t\t\t Faz um Novo Arquivo de Scripting para ser usado como base na geração dos modelos.\r\n"
+                + " -mount [ou -mt] \t\t\t\t\t Usado para gerar um arquivo de base para ser usado nos relatórios.\r\n"
                 + " -auditionMode [ou -audit] \t\t\t\t Nao faz geracoes, so imprime o resultado em tela (Modo Audição de Teste).\r\n"
                 + "\r\n"
 

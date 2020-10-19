@@ -60,33 +60,33 @@ public class GerarFrontEnd implements IGerador {
                     System.out.println("------------------------------------------------------------------------------\r\n");
                 }
 
-//                // Listagem
-//                Utils.createDirectory(GerarFrontEnd.mainPath + "listar-" + options.frontBaseFolder + "\\");
-//                gerarTelaListar(options);
-//                gerarSassListar(options);
-//                gerarComponentListar(options);
-//
-//                // Criar / Editar
-//                Utils.createDirectory(GerarFrontEnd.mainPath + "criar-editar-" + options.frontBaseFolder + "\\");
-//                gerarTelaCriarEditar(options);
-//                gerarSassCriarEditar(options);
-//                gerarComponentCriarEditar(options);
-//
-//                // Criar
-//                Utils.createDirectory(GerarFrontEnd.mainPath + "criar-editar-" + options.frontBaseFolder + "\\criar-" + options.frontBaseFolder);
-//                gerarComponentCriar(options);
-//
-//                // Editar
-//                Utils.createDirectory(GerarFrontEnd.mainPath + "criar-editar-" + options.frontBaseFolder + "\\editar-" + options.frontBaseFolder);
-//                gerarComponentEditar(options);
-//
-//                // Incluir o novo modulo no Routing Module Escolhido
-//                if (!options.frontModuleName.contains("\\")) { // So gera se não tiver sub-modulos
-//                    incluirCadastroModulo(options);
-//                } else {
-//                    System.out.println("Pulando inclusão nas rotas PADRAO, pois trata-se de um sub-modulo");
-//                    System.out.println("------------------------------------------------------------------------------\r\n");
-//                }
+                // Listagem
+                Utils.createDirectory(GerarFrontEnd.mainPath + "listar-" + options.frontBaseFolder + "\\");
+                gerarTelaListar(options);
+                gerarSassListar(options);
+                gerarComponentListar(options);
+
+                // Criar / Editar
+                Utils.createDirectory(GerarFrontEnd.mainPath + "criar-editar-" + options.frontBaseFolder + "\\");
+                gerarTelaCriarEditar(options);
+                gerarSassCriarEditar(options);
+                gerarComponentCriarEditar(options);
+
+                // Criar
+                Utils.createDirectory(GerarFrontEnd.mainPath + "criar-editar-" + options.frontBaseFolder + "\\criar-" + options.frontBaseFolder);
+                gerarComponentCriar(options);
+
+                // Editar
+                Utils.createDirectory(GerarFrontEnd.mainPath + "criar-editar-" + options.frontBaseFolder + "\\editar-" + options.frontBaseFolder);
+                gerarComponentEditar(options);
+
+                // Incluir o novo modulo no Routing Module Escolhido
+                if (!options.frontModuleName.contains("\\")) { // So gera se não tiver sub-modulos
+                    incluirCadastroModulo(options);
+                } else {
+                    System.out.println("Pulando inclusão nas rotas PADRAO, pois trata-se de um sub-modulo");
+                    System.out.println("------------------------------------------------------------------------------\r\n");
+                }
             }
         }
 
@@ -293,7 +293,7 @@ public class GerarFrontEnd implements IGerador {
         String path = GerarFrontEnd.mainPath + "services\\";
 
         String classBody = "import { Injectable } from '@angular/core';\r\n" +
-                "import { AuthHttp } from 'angular2-jwt';\r\n" +
+                "import { HttpClient } from '@angular/common/http';\r\n" +
                 "\r\n" +
                 ((pkClass)
                         ? "import { AbstractServiceEmpresa } from './abstract-service-empresa';\r\n"
@@ -304,7 +304,7 @@ public class GerarFrontEnd implements IGerador {
                 ((pkClass)
                         ? "export class " + options.entityName + "Service extends AbstractServiceEmpresa<" + options.entityName + "> {\r\n"
                         : "export class " + options.entityName + "Service extends AbstractService<" + options.entityName + "> {\r\n") +
-                "  constructor( private http: AuthHttp ) {\r\n" +
+                "  constructor( private http: HttpClient ) {\r\n" +
                 "    super(http, '" + options.defaultRoute + "', 20);\r\n" +
                 "  }\r\n" +
                 "\r\n" +
@@ -575,7 +575,7 @@ public class GerarFrontEnd implements IGerador {
         }
 
         String classBody = "" +
-                "import { OnInit, ViewChild } from '@angular/core';\r\n" +
+                "import { OnInit, ViewChild, Directive } from '@angular/core';\r\n" +
                 "import { Validators } from '@angular/forms';\r\n" +
                 "\r\n" +
                 "import { CadastroBaseComponent } from '../../../../cadastros/cadastro-base.component';\r\n" +
@@ -583,6 +583,7 @@ public class GerarFrontEnd implements IGerador {
                 "\r\n" +
                 "import { " + options.entityName + "Service } from '../../../../services/" + options.defaultRoute + ".service';\r\n" +
                 "\r\n" +
+                "@Directive()" + "\r\n" +
                 "export abstract class CriarEditar" + options.frontBaseName + "Component extends CadastroBaseComponent implements OnInit {\r\n" +
                 "  id" + options.entityName + ": number;" + "\r\n" +
                 "\r\n" +
