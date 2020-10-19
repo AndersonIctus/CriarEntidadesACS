@@ -347,7 +347,7 @@ public class GerarFrontEndPagamento extends GerarFrontEnd {
             "    ];" + "\r\n" +
             "\r\n" +
             "    // ------ FILTERS ------ //" + "\r\n" +
-            "    @ViewChild('acs_listagem_recebimento') acsListagemRecebimento: ListagemRecebimentoComponent;" + "\r\n" +
+            "    @ViewChild('acs_listagem_recebimento', {static: true}) acsListagemRecebimento: ListagemRecebimentoComponent;" + "\r\n" +
             "\r\n" +
             "    constructor(\r\n" +
             "      public " + serviceName + ": " + options.entityName + "Service,\r\n" +
@@ -385,7 +385,6 @@ public class GerarFrontEndPagamento extends GerarFrontEnd {
             "    }\r\n" +
             "\r\n" +
             "    ngAfterContentInit(): void {" + "\r\n" +
-            "        super.ngAfterContentInit();" + "\r\n" +
             "        this.totalizadorListagem();" + "\r\n" +
             "    }" + "\r\n" +
             "\r\n" +
@@ -682,7 +681,7 @@ public class GerarFrontEndPagamento extends GerarFrontEnd {
             "    preferencia: Sistema;" + "\r\n" +
             "    contexto: CriarEditarContexto;" + "\r\n" +
             "\r\n" +
-            "    @ViewChild('acs_criar_editar_recebimento') acsCriarEditarRecebimento: CriarEditarRecebimentoComponent;" + "\r\n" +
+            "    @ViewChild('acs_criar_editar_recebimento', {static: true}) acsCriarEditarRecebimento: CriarEditarRecebimentoComponent;" + "\r\n" +
             "    @ViewChild('search_dialog') search_dialog: SearchDialogComponent;" + "\r\n" +
             "\r\n" +
             "    opcoesFinalizadora = [" + "\r\n" +
@@ -913,6 +912,7 @@ public class GerarFrontEndPagamento extends GerarFrontEnd {
                 "\r\n" +
                 "import { " + options.entityName + " } from '../../../../../model/" + options.entityName + "';" + "\r\n" +
                 "import { Observable } from 'rxjs';" + "\r\n" +
+                "import { map } from 'rxjs/operators';" + "\r\n" +
                 "\r\n" +
                 "@Component({" + "\r\n" +
                 "    templateUrl: '../criar-editar-" + options.frontBaseFolder + ".component.html'," + "\r\n" +
@@ -948,10 +948,12 @@ public class GerarFrontEndPagamento extends GerarFrontEnd {
                 "    gravarModel(rawValue: any): Observable<any> {" + "\r\n" +
                 "        return this.recebimentoService" + "\r\n" +
                 "            .observePersist( new Recebimento(rawValue), `/${this.contexto.getUrlContexto()}` )" + "\r\n" +
-                "            .map( () => {" + "\r\n" +
-                "                this.toasty.success('" + options.frontBaseName + " adicionado com sucesso!');" + "\r\n" +
-                "                this.router.navigate([this.routerLink]);" + "\r\n" +
-                "            });" + "\r\n" +
+                "            .pipe(" + "\r\n" +
+                "                map( () => {" + "\r\n" +
+                "                    this.toasty.success('" + options.frontBaseName + " adicionado com sucesso!');" + "\r\n" +
+                "                    this.router.navigate([this.routerLink]);" + "\r\n" +
+                "                })" + "\r\n" +
+                "            );" + "\r\n" +
                 "    }" + "\r\n" +
                 "}" + "\r\n" +
                 "";
@@ -983,10 +985,11 @@ public class GerarFrontEndPagamento extends GerarFrontEnd {
                 "import { " + options.entityName + " } from '../../../../../model/" + options.entityName + "';" + "\r\n" +
                 "\r\n" +
                 "import { Observable } from 'rxjs';" + "\r\n" +
+                "import { map } from 'rxjs/operators';" + "\r\n" +
                 "\r\n" +
                 "@Component({" + "\r\n" +
                 "    templateUrl: '../criar-editar-" + options.frontBaseFolder + ".component.html'," + "\r\n" +
-                "    styleUrls: ['../criar-editar-" + options.frontBaseFolder + ".component.scss',]" + "\r\n" +
+                "    styleUrls: ['../criar-editar-" + options.frontBaseFolder + ".component.scss']" + "\r\n" +
                 "})" + "\r\n" +
                 "export class Editar" + options.frontBaseName + "Component extends CriarEditar" + options.frontBaseName + "Component implements OnInit {\r\n" +
                 "    constructor(\r\n" +
@@ -1142,10 +1145,12 @@ public class GerarFrontEndPagamento extends GerarFrontEnd {
                 "    gravarModel(rawValue: any): Observable<any> {" + "\r\n" +
                 "        return this.recebimentoService" + "\r\n" +
                 "            .observeUpdate( new Recebimento(rawValue), this.idRecebimento, `/${this.contexto.getUrlContexto()}` )" + "\r\n" +
-                "            .map( () => {" + "\r\n" +
-                "                this.toasty.success('" + options.frontBaseName + " Atualizado com Sucesso!');" + "\r\n" +
-                "                this.router.navigate([this.routerLink]);" + "\r\n" +
-                "            });" + "\r\n" +
+                "            .pipe(" + "\r\n" +
+                "                map( () => {" + "\r\n" +
+                "                    this.toasty.success('" + options.frontBaseName + " Atualizado com Sucesso!');" + "\r\n" +
+                "                    this.router.navigate([this.routerLink]);" + "\r\n" +
+                "                })" + "\r\n" +
+                "            );" + "\r\n" +
                 "    }" + "\r\n" +
                 "}\r\n" +
                 "";
@@ -1161,7 +1166,7 @@ public class GerarFrontEndPagamento extends GerarFrontEnd {
         String pathToFile = options.mainFront;
 
         pathToFile += "modulos\\movimentos\\caixas-de-venda\\caixas-de-venda-routing.module.ts";
-        String newLine = "            { path: '" + options.frontBaseFolder + "', loadChildren: '../" + options.frontBaseFolder + "/" + options.frontBaseFolder + ".module#" + options.frontBaseName + "Module' }";
+        String newLine = "            { path: '" + options.frontBaseFolder + "', loadChildren: () => import('../" + options.frontBaseFolder + "/" + options.frontBaseFolder + ".module').then(m => m." + options.frontBaseName + "Module) }";
 
         writeLineModule(options.frontBaseFolder, pathToFile, newLine);
     }
@@ -1170,7 +1175,7 @@ public class GerarFrontEndPagamento extends GerarFrontEnd {
         String pathToFile = options.mainFront;
 
         pathToFile += "modulos\\movimentos\\caixas-da-gerencia\\caixas-da-gerencia-routing.module.ts";
-        String newLine = "                  { path: '" + options.frontBaseFolder + "', loadChildren: '../" + options.frontBaseFolder + "/" + options.frontBaseFolder + ".module#" + options.frontBaseName + "Module' }";
+        String newLine = "                  { path: '" + options.frontBaseFolder + "', loadChildren: () => import('../" + options.frontBaseFolder + "/" + options.frontBaseFolder + ".module').then(m => m." + options.frontBaseName + "Module) }";
 
         writeLineModule(options.frontBaseFolder, pathToFile, newLine);
     }

@@ -215,7 +215,7 @@ public class GerarReportFrontEnd implements IGerador {
                     "        this.searchDialog\r\n" +
                     "          .showDialog()\r\n" +
                     "          .subscribe((resp: SearchResponseModel) => {\r\n";
-            // for(ReportFileModel.ReportProperty prop : searchProperties) {
+
             for (int i = 0; i < searchProperties.size(); i++) {
                 ReportFileModel.ReportProperty prop = searchProperties.get(i);
                 String label = prop.getFront().getLabel();
@@ -310,7 +310,7 @@ public class GerarReportFrontEnd implements IGerador {
                 ReportFileModel.ReportProperty.PropertyFrontValue front = prop.getFront();
                 String entity = prop.getEntity();
 
-                filterAtributes += "    @ViewChild('"+ front.getGroup() + "Filter') "+front.getGroup()+"Filter: InputFilterComponent<"+ entity +">;\r\n";
+                filterAtributes += "    @ViewChild('"+ front.getGroup() + "Filter', {static: true}) "+front.getGroup()+"Filter: InputFilterComponent<"+ entity +">;\r\n";
                 initFilterEntity += getInitFilterData(prop);
 
                 if(!lsImportModels.contains(entity)) {
@@ -451,7 +451,7 @@ public class GerarReportFrontEnd implements IGerador {
 
         String pathToFile = mainPath + domainName + "-routing.module.ts";
 
-        String newLine = "    { path: '"+options.defaultRoute+"', loadChildren: './"+options.defaultRoute+"/"+options.defaultRoute+".module#"+options.frontBaseName+"Module' },";
+        String newLine = "    { path: '"+options.defaultRoute+"', loadChildren: () => import('./"+options.defaultRoute+"/"+options.defaultRoute+".module).then(m => m."+options.frontBaseName+"Module) },";
         String tmpFile = "./tmp.txt";
 
         if (Utils.isAuditionMode()) {
@@ -565,7 +565,7 @@ public class GerarReportFrontEnd implements IGerador {
         String domainName = options.getReportGenerator().getReportModel().getDominio();
         String domainClass = domainName.substring(0,1).toUpperCase() + domainName.substring(1);
 
-        String newLine = "    { path: '"+domainName+"', loadChildren: './"+domainName+"/"+domainName+".module#"+domainClass+"Module' },";
+        String newLine = "    { path: '"+domainName+"', loadChildren: () => import('./"+domainName+"/"+domainName+".module).then("+domainClass+"Module) },";
         String tmpFile = "./tmp.txt";
 
         if (Utils.isAuditionMode()) {

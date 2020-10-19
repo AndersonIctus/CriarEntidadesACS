@@ -106,7 +106,7 @@ public class GerarFrontEnd implements IGerador {
 
         pathToFile += options.frontModuleName + "-routing.module.ts";
 
-        String newLine = "  { path: '" + options.frontBaseFolder + "', loadChildren: './" + options.frontBaseFolder + "/" + options.frontBaseFolder + ".module#" + options.frontBaseName + "Module' }";
+        String newLine = "  { path: '" + options.frontBaseFolder + "', loadChildren: () => import('./" + options.frontBaseFolder + "/" + options.frontBaseFolder + ".module').then(m => m." + options.frontBaseName + "Module) }";
         String tmpFile = "./tmp.txt";
 
         if (Utils.isAuditionMode()) {
@@ -629,6 +629,7 @@ public class GerarFrontEnd implements IGerador {
                 "import { " + options.entityName + "Service } from '../../../../../services/" + options.defaultRoute + ".service';" + "\r\n" +
                 "import { " + options.entityName + " } from '../../../../../model/" + options.entityName + "';" + "\r\n" +
                 "import { Observable } from 'rxjs';" + "\r\n" +
+                "import { map } from 'rxjs/operators';" + "\r\n" +
                 "\r\n" +
                 "@Component({" + "\r\n" +
                 "  templateUrl: '../criar-editar-" + options.frontBaseFolder + ".component.html'," + "\r\n" +
@@ -645,10 +646,12 @@ public class GerarFrontEnd implements IGerador {
                 "  gravarModel(formModel: FormGroup): Observable<any> {" + "\r\n" +
                 "    return this." + serviceName + "\r\n" +
                 "        .observePersist( new " + options.entityName + "(formModel.getRawValue()) )" + "\r\n" +
-                "        .map( () => {" + "\r\n" +
-                "            this.toasty.success('" + options.entityName + " adicionado com sucesso!');" + "\r\n" +
-                "            this.router.navigate([this.routerLink]);" + "\r\n" +
-                "        });" + "\r\n" +
+                "        .pipe(" + "\r\n" +
+                "            map( () => {" + "\r\n" +
+                "                this.toasty.success('" + options.entityName + " adicionado com sucesso!');" + "\r\n" +
+                "                this.router.navigate([this.routerLink]);" + "\r\n" +
+                "            })" + "\r\n" +
+                "        );" + "\r\n" +
                 "  }" + "\r\n" +
                 "}" + "\r\n" +
                 "";
@@ -700,6 +703,7 @@ public class GerarFrontEnd implements IGerador {
                 "import { " + options.entityName + " } from '../../../../../model/" + options.entityName + "';" + "\r\n" +
                 "\r\n" +
                 "import { Observable } from 'rxjs';" + "\r\n" +
+                "import { map } from 'rxjs/operators';" + "\r\n" +
                 "\r\n" +
                 "@Component({" + "\r\n" +
                 "  templateUrl: '../criar-editar-" + options.frontBaseFolder + ".component.html'," + "\r\n" +
@@ -742,10 +746,12 @@ public class GerarFrontEnd implements IGerador {
                 "  gravarModel(formModel: FormGroup): Observable<any> {\r\n" +
                 "    return this." + serviceName + "\r\n" +
                 "        .observeUpdate( new " + options.entityName + "(formModel.getRawValue()), this.id" + options.entityName + " )\r\n" +
-                "        .map( () => {\r\n" +
-                "          this.toasty.success('" + options.entityName + " Atualizado com Sucesso!');\r\n" +
-                "          this.router.navigate([this.routerLink]);\r\n" +
-                "        });\r\n" +
+                "        .pipe(" + "\r\n" +
+                "            map( () => {" + "\r\n" +
+                "                this.toasty.success('" + options.entityName + " Atualizado com Sucesso!');\r\n" +
+                "                this.router.navigate([this.routerLink]);\r\n" +
+                "            })\r\n" +
+                "        );\r\n" +
                 "  }\r\n" +
                 "}\r\n" +
                 "";

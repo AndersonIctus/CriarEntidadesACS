@@ -9,12 +9,12 @@ public class TesteModelGenerator {
 //				"./report-base.json",
 //				"-modulemovimentos",
 //				"-front-baseitens-compra",
-				"-back",
-//				"-front",
+//				"-back",
+				"-front",
 //				"-model",
 //				"-ffe",
-                "-eaCHEQUES"
-//				"-audit"
+                "-eaCHEQUES",
+				"-audit"
 		);
 		// Principal.main("-test");
 	}
