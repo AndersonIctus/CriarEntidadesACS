@@ -81,7 +81,7 @@ class ReportProperty {
 class PropertyFrontValue {
     String label;        // Label do campo no Front (se não informar pega o "name" do campo) [Ex.: "Empresa Cadastrada" ou "Ativo"]
     String type;         // Tipo que o campo terá no front (se não passado ele pega um valor padrão a partir do "type" do campo) [Ex.: "INPUT", "SELECT", "SEARCH"]
-    String group;        // Usado para quando o tipo no front é um "SEARCH" (Se não for passado ele pega a partir do "entity" do campo. o nome deve ser camel case iniciado por minusculo) [Ex.: "empresa" ou "produtoEmpresa" ou "combustivel"]
+    String group;        // Usado para quando o tipo no front é um "SEARCH" ou "FILTER" (Se não for passado ele pega a partir do "entity" do campo. o nome deve ser camel case iniciado por minusculo) [Ex.: "empresa" ou "produtoEmpresa" ou "combustivel"]
     Integer inteiro;     // Usado para informar a parte inteira dos campos numericos ou decimais (O padrão é 1 para tipos numericos ou decimais type: 'number' || type: 'decimal') [Ex.: inteiro: 8]
     Integer decimal;     // Usado para informar as casas decimais dos campos decimais (O padrão é 2 para typos decimais - type: 'decimal') [Ex.: decimal: 2]
     Boolean zerosLeft;   // Usado para indicar aos campos numericos se deve ou não completar com zeros a esquerda (type: 'number') [Ex.: zerosLeft: true]

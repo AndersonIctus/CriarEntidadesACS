@@ -3,17 +3,16 @@ package main;
 public class TesteModelGenerator {
 	public static void main(String[] args) {
 		Principal.main(
-				"-fp",
-				"cheques",
+				"-report",
 //				"-mount",
-//				"./report-base.json",
+				"./report-base_fatura_avulso.json",
 //				"-modulemovimentos",
 //				"-front-baseitens-compra",
 //				"-back",
 				"-front",
 //				"-model",
 //				"-ffe",
-                "-eaCHEQUES",
+//              "-eaCHEQUES",
 				"-audit"
 		);
 		// Principal.main("-test");

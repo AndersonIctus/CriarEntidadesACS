@@ -45,6 +45,7 @@ public class GerarReportFrontEnd implements IGerador {
             gerarModule(options);
             gerarComponent(options);
             gerarTela(options);
+            gerarSCSS(options);
 
             mainPath = options.mainFront + "modulos/relatorios/" + getDirectoryDomain(options);
             incluirModuloNoDominio(options);
@@ -115,7 +116,7 @@ public class GerarReportFrontEnd implements IGerador {
             "import { Component, OnInit, ViewChild } from '@angular/core';\r\n" +
             "import { Validators } from '@angular/forms';\r\n" +
             "\r\n" +
-            "import { DialogDesignModel } from '../../../../shared/components/dialogs/custom-dialog/DialogDesignModel';\r\n" +
+            "import { DialogDesignBuilder, DialogDesignModel } from '../../../../shared/components/dialogs/custom-dialog/DialogDesignModel';\r\n" +
             "import { SearchDialogComponent, SearchResponseModel } from '../../../../shared/components/dialogs/search-dialog/search-dialog.component';\r\n" +
             "import { InputFilterComponent } from '../../../../shared/components/others/input-filter/input-filter.component';\r\n" +
             "import { Util } from '../../../../shared/utils/Util';\r\n" +
@@ -234,20 +235,20 @@ public class GerarReportFrontEnd implements IGerador {
 
                 if(group.equals("empresa")) {
                     searchIf += "" +
-                            "            const empresaDesign = [\r\n" +
-                            "                new DialogDesignModel('Razão Social', 'razaoSocial'),\r\n" +
-                            "                new DialogDesignModel('CNPJ', 'cnpj', false, 'cnpj', Util.formatCpfCnpj),\r\n" +
-                            "                new DialogDesignModel('UF', 'uf')\r\n" +
-                            "            ];\r\n" +
+                            "            const empresaDesign = DialogDesignBuilder.build({\r\n" +
+                            "                'razaoSocial': 'Razão Social',\r\n" +
+                            "                'cnpj': {header: 'CNPJ', options: {format: Util.formatCpfCnpj}},\r\n" +
+                            "                'uf': 'UF'\r\n" +
+                            "            });\r\n" +
                             "            this.searchDialog.changeSearchValues('PESQUISAR Empresas', 'empresa', empresaDesign, this.empresaService,\r\n" +
                             "                            `/search`, `idUsuario=${this.usuario.id}&sort=razaoSocial`);\r\n";
 
                 } else {
                     searchIf += "" +
-                        "            const " + group + "Design = [\r\n" +
-                        "                new DialogDesignModel('Id', 'id'),\r\n" +
-                        "                new DialogDesignModel('Descrição', 'descricao')\r\n" +
-                        "            ];\r\n" +
+                        "            const " + group + "Design = DialogDesignBuilder.build({\r\n" +
+                        "                'id': 'Id'\r\n" +
+                        "                'descricao': 'Descrição'\r\n" +
+                        "            });\r\n" +
                         "            this.searchDialog.changeSearchValues('PESQUISAR "+label+"', sourceControl, "+group+"Design, this."+entityVariable+"Service,\r\n" +
                         "                            `/search`, ``);\r\n";
                 }
@@ -354,6 +355,7 @@ public class GerarReportFrontEnd implements IGerador {
                 "\r\n" +
                 "@Component({\r\n" +
                 "    templateUrl: './"+options.defaultRoute+".component.html'\r\n" +
+                "    styleUrls: ['./"+options.defaultRoute+".component.scss']" +
                 "})\r\n" +
                 "export class "+options.frontBaseName+"Component extends RelatorioBaseComponent implements OnInit {\r\n" +
                 ((!openSearchDialog.equals(""))? "    @ViewChild('search_dialog') searchDialog: SearchDialogComponent;\r\n" : "") +
@@ -443,6 +445,29 @@ public class GerarReportFrontEnd implements IGerador {
 
         Utils.writeContentTo(path + options.defaultRoute + ".component.html", fileBody);
         System.out.println("Generated Template '" + options.defaultRoute + ".component.html' into '" + path + "'");
+        System.out.println("-----------------------------------------------\r\n");
+    }
+
+    private void gerarSCSS(GenOptions options) throws IOException {
+        String path = mainPath;
+
+        // ----------------------- Creating Component
+        String fileBody = "" +
+                ":host ::ng-deep {\r\n" +
+                "    .filter-relatorios-" + options.defaultRoute + " {\r\n" +
+                "        .mat-column-selection {\r\n" +
+                "            padding-left: 5px;\r\n" +
+                "            padding-right: 5px;\r\n" +
+                "        }\r\n" +
+                "\r\n" +
+                "        .mat-column-id {\r\n" +
+                "            text-align: center;\r\n" +
+                "        }\r\n" +
+                "    }\r\n" +
+                "}\r\n";
+
+        Utils.writeContentTo(path + options.defaultRoute + ".component.scss", fileBody);
+        System.out.println("Generated Template '" + options.defaultRoute + ".component.scss' into '" + path + "'");
         System.out.println("-----------------------------------------------\r\n");
     }
 
@@ -817,21 +842,22 @@ public class GerarReportFrontEnd implements IGerador {
         ReportFileModel.ReportProperty.PropertyFrontValue front = prop.getFront();
 
         return
-                spc + "////////////////////////////////////////////////////////\r\n" +
-                spc + "// Filtro de " + entity + " ("+ front.getLabel() +")\r\n" +
-                spc + "this."+front.getGroup()+"Filter.label = '" + front.getLabel() + "';\r\n" +
-                spc + "this."+front.getGroup()+"Filter.dialog_title = 'Filtrar "+front.getLabel()+"';\r\n" +
-                spc + "this."+front.getGroup()+"Filter.service = this."+entityVariable+"Service;\r\n" +
-                spc + "this."+front.getGroup()+"Filter.urlAction = `/filter/empresa/${this.empresa.id}`;\r\n" +
-                spc + "this."+front.getGroup()+"Filter.dataParameter = ``;\r\n" +
-                spc + "this."+front.getGroup()+"Filter.table_design = [\r\n" +
-                spc + "    new DialogDesignModel('Id', 'id'),\r\n" +
-                spc + "    new DialogDesignModel('Descrição', 'descricao')\r\n" +
-                spc + "];\n" +
-                spc + "this."+front.getGroup()+"Filter.input_transform_descriptor = {\r\n" +
-                spc + "    id: 'id',\r\n" +
-                spc + "    title: [ { prefix: '', field: 'descricao' } ]\r\n" +
-                spc + "};\r\n";
+            spc + "////////////////////////////////////////////////////////\r\n" +
+            spc + "this."+front.getGroup()+"Filter.changeProperties({\r\n" +
+            spc + "    " + "label: '" + front.getLabel() + "',\r\n" +
+            spc + "    " + "dialogTitle: 'Filtrar "+front.getLabel()+"',\r\n" +
+            spc + "    " + "service: this."+entityVariable+"Service,\r\n" +
+            spc + "    " + "urlAction: `/filter/empresa/${this.empresa.id}`,\r\n" +
+            spc + "    " + "dataParameter: ``,\r\n" +
+            spc + "    " + "tableDesign: DialogDesignBuilder.build({\r\n" +
+            spc + "    " + "    'id': 'Cod.',\r\n" +
+            spc + "    " + "    'descricao': 'Descrição',\r\n" +
+            spc + "    " + "}),\r\n" +
+            spc + "    " + "inputTransformDescriptor: {\r\n" +
+            spc + "    " + "    id: 'id',\r\n" +
+            spc + "    " + "    title: [ { prefix: '', field: 'descricao' } ]\r\n" +
+            spc + "    " + "}\r\n" +
+            spc + "});\r\n";
     }
 
     private String getNumberMask(Integer inteiro) {
