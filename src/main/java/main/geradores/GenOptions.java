@@ -22,6 +22,7 @@ public class GenOptions {
     public String frontModuleName = "cadastros";
 
     public boolean generateModel = true; // Gera modelos por padrão
+    public boolean generateReportFile = true; // Gera Report por padrão (Somente para quando estiver gerando RELATORIOS)
     public boolean generateEmpresaEntity = false; // A empresa não é entidade por padrão
     public boolean generateResourceService = true; // A classe de service é sempre gerada !
     public boolean generateFormaPagamento = false; // Indica que vai ser gerado as classes de forma de pagamento !
@@ -136,3 +137,4 @@ public class GenOptions {
         return this.optionReport;
     }
 }
+

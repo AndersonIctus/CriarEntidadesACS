@@ -12,6 +12,7 @@ import main.geradores.model.impl.ParseScript;
 import main.geradores.report.ReportFileModel;
 import main.geradores.report.ReportGenerator;
 import main.geradores.report.impl.GerarReportBackEnd;
+import main.geradores.report.impl.GerarReportFile;
 import main.geradores.report.impl.GerarReportFrontEnd;
 
 import java.io.*;
@@ -94,8 +95,11 @@ public class GeradorDeEntidades {
 
             ////////////////////////////////////////////////////
             // FLAGS DE GERAÇÃO
-            } else if (param.equalsIgnoreCase("-nogeneratemodel") || param.equalsIgnoreCase("-nogm"))
+            }
+            else if (param.equalsIgnoreCase("-nogeneratemodel") || param.equalsIgnoreCase("-nogm"))
                 options.generateModel = false;
+            else if (param.equalsIgnoreCase("-nogeneratereportfile") || param.equalsIgnoreCase("-norf"))
+                options.generateReportFile = false;
             else if (param.equalsIgnoreCase("-generateempresaentity") || param.equalsIgnoreCase("-genemp"))
                 options.generateEmpresaEntity = true;
             else if (param.equalsIgnoreCase("-generateresourceservice") || param.equalsIgnoreCase("-genserv"))
@@ -155,8 +159,6 @@ public class GeradorDeEntidades {
             }
         }
 
-
-
         // Caso esteja usando a forma de pagamento
         if (args[0].equalsIgnoreCase("-formaPagamento") || args[0].equalsIgnoreCase("-fp")) {
             options.generateModel = false;
@@ -191,7 +193,8 @@ public class GeradorDeEntidades {
         if( options.isOptionReport() ) {
             geradores = Arrays.asList(
                     new GerarReportBackEnd(),
-                    new GerarReportFrontEnd()
+                    new GerarReportFrontEnd(),
+                    new GerarReportFile()
             );
         }
         // Options para Gerador de Entidades

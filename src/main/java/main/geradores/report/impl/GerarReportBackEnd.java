@@ -55,18 +55,24 @@ public class GerarReportBackEnd implements IGerador {
         String path = mainPath + "filter/";
 
         ReportGenerator reportGenerator = options.getReportGenerator();
+        String reportName = "RELATORIO_" + reportGenerator.getReportName().toUpperCase();
         String imports =
                 "import com.innovaro.acs.exceptionhandler.exception.ACSBadRequestException;\r\n" +
-                "import com.innovaro.acs.exceptionhandler.exception.ACSNotFoundException;\r\n"+
+                "import com.innovaro.acs.exceptionhandler.exception.ACSNotFoundException;\r\n" +
+                "import com.innovaro.acs.model.Empresa;\r\n"+
                 "import com.innovaro.acs.repository.customtypes.AcsDateTime;\r\n" +
+                "import com.innovaro.acs.service.EmpresaService;\r\n" +
                 "import lombok.Data;\r\n" +
                 "import org.apache.commons.lang3.StringUtils;\r\n" +
                 "\r\n"+
                 "import java.math.BigDecimal;\r\n" +
                 "import java.time.OffsetDateTime;\r\n" +
+                "import java.time.ZoneOffset;\r\n" +
                 "import java.util.HashMap;\r\n" +
                 "import java.util.List;\r\n" +
-                "import java.util.Map;\r\n";
+                "import java.util.Map;\r\n" +
+                "\r\n"+
+                "import static com.innovaro.acs.modulo.relatorio.ConstDiretoriosRelatorios." + reportName + ";\r\n";
 
         String properties = "";
         String parametersRequired = "";
@@ -119,7 +125,21 @@ public class GerarReportBackEnd implements IGerador {
                 " ** ********************************************** */\r\n" +
                 "@Data\r\n" +
                 "public class " + options.entityName + "FilterReport extends AbstractFilterReport {\r\n" +
+                "    // Services\r\n" +
+                "    private EmpresaService empresaService;\r\n" +
+                "\r\n" +
+                "    // Propriedades\r\n" +
                 properties +
+                "\r\n" +
+                "    @Override\r\n" +
+                "    public String getTituloRelatorio() {\r\n" +
+                "        return \""+ reportGenerator.getReportModel().getTitulo() + "\";\r\n" +
+                "    }\r\n" +
+                "\r\n" +
+                "    @Override\r\n" +
+                "    public String getResourcePath() {\r\n" +
+                "        return " + reportName + ";\r\n" +
+                "    }\r\n" +
                 "\r\n" +
                 "    @Override\r\n" +
                 "    protected void validarParametros() {\r\n" +
@@ -130,8 +150,28 @@ public class GerarReportBackEnd implements IGerador {
                 "    @Override\r\n" +
                 "    protected Map<String, Object> getParametrosDoFiltro() {\r\n" +
                 "        Map<String, Object> parametros = new HashMap<>();\r\n" +
+                "\r\n" +
+                "        Empresa empresa = empresaService.findOne(getIdEmpresa());" + "\r\n" +
+                "        parametros.put(\"DESCRICAO_RELATORIO\", getTituloRelatorio());" + "\r\n" +
+                "        parametros.put(\"DESCRICAO_EMPRESA\", empresa.getRazaoSocial());" + "\r\n" +
+                "        parametros.put(\"OPCAO_RELATORIO\", this.getOpcaoRelatorio());" + "\r\n" +
+                "\r\n" +
+                "        // Data e Hora da Impressão" + "\r\n" +
+                "        parametros.put(\"DATA_HORA_IMPRESSAO\", getDataHoraImpressao() );" + "\r\n" +
+                "\r\n" +
                 "        return parametros;\r\n" +
                 "    }\r\n" +
+                "\r\n" +
+                "    private String getOpcaoRelatorio() {" + "\r\n" +
+                "        String descricao = \"Filtros:\";" + "\r\n" +
+                "        return descricao;" + "\r\n" +
+                "    }\r\n" +
+                "\r\n" +
+                "    //region ----- OUTROS METODOS" + "\r\n" +
+                "    private String getDataHoraImpressao() {" + "\r\n" +
+                "        OffsetDateTime offsetNow = OffsetDateTime.now().withOffsetSameInstant(ZoneOffset.of(\"-03:00\"));" + "\r\n" +
+                "        return new AcsDateTime(offsetNow).format(\"dd/MM/yyyy HH:mm:ss\");" + "\r\n" +
+                "    }" + "\r\n" +
                 "}\r\n" +
                 "";
 
@@ -288,16 +328,19 @@ public class GerarReportBackEnd implements IGerador {
 
         ReportGenerator reportGenerator = options.getReportGenerator();
         String reportName = "RELATORIO_" + reportGenerator.getReportName().toUpperCase();
-        String reportTitle = reportGenerator.getReportModel().getTitulo();
         String reportType = reportGenerator.getReportModel().getDominio();
 
         pathToFile += getReportServiceName(reportType) + ".java";
 
         String newLine =
+                "    /**\r\n" +
+                "     * @param filtro\r\n" +
+                "     * @return\r\n" +
+                "     */\r\n" +
                 "    public Relatorio gerarRelatorio" + options.entityName + "(" + options.entityName + "FilterReport filtro) {\r\n" +
                 "        try {\r\n" +
-                "            String urlReport = jasperReportService.gerarReportPDF(" + reportName + ", filtro.getParametros());\r\n" +
-                "            return new Relatorio(urlReport, \"" + reportTitle + "\");\r\n" +
+                "            filtro.setEmpresaService(empresaService);\r\n" +
+                "            return jasperReportService.gerarRelatorio(filtro);\r\n" +
                 "        } catch (SQLException e) {\r\n" +
                 "            throw new ACSBadRequestException(\"error.report.invalido\");\r\n" +
                 "        }\r\n" +

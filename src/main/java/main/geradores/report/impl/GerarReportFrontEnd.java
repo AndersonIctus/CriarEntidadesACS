@@ -354,8 +354,8 @@ public class GerarReportFrontEnd implements IGerador {
                 imports +
                 "\r\n" +
                 "@Component({\r\n" +
-                "    templateUrl: './"+options.defaultRoute+".component.html'\r\n" +
-                "    styleUrls: ['./"+options.defaultRoute+".component.scss']" +
+                "    templateUrl: './"+options.defaultRoute+".component.html',\r\n" +
+                "    styleUrls: ['./"+options.defaultRoute+".component.scss']\r\n" +
                 "})\r\n" +
                 "export class "+options.frontBaseName+"Component extends RelatorioBaseComponent implements OnInit {\r\n" +
                 ((!openSearchDialog.equals(""))? "    @ViewChild('search_dialog') searchDialog: SearchDialogComponent;\r\n" : "") +
@@ -476,7 +476,7 @@ public class GerarReportFrontEnd implements IGerador {
 
         String pathToFile = mainPath + domainName + "-routing.module.ts";
 
-        String newLine = "    { path: '"+options.defaultRoute+"', loadChildren: () => import('./"+options.defaultRoute+"/"+options.defaultRoute+".module).then(m => m."+options.frontBaseName+"Module) },";
+        String newLine = "    { path: '"+options.defaultRoute+"', loadChildren: () => import('./"+options.defaultRoute+"/"+options.defaultRoute+".module').then(m => m."+options.frontBaseName+"Module) },";
         String tmpFile = "./tmp.txt";
 
         if (Utils.isAuditionMode()) {
@@ -590,7 +590,7 @@ public class GerarReportFrontEnd implements IGerador {
         String domainName = options.getReportGenerator().getReportModel().getDominio();
         String domainClass = domainName.substring(0,1).toUpperCase() + domainName.substring(1);
 
-        String newLine = "    { path: '"+domainName+"', loadChildren: () => import('./"+domainName+"/"+domainName+".module).then("+domainClass+"Module) },";
+        String newLine = "    { path: '"+domainName+"', loadChildren: () => import('./"+domainName+"/"+domainName+".module').then(m => m."+domainClass+"Module) },";
         String tmpFile = "./tmp.txt";
 
         if (Utils.isAuditionMode()) {

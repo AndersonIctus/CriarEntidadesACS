@@ -62,6 +62,7 @@ public class Principal {
                 + "FLAGS: \r\n"
                 + "-----------------------------------\r\n"
                 + " -noGenerateModel [ou -noGM] \t\t\t\t Indica que a classe modelo não deve ser gerada.\r\n"
+                + " -noGenerateReportFile [ou -noRF] \t\t\t Indica que o arquivo de Relatório não deve ser gerado (Somente em Geração de Relatório).\r\n"
                 + " -onlyBackEnd [ou -back] \t\t\t\t Gera somente os arquivos de BACK - END.\r\n"
                 + " -onlyModel [ou -model] \t\t\t\t Gera somente os arquivos de Modelo.\r\n"
                 + " -onlyFrontEnd [ou -front] \t\t\t\t Gera somente os arquivos de FRONT - END.\r\n"
