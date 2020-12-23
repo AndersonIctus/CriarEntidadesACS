@@ -3,7 +3,6 @@ package main.geradores.report.impl;
 import main.geradores.GenOptions;
 import main.geradores.IGerador;
 import main.geradores.Utils;
-import main.geradores.report.ReportFileModel;
 import main.geradores.report.ReportGenerator;
 
 import java.io.IOException;
@@ -58,55 +57,7 @@ public class GerarReportFile implements IGerador {
                 "    <queryString>\n" +
                 "        <![CDATA[]]>\n" +
                 "    </queryString>\n" +
-                "    <pageHeader>\n" +
-                "        <band height=\"59\">\n" +
-                "            <property name=\"com.jaspersoft.studio.unit.height\" value=\"px\"/>\n" +
-                "            <textField isBlankWhenNull=\"true\">\n" +
-                "                <reportElement x=\"2\" y=\"4\" width=\"438\" height=\"22\" >\n" +
-                "                    <property name=\"com.jaspersoft.studio.unit.width\" value=\"px\"/>\n" +
-                "                </reportElement>\n" +
-                "                <textElement verticalAlignment=\"Middle\" markup=\"none\">\n" +
-                "                    <font fontName=\"Roboto Mono\" size=\"14\" isBold=\"true\"/>\n" +
-                "                </textElement>\n" +
-                "                <textFieldExpression><![CDATA[$P{DESCRICAO_EMPRESA}]]></textFieldExpression>\n" +
-                "            </textField>\n" +
-                "            <textField isBlankWhenNull=\"true\">\n" +
-                "                <reportElement x=\"2\" y=\"27\" width=\"551\" height=\"16\" forecolor=\"#9E1602\" >\n" +
-                "                    <property name=\"com.jaspersoft.studio.unit.width\" value=\"px\"/>\n" +
-                "                    <property name=\"com.jaspersoft.studio.unit.height\" value=\"px\"/>\n" +
-                "                </reportElement>\n" +
-                "                <textElement verticalAlignment=\"Middle\">\n" +
-                "                    <font fontName=\"Roboto Mono\" size=\"12\" isBold=\"true\"/>\n" +
-                "                </textElement>\n" +
-                "                <textFieldExpression><![CDATA[$P{DESCRICAO_RELATORIO}]]></textFieldExpression>\n" +
-                "            </textField>\n" +
-                "            <textField textAdjust=\"ScaleFont\" isBlankWhenNull=\"true\">\n" +
-                "                <reportElement x=\"2\" y=\"44\" width=\"551\" height=\"14\" forecolor=\"#ADADAD\" >\n" +
-                "                    <property name=\"com.jaspersoft.studio.unit.width\" value=\"px\"/>\n" +
-                "                </reportElement>\n" +
-                "                <textElement verticalAlignment=\"Middle\">\n" +
-                "                    <font fontName=\"Roboto Mono\" isBold=\"true\" isItalic=\"true\"/>\n" +
-                "                </textElement>\n" +
-                "                <textFieldExpression><![CDATA[$P{OPCAO_RELATORIO}]]></textFieldExpression>\n" +
-                "            </textField>\n" +
-                "            <textField isBlankWhenNull=\"true\">\n" +
-                "                <reportElement x=\"467\" y=\"12\" width=\"86\" height=\"14\" >\n" +
-                "                    <property name=\"com.jaspersoft.studio.unit.x\" value=\"pixel\"/>\n" +
-                "                </reportElement>\n" +
-                "                <textElement textAlignment=\"Left\">\n" +
-                "                    <font fontName=\"Roboto Mono\"/>\n" +
-                "                </textElement>\n" +
-                "                <textFieldExpression><![CDATA[$P{SISTEMA_VERSAO}]]></textFieldExpression>\n" +
-                "            </textField>\n" +
-                "            <image>\n" +
-                "                <reportElement x=\"443\" y=\"4\" width=\"22\" height=\"22\">\n" +
-                "                    <property name=\"com.jaspersoft.studio.unit.height\" value=\"px\"/>\n" +
-                "                    <property name=\"com.jaspersoft.studio.unit.width\" value=\"px\"/>\n" +
-                "                </reportElement>\n" +
-                "                <imageExpression><![CDATA[\"https://imagens-reports.s3.us-east-2.amazonaws.com/icone_rel_acs.png\"]]></imageExpression>\n" +
-                "            </image>\n" +
-                "        </band>\n" +
-                "    </pageHeader>\n" +
+                getPageHeader(options) + "\n" +
                 "    <detail>\n" +
                 "        <band height=\"12\">\n" +
                 "            <property name=\"com.jaspersoft.studio.unit.height\" value=\"px\"/>\n" +
@@ -123,31 +74,7 @@ public class GerarReportFile implements IGerador {
                 "            </staticText>\n" +
                 "        </band>\n" +
                 "    </detail>\n" +
-                "    <pageFooter>\n" +
-                "        <band height=\"20\">\n" +
-                "            <property name=\"com.jaspersoft.studio.unit.height\" value=\"px\"/>\n" +
-                "            <textField pattern=\"dd/MM/YYYY HH:mm:ss\">\n" +
-                "                <reportElement x=\"2\" y=\"2\" width=\"114\" height=\"14\" >\n" +
-                "                    <property name=\"com.jaspersoft.studio.unit.height\" value=\"cm\"/>\n" +
-                "                    <property name=\"com.jaspersoft.studio.unit.x\" value=\"px\"/>\n" +
-                "                    <property name=\"com.jaspersoft.studio.unit.y\" value=\"px\"/>\n" +
-                "                </reportElement>\n" +
-                "                <textElement verticalAlignment=\"Middle\">\n" +
-                "                    <font fontName=\"Roboto Mono\" size=\"6\"/>\n" +
-                "                </textElement>\n" +
-                "                <textFieldExpression><![CDATA[$P{DATA_HORA_IMPRESSAO}]]></textFieldExpression>\n" +
-                "            </textField>\n" +
-                "            <textField>\n" +
-                "                <reportElement x=\"394\" y=\"2\" width=\"158\" height=\"14\" >\n" +
-                "                    <property name=\"com.jaspersoft.studio.unit.height\" value=\"cm\"/>\n" +
-                "                </reportElement>\n" +
-                "                <textElement textAlignment=\"Right\" verticalAlignment=\"Middle\">\n" +
-                "                    <font fontName=\"Roboto Mono\" size=\"6\"/>\n" +
-                "                </textElement>\n" +
-                "                <textFieldExpression><![CDATA[\"Página \" + $V{PAGE_NUMBER} + \" de \" + $V{PAGE_NUMBER}]]></textFieldExpression>\n" +
-                "            </textField>\n" +
-                "        </band>\n" +
-                "    </pageFooter>\n" +
+                getPageFooter(options) + "\n" +
                 "</jasperReport>\n";
 
         Utils.writeContentTo(mainPath + options.defaultRoute + ".jrxml", fileBody);
@@ -156,8 +83,107 @@ public class GerarReportFile implements IGerador {
     }
 
     private String getPageProperties(GenOptions options) {
-        // TODO: Ver opções Landscape (Aqui está somente PORTRAIT)
-        return "pageWidth=\"595\" pageHeight=\"842\" columnWidth=\"555\" leftMargin=\"20\" rightMargin=\"20\" topMargin=\"20\" bottomMargin=\"20\"";
+        String optionPropertie = "";
+        // Opções para propriedades de Landscape
+        if(options.reportOrientation.equalsIgnoreCase("landscape")) {
+            optionPropertie = "pageWidth=\"842\" pageHeight=\"595\" orientation=\"Landscape\" columnWidth=\"802\"";
+        }
+        else { // Padrão é o retorno PORTRAIT
+            optionPropertie = "pageWidth=\"595\" pageHeight=\"842\" columnWidth=\"555\"";
+        }
+
+        return optionPropertie + " whenNoDataType=\"AllSectionsNoDetail\" leftMargin=\"20\" rightMargin=\"20\" topMargin=\"20\" bottomMargin=\"20\"";
+    }
+
+    private String getPageHeader(GenOptions options) {
+        boolean portrait = options.reportOrientation.equalsIgnoreCase("portrait");
+        return  "    <pageHeader>\n" +
+                "        <band height=\"59\">\n" +
+                "            <property name=\"com.jaspersoft.studio.unit.height\" value=\"px\"/>\n" +
+                "            <textField isBlankWhenNull=\"true\">\n" +
+                "                <reportElement x=\"2\" y=\"4\" width=\"" + ((portrait)?"438": "680") + "\" height=\"22\" >\n" +
+                "                    <property name=\"com.jaspersoft.studio.unit.width\" value=\"px\"/>\n" +
+                "                </reportElement>\n" +
+                "                <textElement verticalAlignment=\"Middle\" markup=\"none\">\n" +
+                "                    <font fontName=\"Roboto Mono\" size=\"14\" isBold=\"true\"/>\n" +
+                "                </textElement>\n" +
+                "                <textFieldExpression><![CDATA[$P{DESCRICAO_EMPRESA}]]></textFieldExpression>\n" +
+                "            </textField>\n" +
+                "            <textField isBlankWhenNull=\"true\">\n" +
+                "                <reportElement x=\"2\" y=\"27\" width=\"" + ((portrait)?"551": "796") + "\" height=\"16\" forecolor=\"#9E1602\" >\n" +
+                "                    <property name=\"com.jaspersoft.studio.unit.width\" value=\"px\"/>\n" +
+                "                    <property name=\"com.jaspersoft.studio.unit.height\" value=\"px\"/>\n" +
+                "                </reportElement>\n" +
+                "                <textElement verticalAlignment=\"Middle\">\n" +
+                "                    <font fontName=\"Roboto Mono\" size=\"12\" isBold=\"true\"/>\n" +
+                "                </textElement>\n" +
+                "                <textFieldExpression><![CDATA[$P{DESCRICAO_RELATORIO}]]></textFieldExpression>\n" +
+                "            </textField>\n" +
+                "            <textField textAdjust=\"ScaleFont\" isBlankWhenNull=\"true\">\n" +
+                "                <reportElement x=\"2\" y=\"44\" width=\"" + ((portrait)?"551": "796") + "\" height=\"14\" forecolor=\"#ADADAD\" >\n" +
+                "                    <property name=\"com.jaspersoft.studio.unit.width\" value=\"px\"/>\n" +
+                "                </reportElement>\n" +
+                "                <textElement verticalAlignment=\"Middle\">\n" +
+                "                    <font fontName=\"Roboto Mono\" isBold=\"true\" isItalic=\"true\"/>\n" +
+                "                </textElement>\n" +
+                "                <textFieldExpression><![CDATA[$P{OPCAO_RELATORIO}]]></textFieldExpression>\n" +
+                "            </textField>\n" +
+                "            <textField isBlankWhenNull=\"true\">\n" +
+                "                <reportElement x=\"" + ((portrait)?"467": "718") + "\" y=\"12\" width=\"" + ((portrait)?"86": "80") + "\" height=\"14\" >\n" +
+                "                    <property name=\"com.jaspersoft.studio.unit.x\" value=\"pixel\"/>\n" +
+                "                </reportElement>\n" +
+                "                <textElement textAlignment=\"Left\">\n" +
+                "                    <font fontName=\"Roboto Mono\"/>\n" +
+                "                </textElement>\n" +
+                "                <textFieldExpression><![CDATA[$P{SISTEMA_VERSAO}]]></textFieldExpression>\n" +
+                "            </textField>\n" +
+                "            <image>\n" +
+                "                <reportElement x=\"" + ((portrait)?"443": "692") + "\" y=\"4\" width=\"22\" height=\"22\">\n" +
+                "                    <property name=\"com.jaspersoft.studio.unit.height\" value=\"px\"/>\n" +
+                "                    <property name=\"com.jaspersoft.studio.unit.width\" value=\"px\"/>\n" +
+                "                </reportElement>\n" +
+                "                <imageExpression><![CDATA[\"https://imagens-reports.s3.us-east-2.amazonaws.com/icone_rel_acs.png\"]]></imageExpression>\n" +
+                "            </image>\n" +
+                "        </band>\n" +
+                "    </pageHeader>";
+    }
+
+    private String getPageFooter(GenOptions options) {
+        boolean portrait = options.reportOrientation.equalsIgnoreCase("portrait");
+        return  "    <pageFooter>\n" +
+                "        <band height=\"20\">\n" +
+                "            <property name=\"com.jaspersoft.studio.unit.height\" value=\"px\"/>\n" +
+                "            <textField>\n" +
+                "                <reportElement x=\"2\" y=\"2\" width=\"114\" height=\"14\" >\n" +
+                "                    <property name=\"com.jaspersoft.studio.unit.height\" value=\"px\"/>\n" +
+                "                    <property name=\"com.jaspersoft.studio.unit.x\" value=\"px\"/>\n" +
+                "                    <property name=\"com.jaspersoft.studio.unit.y\" value=\"px\"/>\n" +
+                "                </reportElement>\n" +
+                "                <textElement verticalAlignment=\"Middle\">\n" +
+                "                    <font fontName=\"Roboto Mono\" size=\"6\"/>\n" +
+                "                </textElement>\n" +
+                "                <textFieldExpression><![CDATA[$P{DATA_HORA_IMPRESSAO}]]></textFieldExpression>\n" +
+                "            </textField>\n" +
+                "            <textField textAdjust=\"ScaleFont\">\n" +
+                "                <reportElement x=\"" + ((portrait)?"428": "648") + "\" y=\"2\" width=\"100\" height=\"14\" >\n" +
+                "                    <property name=\"com.jaspersoft.studio.unit.height\" value=\"px\"/>\n" +
+                "                </reportElement>\n" +
+                "                <textElement textAlignment=\"Right\" verticalAlignment=\"Middle\">\n" +
+                "                    <font fontName=\"Roboto Mono\" size=\"6\"/>\n" +
+                "                </textElement>\n" +
+                "                <textFieldExpression><![CDATA[\"Página \" + $V{PAGE_NUMBER}]]></textFieldExpression>\n" +
+                "            </textField>\n" +
+                "            <textField textAdjust=\"ScaleFont\" evaluationTime=\"Report\">\n" +
+                "                <reportElement x=\"" + ((portrait)?"529": "749") + "\" y=\"2\" width=\"" + ((portrait)?"30": "49") + "\" height=\"14\">\n" +
+                "                    <property name=\"com.jaspersoft.studio.unit.height\" value=\"px\"/>\n" +
+                "                </reportElement>\n" +
+                "                <textElement textAlignment=\"Left\" verticalAlignment=\"Middle\">\n" +
+                "                    <font fontName=\"Roboto Mono\" size=\"6\"/>\n" +
+                "                </textElement>\n" +
+                "                <textFieldExpression><![CDATA[\" de \" + $V{PAGE_NUMBER}]]></textFieldExpression>\n" +
+                "            </textField>" +
+                "        </band>\n" +
+                "    </pageFooter>";
     }
 
     private String getDomainDirectoryReport(GenOptions options) {

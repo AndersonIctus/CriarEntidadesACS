@@ -108,6 +108,10 @@ public class GeradorDeEntidades {
                 options.onlyBackEnd = true;
             else if (param.equalsIgnoreCase("-onlyFrontEnd") || param.equalsIgnoreCase("-front"))
                 options.onlyFrontEnd = true;
+            else if (param.equalsIgnoreCase("-onlyReportFile") || param.equalsIgnoreCase("-file"))
+                options.onlyReportFile = true;
+            else if (options.isOptionReport() && (param.equalsIgnoreCase("-landscape") || param.equalsIgnoreCase("-l")))
+                options.reportOrientation = "landscape";
             else if (param.equalsIgnoreCase("-onlyModel") || param.equalsIgnoreCase("-model"))
                 options.onlyModel = true;
             else if (param.equalsIgnoreCase("-fullFrontEnd") || param.equalsIgnoreCase("-ffe"))

@@ -20,6 +20,7 @@ public class GenOptions {
     public String frontBaseName;
     public String frontBaseFolder;
     public String frontModuleName = "cadastros";
+    public String reportOrientation = "portrait";
 
     public boolean generateModel = true; // Gera modelos por padrão
     public boolean generateReportFile = true; // Gera Report por padrão (Somente para quando estiver gerando RELATORIOS)
@@ -29,6 +30,7 @@ public class GenOptions {
 
     public boolean onlyBackEnd = false; // Flag para indicar que somente o back end será gerado !
     public boolean onlyFrontEnd = false; // Flag para indicar que somente o front end será gerado !
+    public boolean onlyReportFile = false; // Flag para indicar que somente o Report File será gerado !
     public boolean onlyModel = false; // Flag para indicar que somente o MODEL será gerado !
     public boolean fullFrontEnd = false; // Flag para indicar que se deve gerar todo o front end será gerado !
     public String mainBack = null;

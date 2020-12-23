@@ -30,7 +30,7 @@ public class GerarReportFrontEnd implements IGerador {
             options.mainFront = mainPath;
         }
 
-        if (options.onlyBackEnd) {
+        if (options.onlyBackEnd || options.onlyReportFile) {
             System.out.println("Pulando a geração dos arquivos para o FrontEnd ...");
         }
         else {
