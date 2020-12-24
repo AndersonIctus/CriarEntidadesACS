@@ -172,6 +172,8 @@ public class GerarReportBackEnd implements IGerador {
                 "        OffsetDateTime offsetNow = OffsetDateTime.now().withOffsetSameInstant(ZoneOffset.of(\"-03:00\"));" + "\r\n" +
                 "        return new AcsDateTime(offsetNow).format(\"dd/MM/yyyy HH:mm:ss\");" + "\r\n" +
                 "    }" + "\r\n" +
+                "    //endregion" + "\r\n" +
+                "\r\n" +
                 "}\r\n" +
                 "";
 

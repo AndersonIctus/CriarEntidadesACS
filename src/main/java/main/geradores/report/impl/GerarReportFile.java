@@ -165,7 +165,7 @@ public class GerarReportFile implements IGerador {
                 "                <textFieldExpression><![CDATA[$P{DATA_HORA_IMPRESSAO}]]></textFieldExpression>\n" +
                 "            </textField>\n" +
                 "            <textField textAdjust=\"ScaleFont\">\n" +
-                "                <reportElement x=\"" + ((portrait)?"428": "648") + "\" y=\"2\" width=\"100\" height=\"14\" >\n" +
+                "                <reportElement x=\"" + ((portrait)?"428": "660") + "\" y=\"2\" width=\"100\" height=\"14\" >\n" +
                 "                    <property name=\"com.jaspersoft.studio.unit.height\" value=\"px\"/>\n" +
                 "                </reportElement>\n" +
                 "                <textElement textAlignment=\"Right\" verticalAlignment=\"Middle\">\n" +
@@ -174,14 +174,14 @@ public class GerarReportFile implements IGerador {
                 "                <textFieldExpression><![CDATA[\"Página \" + $V{PAGE_NUMBER}]]></textFieldExpression>\n" +
                 "            </textField>\n" +
                 "            <textField textAdjust=\"ScaleFont\" evaluationTime=\"Report\">\n" +
-                "                <reportElement x=\"" + ((portrait)?"529": "749") + "\" y=\"2\" width=\"" + ((portrait)?"30": "49") + "\" height=\"14\">\n" +
+                "                <reportElement x=\"" + ((portrait)?"529": "761") + "\" y=\"2\" width=\"" + ((portrait)?"30": "41") + "\" height=\"14\">\n" +
                 "                    <property name=\"com.jaspersoft.studio.unit.height\" value=\"px\"/>\n" +
                 "                </reportElement>\n" +
                 "                <textElement textAlignment=\"Left\" verticalAlignment=\"Middle\">\n" +
                 "                    <font fontName=\"Roboto Mono\" size=\"6\"/>\n" +
                 "                </textElement>\n" +
                 "                <textFieldExpression><![CDATA[\" de \" + $V{PAGE_NUMBER}]]></textFieldExpression>\n" +
-                "            </textField>" +
+                "            </textField>\n" +
                 "        </band>\n" +
                 "    </pageFooter>";
     }
