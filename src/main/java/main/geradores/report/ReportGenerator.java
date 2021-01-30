@@ -34,6 +34,7 @@ public class ReportGenerator {
         reportModel = g.fromJson(linhas, type);
         if(reportModel == null) throw new RuntimeException("O Arquivo passado está configurado errado. Favor use as diretivas '-report -mount' para gerar um arquivo padrão");
         reportModel.normalizeProperties();
+        reportModel.normalizeReportFiles();
 
         this.reportName = reportModel.getNome().toLowerCase();
         this.className = ClasseNormalizada.normalizeClassName(reportModel.getNome());

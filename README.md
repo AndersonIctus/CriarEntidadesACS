@@ -65,6 +65,10 @@ class ReportFileModel {
     String dominio;      // Domínio do Relatorio (aqui segue o nome das pastas do tipo de relatório) [Ex.: "cadastro" ou "operacional"]
     String permissao;    // Permissão de acesso do Relatorio [Ex.: "REL. OPERACIONAL RESUMO" ou "REL. LISTAGENS"]
     List<ReportProperty> properties; // Lista de Propriedades/atributos do relatorio (O Objetivo é colocar os campos obrigatorios, não obrigatórios e ocultos usados no relatorio)
+    
+    // (Por padrão o ReportFileModel.nome é o único relatório gerado)
+    private List<String> relatorios;          // Opcional, usado para quando há mais de um relatório(ou relação) para ser gerado. Aqui os relatorios serão gerado com orientação RETRATO(ou Portrait) 
+    private List<String> relatoriosPaisagem;  // Opcional, usado para quando há mais de um relatório(ou relação) para ser gerado. Aqui os relatorios serão gerado com orientação PAISAGEM(ou Landscape)
 }
 
 // Classe com os valores padrão usados principalmente no back
@@ -106,12 +110,17 @@ class PropertyFrontValue {
   ]
 }
 
+// Somente um único relatório será gerado pegando o nome como base:
+//     listagem-produtos
+
 // ****** Máximo de detalhes Possível (E necessário)
 {
   "nome": "listagem_produtos",
   "titulo": "Listar Produtos",
   "dominio": "cadastro",
   "permissao": "REL. LISTAGENS",
+  "relatorios": ['por-data', 'resumido', 'por-grupo'],
+  "relatoriosPaisagem": ['analitico'],
   "propriedades": [
     { "name": "idEmpresa", "type": "Search", "entity": "Empresa", "value": "0", "required": true, "front": { "label": "Empresa", "type": "search", "group": "empresa" } },
     { "name": "tipoRelatorio", "type": "String", "value": "D", "required": true, "front": { "label": "Apresentação", "type": "radio", "options": {"R": "Resumido", "D": "Detalhado"} } },
@@ -123,6 +132,8 @@ class PropertyFrontValue {
 
 // Para saber mais, crie o arquivo base com o comando '$ CriarEntidadesACS -rt "./report-base.json"' 
 // Nele vão estar as mais variadas maneiras de se criar as propriedades do relatório.
+// Os relatórios passados no array de relatorios e relatoriosPaisagem é que serão os relatórios gerados pegando o "nome" como base, no caso serão gerados os relatorios:
+//     listagem-produtos-por-data, listagem-produtos-resumido, listagem-produtos-por-grupo e listagem-produtos-analitico
 ```
 ### Tipos que podem ser utilizados no Report-Base (script .json) ###
 Aqui são os tipos que podem ser utilizados no arquivo.json.
@@ -172,8 +183,8 @@ Então aqui estará o Tipo para o Front, e o padrão usado no Back
 ************** */
 TYPE             FRONT            BACK
 ----------       ----------       ----------
-Select           select           String
-Radio            radio            String
+Select           select           String (ou Integer se por no "type": "Integer" no principal)
+Radio            radio            String (ou Integer se por no "type": "Integer" no principal)
 Checkbox         checkbox         String
 TextArea         textarea         String
 Decimal          decimal          BigDecimal
@@ -246,6 +257,8 @@ Ex.:
 ** Todas as regras se aplicam ao type "select". Nada muda no back, e no front, o componente usado é um Select.
 ** Sempre utilize o "options" do front para criar já todos os valores necessários.
 ** Se você não utilizar um "value", então a primeira opção será usada.
+** Se utilizar no principal "type": "Integer", ao invés de "type": "String", então no back o `private Integer` será aplicado. Para todos os outros casos, o "String" é o padrão, 
+ inclusive quando o type principal não é informado;
 ```
 
 <b>Tipos Numéricos</b>

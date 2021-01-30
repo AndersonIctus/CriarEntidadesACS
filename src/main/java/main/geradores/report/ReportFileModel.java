@@ -10,6 +10,10 @@ public class ReportFileModel {
     private String permissao;
     private List<ReportProperty> propriedades;
 
+    private List<String> relatorios;
+    private List<String> relatoriosPaisagem;
+    private List<ReportFile> reportFiles;
+
     //region // ----------- GETTERs and SETTERs ----------- //
     public String getNome() {
         return nome;
@@ -50,6 +54,14 @@ public class ReportFileModel {
     public void setPropriedades(List<ReportProperty> propriedades) {
         this.propriedades = propriedades;
     }
+
+    public List<ReportFile> getReportFiles() {
+        return reportFiles;
+    }
+
+    public void setReportFiles(List<ReportFile> reportFiles) {
+        this.reportFiles = reportFiles;
+    }
     //endregion
 
     public void normalizeProperties() {
@@ -61,6 +73,30 @@ public class ReportFileModel {
                 }).collect(Collectors.toList());
     }
 
+    public void normalizeReportFiles() {
+        if(reportFiles == null) {
+            reportFiles = new ArrayList<>();
+        }
+
+        if(relatorios != null) {
+            for(String rel: relatorios) {
+                rel = nome + "-" + rel;
+                reportFiles.add(new ReportFile(rel));
+            }
+        }
+        if(relatoriosPaisagem != null) {
+            for(String rel: relatoriosPaisagem) {
+                rel = nome + "-" + rel;
+                reportFiles.add(new ReportFile(rel, ReportFile.ORIENTATION_LANDSCAPE));
+            }
+        }
+
+        if(reportFiles.size() == 0) {
+            reportFiles = new ArrayList<>();
+            reportFiles.add(new ReportFile(nome));
+        }
+    }
+
     @Override
     public String toString() {
         String out = "###### REPORT MODEL ######\r\n" +
@@ -68,6 +104,7 @@ public class ReportFileModel {
                 "## titulo    = '" + titulo + "'\r\n" +
                 "## dominio   = '" + dominio + "'\r\n" +
                 "## permissao = '" + permissao + "'\r\n" +
+                "## relatorios = [" + reportFiles.stream().map(Object::toString).reduce((a, b) -> a + ", " + b).orElse("")+ "]\r\n" +
                 "#### PROPRIEDADES ####\r\n";
 
         for(ReportProperty prop: propriedades) {
@@ -160,7 +197,7 @@ public class ReportFileModel {
             if (front.getType() == null)
                 front.setTypeByPropertyType(type);
             else
-                setTypeByFrontType(front.getType());
+                setTypeByFrontType(front.getType(), type);
 
             if (front.getLabel() == null)
                 front.setLabel(name);
@@ -197,17 +234,20 @@ public class ReportFileModel {
             }
         }
 
-        private void setTypeByFrontType(String type) {
-            if(type.equalsIgnoreCase("radio") || type.equalsIgnoreCase("select") ||
-               type.equalsIgnoreCase("checkbox") || type.equalsIgnoreCase("textarea") )
+        private void setTypeByFrontType(String frontType, String type) {
+            if( frontType.equalsIgnoreCase("checkbox") || frontType.equalsIgnoreCase("textarea") )
                 this.setType("String");
-            else if(type.equalsIgnoreCase("decimal"))
+            else if(frontType.equalsIgnoreCase("radio") || frontType.equalsIgnoreCase("select") ) {
+                if(!type.equalsIgnoreCase("Integer"))
+                    this.setType("String");
+            }
+            else if(frontType.equalsIgnoreCase("decimal"))
                 this.setType("BigDecimal");
-            else if(type.equalsIgnoreCase("search"))
+            else if(frontType.equalsIgnoreCase("search"))
                 this.setType("SEARCH");
-            else if(type.equalsIgnoreCase("filter"))
+            else if(frontType.equalsIgnoreCase("filter"))
                 this.setType("FILTER");
-            else if(type.equalsIgnoreCase("date"))
+            else if(frontType.equalsIgnoreCase("date"))
                 this.setType("AcsDateTime");
         }
 
@@ -307,6 +347,51 @@ public class ReportFileModel {
                 }
                 return out;
             }
+        }
+    }
+
+    public static class ReportFile {
+        public static int ORIENTATION_PORTRAIT = 0;
+        public static int ORIENTATION_LANDSCAPE = 1;
+
+        private String name;
+        private int orientation;
+
+        public ReportFile(String name) {
+            this.name = name.replace("_", "-");
+            this.orientation = ORIENTATION_PORTRAIT;
+        }
+
+        public ReportFile(String name, int orientation) {
+            this(name);
+            this.orientation = (orientation == ORIENTATION_PORTRAIT)? ORIENTATION_PORTRAIT : ORIENTATION_LANDSCAPE;
+        }
+
+        //region // ----------- GETTERs and SETTERs ----------- //
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public int getOrientation() {
+            return orientation;
+        }
+
+        public void setOrientation(int orientation) {
+            this.orientation = orientation;
+        }
+        //endregion
+
+        public String getConstantName() {
+            return name.replaceAll("-", "_").toUpperCase();
+        }
+
+        @Override
+        public String toString() {
+            return String.format("{nome: '%s', orientacao: %s}", name, (orientation == ORIENTATION_PORTRAIT)? "Portrait": "Landscape");
         }
     }
 }

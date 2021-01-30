@@ -3,6 +3,7 @@ package main.geradores;
 import main.geradores.model.ModelGenerator;
 import main.geradores.model.config.Configuracoes;
 import main.geradores.model.utils.Property;
+import main.geradores.report.ReportFileModel;
 import main.geradores.report.ReportGenerator;
 
 import java.io.IOException;
@@ -20,7 +21,7 @@ public class GenOptions {
     public String frontBaseName;
     public String frontBaseFolder;
     public String frontModuleName = "cadastros";
-    public String reportOrientation = "portrait";
+    public List<ReportFileModel.ReportFile> fileRelatorios;
 
     public boolean generateModel = true; // Gera modelos por padrão
     public boolean generateReportFile = true; // Gera Report por padrão (Somente para quando estiver gerando RELATORIOS)

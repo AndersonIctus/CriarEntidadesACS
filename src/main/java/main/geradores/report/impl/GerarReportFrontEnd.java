@@ -118,14 +118,15 @@ public class GerarReportFrontEnd implements IGerador {
             "\r\n" +
             "import { DialogDesignBuilder, DialogDesignModel } from '../../../../shared/components/dialogs/custom-dialog/DialogDesignModel';\r\n" +
             "import { SearchDialogComponent, SearchResponseModel } from '../../../../shared/components/dialogs/search-dialog/search-dialog.component';\r\n" +
-            "import { InputFilterComponent } from '../../../../shared/components/others/input-filter/input-filter.component';\r\n" +
+            "import { FunctionElement, InputFilterComponent, InputFilterElementTransform } from '../../../../shared/components/others/input-filter/input-filter.component';\r\n" +
             "import { Util } from '../../../../shared/utils/Util';\r\n" +
             "\r\n"+
             "import { RelatorioBaseComponent } from '../../shared/base/relatorio-base.component';\r\n" +
             "import { RelatorioBaseService } from '../../shared/base/relatorio-base.service';\r\n" +
             "\r\n" +
             "import { AcsDateTime } from '../../../../shared/utils/AcsDateTime';\r\n" +
-            "import { Moment } from '../../../../shared/utils/Moment';\r\n";
+            "import { Moment } from '../../../../shared/utils/Moment';\r\n" +
+            "import { FormComponentValidator } from 'src/app/shared/components/validator/form-components-validator';\r\n";
 
         String bindProperties = "";
         String getParameters = "";
@@ -133,6 +134,7 @@ public class GerarReportFrontEnd implements IGerador {
         List<ReportFileModel.ReportProperty> searchProperties = new ArrayList<>();
         List<ReportFileModel.ReportProperty> filterProperties = new ArrayList<>();
         String incializarEmpresaProperty = "";
+        String ngAfterViewInit = "";
 
         // --------- Gerando os properties
         for(ReportFileModel.ReportProperty prop: reportModel.getPropriedades()) {
@@ -148,8 +150,16 @@ public class GerarReportFrontEnd implements IGerador {
 
             }
             else if(prop.getType().equalsIgnoreCase("FILTER")) {
-                propLine = "" +
-                        "            " + prop.getFront().getGroup() + ": [[]],\r\n";
+                if(prop.getName().equalsIgnoreCase("idEmpresa")) {
+                    propLine = "            empresa: this.formBuilder.group({\n" +
+                               "                dados: [[]],\n" +
+                               "                empresaItens: [1, FormComponentValidator.nonzero]\n" +
+                               "            }),\n";
+                }
+                else {
+                    propLine = "" +
+                            "            " + prop.getFront().getGroup() + ": [[]],\r\n";
+                }
                 filterProperties.add(prop);
 
             }
@@ -176,12 +186,20 @@ public class GerarReportFrontEnd implements IGerador {
             // Parameters ...
             String paramLine = "        filterList.push(`" + prop.getName() + "=${"+getParamValue(prop)+"}`);";
             if(prop.getType().equalsIgnoreCase("FILTER")) {
-                paramLine =
-                        "        filtro['" + prop.getFront().getGroup() + "'].forEach( element => {\r\n" +
-                        "            filterList.push(`"+prop.getName()+"=${element.id}`);\r\n" +
-                        "        });\r\n";
-
-            } else if(!prop.isRequired()) {
+                if(prop.getName().equalsIgnoreCase("idEmpresa")) {
+                    paramLine =
+                            "        filtro['empresa']['dados'].forEach( element => {\r\n" +
+                            "            filterList.push(`idEmpresa=${element.id}`);\r\n" +
+                            "        });\r\n";
+                }
+                else {
+                    paramLine =
+                            "        filtro['" + prop.getFront().getGroup() + "'].forEach( element => {\r\n" +
+                            "            filterList.push(`"+prop.getName()+"=${element.id}`);\r\n" +
+                            "        });\r\n";
+                }
+            }
+            else if(!prop.isRequired()) {
                 paramLine =
                         "        if("+getParamValue(prop)+" !== '') {\r\n" +
                         "    " + paramLine + "\r\n" +
@@ -194,9 +212,31 @@ public class GerarReportFrontEnd implements IGerador {
             }
 
             if(prop.getFront().getGroup().equals("empresa")) {
-                incializarEmpresaProperty += "\r\n" +
-                        "        " + "this.formModel.get('empresa.id').setValue(this.empresa.id);\r\n" +
-                        "        " + "this.formModel.get('empresa.descricao_empresa').setValue(`${this.empresa.razaoSocial} (${Util.formatCpfCnpj(this.empresa.cnpj)})`);\r\n";
+                if(prop.getFront().getType().equalsIgnoreCase("FILTER")) {
+                    // AfterViewInit para acompanhar as mudanças no filtro de empresas !
+                    ngAfterViewInit = "\n" +
+                            "    ngAfterViewInit() {\n" +
+                            "        super.ngAfterViewInit();\n" +
+                            "\n" +
+                            "        this.empresaFilter.changes.subscribe( (value: any[]) => {\n" +
+                            "            this.formModel.get('empresa.empresaItens').setValue(value.length);\n" +
+                            "        });\n" +
+                            "    }\n";
+
+                    //
+                    incializarEmpresaProperty += "\r\n" +
+                        "        // Começa selecionando a primeira empresa (atual logada) \n" +
+                        "        this.empresaFilter.changeProperties({\n" +
+                        "            selectedItens: [\n" +
+                        "                new Empresa({id: this.empresa.id, razaoSocial: this.empresa.razaoSocial, uf: this.empresa.uf})\n" +
+                        "            ]\n" +
+                        "        });\n";
+                }
+                else {
+                    incializarEmpresaProperty += "\r\n" +
+                            "        " + "this.formModel.get('empresa.id').setValue(this.empresa.id);\r\n" +
+                            "        " + "this.formModel.get('empresa.descricao_empresa').setValue(`${this.empresa.razaoSocial} (${Util.formatCpfCnpj(this.empresa.cnpj)})`);\r\n";
+                }
             }
         }
 
@@ -311,7 +351,7 @@ public class GerarReportFrontEnd implements IGerador {
                 ReportFileModel.ReportProperty.PropertyFrontValue front = prop.getFront();
                 String entity = prop.getEntity();
 
-                filterAtributes += "    @ViewChild('"+ front.getGroup() + "Filter', {static: true}) "+front.getGroup()+"Filter: InputFilterComponent<"+ entity +">;\r\n";
+                filterAtributes  += "    @ViewChild('"+ front.getGroup() + "Filter', {static: true}) "+front.getGroup()+"Filter: InputFilterComponent<"+ entity +">;\r\n";
                 initFilterEntity += getInitFilterData(prop);
 
                 if(!lsImportModels.contains(entity)) {
@@ -322,7 +362,6 @@ public class GerarReportFrontEnd implements IGerador {
             }
 
             atributesOpcoes += filterAtributes + "\r\n";
-
             initFilterFunction = "\r\n" +
                     "    iniciarFiltros() {\r\n" +
                     initFilterEntity +
@@ -372,6 +411,7 @@ public class GerarReportFrontEnd implements IGerador {
                 "        this.title = '"+title+"';\r\n" +
                 ((!initFilterFunction.equals(""))? "\r\n        this.iniciarFiltros();\r\n" : "") +
                 "    }\r\n" +
+                ngAfterViewInit +
                 "\r\n" +
                 "    // Funções do Fomulário //\r\n" +
                 "    bindFormValidators() {\r\n" +
@@ -796,9 +836,17 @@ public class GerarReportFrontEnd implements IGerador {
         }
         else if(front.getType().equalsIgnoreCase("FILTER")) {
             String frontGroupName = prop.getFront().getGroup();
-            div = ""; // Nap usa DIV nos filtros
-            matFormField = "<others_input-filter #" + frontGroupName + "Filter [control]=\"formModel.get('" + frontGroupName + "')\" [filterDialogComponent]=\"filter_dialog\" class=\"col-6\"></others_input-filter>";
-
+            if(prop.getName().equalsIgnoreCase("idEmpresa")) {
+                div = "<div class=\"form-group col-12\" formGroupName=\"empresa\" required>"; // Nap usa DIV nos filtros
+                matFormField = "    <others_input-filter #empresaFilter [control]=\"formModel.get('empresa.dados')\" [filterDialogComponent]=\"filter_dialog\" class=\"col-12 m-0 p-0\"></others_input-filter>\n";
+                errors = spc + "    <others_alert-errors [submitted]=\"true\" [control]=\"formModel.get('empresa.empresaItens')\" class=\"col-12\"\n" +
+                         spc + "        [errors]=\"[{error: 'nonzero', message: 'Selecione pelo menos uma empresa.'}]\"\n" +
+                         spc + "    ></others_alert-errors>\n";
+            }
+            else {
+                div = ""; // Nap usa DIV nos filtros
+                matFormField = "<others_input-filter #" + frontGroupName + "Filter [control]=\"formModel.get('" + frontGroupName + "')\" [filterDialogComponent]=\"filter_dialog\" class=\"col-12\"></others_input-filter>";
+            }
         }
         else {
             throw new RuntimeException("Tipo [" + front.getType() + "] passado é desconhecido");
@@ -841,21 +889,35 @@ public class GerarReportFrontEnd implements IGerador {
         String entityVariable = entity.substring(0,1).toLowerCase() + entity.substring(1);
         ReportFileModel.ReportProperty.PropertyFrontValue front = prop.getFront();
 
+        boolean isEmpresaProp = prop.getName().equalsIgnoreCase("idEmpresa");
+
+        String tableDesign = (isEmpresaProp)
+                ? spc + "    " + "    'razaoSocial': 'Razão Social',\r\n" +
+                  spc + "    " + "    'cnpj': {header: 'CNPJ', options: {format: Util.formatCpfCnpj}},\r\n" +
+                  spc + "    " + "    'uf': 'UF'\r\n"
+                : spc + "    " + "    'id': 'Cod.',\r\n" +
+                  spc + "    " + "    'descricao': 'Descrição',\r\n";
+
+        String inputTranform = (isEmpresaProp)
+                ? spc + "    " + "    id: 'id',\r\n" +
+                  spc + "    " + "    title: new FunctionElement((empresa: Empresa) => `${empresa.razaoSocial} - ${empresa.uf}`),\r\n" +
+                  spc + "    " + "    textLenght: InputFilterElementTransform.TEXT_LARGE\r\n"
+                : spc + "    " + "    id: 'id',\r\n" +
+                  spc + "    " + "    title: [ { prefix: '', field: 'descricao' } ]\r\n";
+
         return
             spc + "////////////////////////////////////////////////////////\r\n" +
             spc + "this."+front.getGroup()+"Filter.changeProperties({\r\n" +
             spc + "    " + "label: '" + front.getLabel() + "',\r\n" +
             spc + "    " + "dialogTitle: 'Filtrar "+front.getLabel()+"',\r\n" +
             spc + "    " + "service: this."+entityVariable+"Service,\r\n" +
-            spc + "    " + "urlAction: `/filter/empresa/${this.empresa.id}`,\r\n" +
-            spc + "    " + "dataParameter: ``,\r\n" +
+            spc + "    " + String.format("urlAction: `%s`,\r\n", (isEmpresaProp)? "/filter" :"/filter/empresa/${this.empresa.id}") +
+            spc + "    " + String.format("dataParameter: `%s`,\r\n", (isEmpresaProp)? "sort=razaoSocial" :"") +
             spc + "    " + "tableDesign: DialogDesignBuilder.build({\r\n" +
-            spc + "    " + "    'id': 'Cod.',\r\n" +
-            spc + "    " + "    'descricao': 'Descrição',\r\n" +
+                                tableDesign +
             spc + "    " + "}),\r\n" +
             spc + "    " + "inputTransformDescriptor: {\r\n" +
-            spc + "    " + "    id: 'id',\r\n" +
-            spc + "    " + "    title: [ { prefix: '', field: 'descricao' } ]\r\n" +
+                                inputTranform +
             spc + "    " + "}\r\n" +
             spc + "});\r\n";
     }
@@ -876,24 +938,31 @@ public class GerarReportFrontEnd implements IGerador {
             Map<String, String> options = prop.getFront().getOptions();
 
             boolean isFirst = true;
+            boolean typeIsNumber = prop.getType().equalsIgnoreCase("Integer");
             for (Object value: options.keySet()) {
                 if(!isFirst) {
                     opcaoRet +=",";
                 }
 
                 String name = options.get(value);
-                opcaoRet += "\r\n        { name: '" + name + "', value: '"+value+"' }";
+                opcaoRet += "\r\n        { name: '" + name + "', value: " +
+                        ((typeIsNumber)? value : "'"+value+"'") +
+                        " }";
+
                 isFirst = false;
             }
             opcaoRet += "\r\n";
 
-        } else if(prop.getType().equalsIgnoreCase("BOOLEAN")) {
+        }
+        else if(prop.getType().equalsIgnoreCase("BOOLEAN")) {
             opcaoRet += "        { name: 'Sim', value: true },\r\n" +
                         "        { name: 'Não', value: false }\r\n";
-        } else if(prop.getType().equalsIgnoreCase("STRING") || prop.getType().equalsIgnoreCase("CHARACTER")) {
+        }
+        else if(prop.getType().equalsIgnoreCase("STRING") || prop.getType().equalsIgnoreCase("CHARACTER")) {
             opcaoRet += "        { name: 'Sim', value: 'S' },\r\n" +
                         "        { name: 'Não', value: 'N' }\r\n";
-        } else {
+        }
+        else {
             opcaoRet += "        { name: 'Opção 1', value: 0 },\r\n" +
                         "        { name: 'Opção 2', value: 1 }\r\n";
         }

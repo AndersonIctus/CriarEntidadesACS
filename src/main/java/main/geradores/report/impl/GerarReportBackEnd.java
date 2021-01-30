@@ -38,7 +38,9 @@ public class GerarReportBackEnd implements IGerador {
             }
 
             if (!options.onlyModel) {
-                includeConstDiretoriosRelatorios(options);
+                for(ReportFileModel.ReportFile file: options.fileRelatorios) {
+                    includeConstDiretoriosRelatorios(file.getName(), options);
+                }
                 includeResourceLine(options);
                 includeServiceLine(options);
             }
@@ -55,7 +57,8 @@ public class GerarReportBackEnd implements IGerador {
         String path = mainPath + "filter/";
 
         ReportGenerator reportGenerator = options.getReportGenerator();
-        String reportName = "RELATORIO_" + reportGenerator.getReportName().toUpperCase();
+        String reportName = "RELATORIO_" + options.fileRelatorios.get(0).getConstantName();
+
         String imports =
                 "import com.innovaro.acs.exceptionhandler.exception.ACSBadRequestException;\r\n" +
                 "import com.innovaro.acs.exceptionhandler.exception.ACSNotFoundException;\r\n" +
@@ -71,12 +74,16 @@ public class GerarReportBackEnd implements IGerador {
                 "import java.util.HashMap;\r\n" +
                 "import java.util.List;\r\n" +
                 "import java.util.Map;\r\n" +
-                "\r\n"+
-                "import static com.innovaro.acs.modulo.relatorio.ConstDiretoriosRelatorios." + reportName + ";\r\n";
+                "\r\n";
+        for(ReportFileModel.ReportFile file: options.fileRelatorios) {
+            String fileName = "RELATORIO_" + file.getConstantName();
+            imports += "import static com.innovaro.acs.modulo.relatorio.ConstDiretoriosRelatorios." + fileName + ";\r\n";
+        }
 
         String properties = "";
         String parametersRequired = "";
         String messageProperties = "";
+        String dadosEmpresa = "";
 
         for(ReportFileModel.ReportProperty prop: reportGenerator.getReportModel().getPropriedades()) {
             String typeProp = prop.getType();
@@ -108,6 +115,25 @@ public class GerarReportBackEnd implements IGerador {
             }
 
             properties += ";\r\n";
+
+            // ----
+            if(prop.getName().equalsIgnoreCase("idEmpresa")) {
+                if(prop.getType().equalsIgnoreCase("FILTER")) {
+                    dadosEmpresa = "        if(this.getIdEmpresa().size() > 1) {\n" +
+                                   "            parametros.put(\"DESCRICAO_EMPRESA\", \"Empresa: Seleção\");\n" +
+                                   "            parametros.put(\"PARAM_USA_EMPRESA_SELECAO\", \"S\");\n" +
+                                   "        }\n" +
+                                   "        else {\n" +
+                                   "            Empresa empresa = empresaService.findOne(getIdEmpresa().get(0));\n" +
+                                   "            parametros.put(\"DESCRICAO_EMPRESA\", empresa.getRazaoSocial());\n" +
+                                   "            parametros.put(\"PARAM_USA_EMPRESA_SELECAO\", \"N\");\n" +
+                                   "        }\n";
+                }
+                else {
+                    dadosEmpresa = "        Empresa empresa = empresaService.findOne(getIdEmpresa());\n" +
+                                   "        parametros.put(\"DESCRICAO_EMPRESA\", empresa.getRazaoSocial());";
+                }
+            }
         }
 
         messageProperties =
@@ -151,9 +177,8 @@ public class GerarReportBackEnd implements IGerador {
                 "    protected Map<String, Object> getParametrosDoFiltro() {\r\n" +
                 "        Map<String, Object> parametros = new HashMap<>();\r\n" +
                 "\r\n" +
-                "        Empresa empresa = empresaService.findOne(getIdEmpresa());" + "\r\n" +
+                dadosEmpresa + "\r\n" +
                 "        parametros.put(\"DESCRICAO_RELATORIO\", getTituloRelatorio());" + "\r\n" +
-                "        parametros.put(\"DESCRICAO_EMPRESA\", empresa.getRazaoSocial());" + "\r\n" +
                 "        parametros.put(\"OPCAO_RELATORIO\", this.getOpcaoRelatorio());" + "\r\n" +
                 "\r\n" +
                 "        // Data e Hora da Impressão" + "\r\n" +
@@ -182,16 +207,16 @@ public class GerarReportBackEnd implements IGerador {
         System.out.println("-----------------------------------------------");
     }
 
-    private void includeConstDiretoriosRelatorios(GenOptions options) throws IOException {
+    private void includeConstDiretoriosRelatorios(String reportName, GenOptions options) throws IOException {
         String pathToFile = options.mainBack;
         pathToFile += "modulo/relatorio/ConstDiretoriosRelatorios.java";
 
         ReportGenerator reportGenerator = options.getReportGenerator();
-        String reportName = "RELATORIO_" + reportGenerator.getReportName().toUpperCase();
+        String reportNameConstant = "RELATORIO_" + reportName.replaceAll("-", "_").toUpperCase();
         String reportType = reportGenerator.getReportModel().getDominio();
 
-        String newLine = "    String " + reportName + " = \"/report/" + reportType +
-                         "/" + options.defaultRoute + "/" + options.defaultRoute + ".jasper\";";
+        String newLine = "    String " + reportNameConstant + " = \"/report/" + reportType +
+                         "/" + options.defaultRoute + "/" + reportName + ".jasper\";";
         String tmpFile = "./tmp.txt";
 
         if (Utils.isAuditionMode()) {
@@ -335,10 +360,6 @@ public class GerarReportBackEnd implements IGerador {
         pathToFile += getReportServiceName(reportType) + ".java";
 
         String newLine =
-                "    /**\r\n" +
-                "     * @param filtro\r\n" +
-                "     * @return\r\n" +
-                "     */\r\n" +
                 "    public Relatorio gerarRelatorio" + options.entityName + "(" + options.entityName + "FilterReport filtro) {\r\n" +
                 "        try {\r\n" +
                 "            filtro.setEmpresaService(empresaService);\r\n" +

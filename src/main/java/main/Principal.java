@@ -68,7 +68,6 @@ public class Principal {
                 + " -onlyFrontEnd [ou -front] \t\t\t\t Gera somente os arquivos de FRONT - END.\r\n"
                 + " -fullFrontEnd [ou -ffe] \t\t\t\t Gera todos os arquivos no FRONT - END.\r\n"
                 + " -onlyReportFile [ou -file] \t\t\t\t Gera somente o arquivo base de REPORT - (Só usado em geração de relatórios).\r\n"
-                + " -landscape [ou -l] \t\t\t\t o Report gerado terá a orientação Landscape - (O Padrão é portrait e Só usado em geração de relatórios).\r\n"
                 + " -parseScript [ou -ps] \t\t\t\t\t Faz um Novo Arquivo de Scripting para ser usado como base na geração dos modelos.\r\n"
                 + " -mount [ou -mt] \t\t\t\t\t Usado para gerar um arquivo de base para ser usado nos relatórios.\r\n"
                 + " -auditionMode [ou -audit] \t\t\t\t Nao faz geracoes, so imprime o resultado em tela (Modo Audição de Teste).\r\n"

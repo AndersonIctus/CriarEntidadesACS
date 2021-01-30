@@ -3,6 +3,7 @@ package main.geradores.report.impl;
 import main.geradores.GenOptions;
 import main.geradores.IGerador;
 import main.geradores.Utils;
+import main.geradores.report.ReportFileModel;
 import main.geradores.report.ReportGenerator;
 
 import java.io.IOException;
@@ -29,7 +30,10 @@ public class GerarReportFile implements IGerador {
 
             // 2 - Criar o Arquivo .jrxml Padrão
             Utils.createDirectory(mainPath); // Diretorio do Relatório em Si !
-            gerarReportFile(options);
+
+            for(ReportFileModel.ReportFile file: options.fileRelatorios) {
+                gerarReportFile(file);
+            }
         }
 
         System.out.println();
@@ -37,10 +41,11 @@ public class GerarReportFile implements IGerador {
         System.out.println("===============================================");
     }
 
-    private void gerarReportFile(GenOptions options) throws IOException {
+    private void gerarReportFile(ReportFileModel.ReportFile fileReport) throws IOException {
+        String reportName = fileReport.getName();
         String fileBody = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
                 "<jasperReport xmlns=\"http://jasperreports.sourceforge.net/jasperreports\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd\"" +
-                " name=\"" + options.defaultRoute + "\"" + " " + getPageProperties(options) + ">\n" +
+                " name=\"" + reportName + "\"" + " " + getPageProperties(fileReport) + ">\n" +
                 "    <property name=\"com.jaspersoft.studio.data.sql.tables\" value=\"\"/>\n" +
                 "    <property name=\"com.jaspersoft.studio.report.description\" value=\"\"/>\n" +
                 "    <property name=\"com.jaspersoft.studio.data.defaultdataadapter\" value=\"acs\"/>\n" +
@@ -57,7 +62,7 @@ public class GerarReportFile implements IGerador {
                 "    <queryString>\n" +
                 "        <![CDATA[]]>\n" +
                 "    </queryString>\n" +
-                getPageHeader(options) + "\n" +
+                getPageHeader(fileReport) + "\n" +
                 "    <detail>\n" +
                 "        <band height=\"12\">\n" +
                 "            <property name=\"com.jaspersoft.studio.unit.height\" value=\"px\"/>\n" +
@@ -74,18 +79,19 @@ public class GerarReportFile implements IGerador {
                 "            </staticText>\n" +
                 "        </band>\n" +
                 "    </detail>\n" +
-                getPageFooter(options) + "\n" +
+                getPageFooter(fileReport) + "\n" +
                 "</jasperReport>\n";
 
-        Utils.writeContentTo(mainPath + options.defaultRoute + ".jrxml", fileBody);
-        System.out.println("Generated Report File '" + options.defaultRoute + ".jrxml' into '" + mainPath + "'");
+        Utils.writeContentTo(mainPath + reportName + ".jrxml", fileBody);
+        System.out.println("Generated Report File '" + reportName + ".jrxml' into '" + mainPath + "'");
         System.out.println("-----------------------------------------------\r\n");
     }
 
-    private String getPageProperties(GenOptions options) {
+    private String getPageProperties(ReportFileModel.ReportFile fileReport) {
         String optionPropertie = "";
+        boolean landscape = fileReport.getOrientation() == ReportFileModel.ReportFile.ORIENTATION_LANDSCAPE;
         // Opções para propriedades de Landscape
-        if(options.reportOrientation.equalsIgnoreCase("landscape")) {
+        if(landscape) {
             optionPropertie = "pageWidth=\"842\" pageHeight=\"595\" orientation=\"Landscape\" columnWidth=\"802\"";
         }
         else { // Padrão é o retorno PORTRAIT
@@ -95,8 +101,8 @@ public class GerarReportFile implements IGerador {
         return optionPropertie + " whenNoDataType=\"AllSectionsNoDetail\" leftMargin=\"20\" rightMargin=\"20\" topMargin=\"20\" bottomMargin=\"20\"";
     }
 
-    private String getPageHeader(GenOptions options) {
-        boolean portrait = options.reportOrientation.equalsIgnoreCase("portrait");
+    private String getPageHeader(ReportFileModel.ReportFile fileReport) {
+        boolean portrait = fileReport.getOrientation() == ReportFileModel.ReportFile.ORIENTATION_PORTRAIT;
         return  "    <pageHeader>\n" +
                 "        <band height=\"59\">\n" +
                 "            <property name=\"com.jaspersoft.studio.unit.height\" value=\"px\"/>\n" +
@@ -148,8 +154,8 @@ public class GerarReportFile implements IGerador {
                 "    </pageHeader>";
     }
 
-    private String getPageFooter(GenOptions options) {
-        boolean portrait = options.reportOrientation.equalsIgnoreCase("portrait");
+    private String getPageFooter(ReportFileModel.ReportFile fileReport) {
+        boolean portrait = fileReport.getOrientation() == ReportFileModel.ReportFile.ORIENTATION_PORTRAIT;
         return  "    <pageFooter>\n" +
                 "        <band height=\"20\">\n" +
                 "            <property name=\"com.jaspersoft.studio.unit.height\" value=\"px\"/>\n" +
