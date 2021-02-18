@@ -651,7 +651,7 @@ public class GerarFrontEndPagamento extends GerarFrontEnd {
         serviceName = serviceName.substring(0, 1).toLowerCase() + serviceName.substring(1);
 
         String classBody = "" +
-            "import { OnInit, ViewChild } from '@angular/core';\r\n" +
+            "import { Directive, OnInit, ViewChild } from '@angular/core';\r\n" +
             "import { Validators } from '@angular/forms';\r\n" +
             "import { ActivatedRoute } from '@angular/router';" + "\r\n" +
             "\r\n" +
@@ -676,6 +676,7 @@ public class GerarFrontEndPagamento extends GerarFrontEnd {
             "import { Sistema } from '../../../../model/Sistema';" + "\r\n" +
             "import { ClienteEmpresa } from '../../../../model/ClienteEmpresa';" + "\r\n" +
             "\r\n" +
+            "@Directive()\r\n" +
             "export abstract class CriarEditar" + options.frontBaseName + "Component extends CadastroBaseComponent implements OnInit {\r\n" +
             "    id" + options.entityName + ": number;" + "\r\n" +
             "    preferencia: Sistema;" + "\r\n" +

@@ -3,13 +3,14 @@ package main;
 public class TesteModelGenerator {
 	public static void main(String[] args) {
 		Principal.main(
-				"-report",
+				"-fp",
+				"carteira-digital",
 //				"-mount"
-				"./report-base.json",
+//				"./report-base.json",
 //				"-modulemovimentos",
 //				"-front-baseitens-compra",
-				"-back",
-//				"-front",
+//				"-back",
+				"-front",
 //				"-file",
 //				"-model",
 //				"-ffe",
