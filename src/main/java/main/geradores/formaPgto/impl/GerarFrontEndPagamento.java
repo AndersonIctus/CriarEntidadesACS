@@ -784,8 +784,8 @@ public class GerarFrontEndPagamento extends GerarFrontEnd {
             "           nsuTef: ['']," + "\r\n" +
             "           nsuOperacao: ['']," + "\r\n" +
             "           autorizacao: ['']," + "\r\n" +
-            "           idClienteMotorista: [0]," + "\r\n" +
-            "           idConciliacao: [0]," + "\r\n" +
+            "           idClienteMotorista: [null]," + "\r\n" +
+            "           idConciliacao: [null]," + "\r\n" +
             "           statusConciliacao: [0]," + "\r\n" +
             "           statusIntegrador: [0]," + "\r\n" +
             "           conectividade: [1]," + "\r\n" +
@@ -1047,7 +1047,7 @@ public class GerarFrontEndPagamento extends GerarFrontEnd {
                 "        this.formModel.get('idVenda').setValue(model.idVenda);" + "\r\n" +
                 "\r\n" +
                 "        this.formModel.get('dataEmissao').setValue(model.dataEmissao.toDate());" + "\r\n" +
-                "        this.formModel.get('observacao').setValue(model.observacao);" + "\r\n" +
+                "        this.formModel.get('observacao').setValue((model.observacao)? model.observacao : '');" + "\r\n" +
                 "\r\n" +
                 "        // --------------------- DADOS DO CLIENTE ----------------------- //" + "\r\n" +
                 "        this.defineDadosClienteEmpresa(model.clienteEmpresa);" + "\r\n" +
