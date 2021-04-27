@@ -149,7 +149,7 @@ public class GerarFrontEndPagamento extends GerarFrontEnd {
             "import { Criar" + options.frontBaseName + "Component } from './criar-editar-" + options.frontBaseFolder + "/criar-" + options.frontBaseFolder + "/criar-" + options.frontBaseFolder + ".component';\r\n" +
             "import { Editar" + options.frontBaseName + "Component } from './criar-editar-" + options.frontBaseFolder + "/editar-" + options.frontBaseFolder + "/editar-" + options.frontBaseFolder + ".component';\r\n" +
             "\r\n" +
-            "const preferenceFields = 'clientePadrao.id,permTrocoVc,reqAutorizacaoCt,reqNsuCt,opcaoValorVendaTrocoVc';\r\n" +
+            "const preferenceFields = 'operadorPadrao.id,clientePadrao.id,clientePadrao.cliente.nome,reqAutorizacaoCt,reqNsuCt,centroResultado';\r\n" +
             "\r\n" +
             "// rota padrao = /" + options.frontModuleName + "/" + options.frontBaseFolder + "\r\n" +
             "const routes: Routes = [\r\n" +
@@ -595,9 +595,7 @@ public class GerarFrontEndPagamento extends GerarFrontEnd {
                 "        <others_panel [panelTitle]=\"title\"> <!-- PANEL GERAL -->" + "\r\n" +
                 "            <div class=\"panel-content row m-0\">" + "\r\n" +
                 "                <!-- CABEÇALHO DO CRIAR/EDITAR -->" + "\r\n" +
-                "                <acs-criar-editar-recebimento #acs_criar_editar_recebimento" + "\r\n" +
-                "                    [searchDialogComponent]=\"search_dialog\"" + "\r\n" +
-                "                    [showDataVencimento]=\"editarView\"" + "\r\n" +
+                "                <acs-criar-editar-recebimento #acs_criar_editar_recebimento class=\"" + options.frontBaseFolder + "-dialog\" " + "\r\n" +
                 "                    [submitted]=\"submitted\"" + "\r\n" +
                 "                    (recebimentoEvent)=\"recebimentoEvent($event);\"" + "\r\n" +
                 "                ></acs-criar-editar-recebimento>" + "\r\n" +
@@ -611,8 +609,10 @@ public class GerarFrontEndPagamento extends GerarFrontEnd {
                 "<!-- TOOL BOX -->" + "\r\n" +
                 "<others_tool-box #toolbox [formModel]=\"formModel\" [route]=\"routerLink\" [salvarEditarText]=\"salvarEditarText\" (submitAction)=\"gravarFormModel();\"></others_tool-box>" + "\r\n" +
                 "\r\n" +
-                "<!-- SEARCH DIALOGS -->" + "\r\n" +
-                "<dialogs_search class=\"search-dialog-" + options.frontBaseFolder + "\" #search_dialog></dialogs_search>" + "\r\n" +
+                "<!-- DIALOG DE INFORMAÇÃO -->\r\n" +
+                "<dialogs_information dialog_id=\"info_criar_editar_" + options.frontBaseFolder + "_dialog\" #info_criar_editar_dialog>\r\n" +
+                "    <div [innerHTML]=\"infoCriarEditarBodyText | safeHtml\"></div>\r\n" +
+                "</dialogs_information>" + "\r\n" +
                 "\r\n";
 
         Utils.writeContentTo(path + "criar-editar-" + options.frontBaseFolder + ".component.html", classBody);
@@ -626,14 +626,29 @@ public class GerarFrontEndPagamento extends GerarFrontEnd {
 
         String classBody =
                 ":host ::ng-deep {" + "\r\n" +
-                "    .search-dialog-" + options.frontBaseFolder + " {" + "\r\n" +
-                "        .mat-header-id {" + "\r\n" +
-                "            min-width: 80px;" + "\r\n" +
-                "        }" + "\r\n" +
-                "\r\n" +
+                "    ." + options.frontBaseFolder + "-dialog {" + "\r\n" +
                 "        .mat-column-id {" + "\r\n" +
                 "            text-align: center;" + "\r\n" +
                 "            width: 80px;" + "\r\n" +
+                "            padding-left: 5px;" + "\r\n" +
+                "        }" + "\r\n" +
+                "\r\n" +
+                "        .mat-column-pdv {" + "\r\n" +
+                "            text-align: center;" + "\r\n" +
+                "            min-width: 40px;" + "\r\n" +
+                "        }" + "\r\n" +
+                "\r\n" +
+                "        .mat-column-turno, .mat-column-situacao {" + "\r\n" +
+                "            text-align: center;" + "\r\n" +
+                "            width: 90px;" + "\r\n" +
+                "        }" + "\r\n" +
+                "\r\n" +
+                "        .mat-column-data {" + "\r\n" +
+                "            width: 120px;" + "\r\n" +
+                "        }" + "\r\n" +
+                "\r\n" +
+                "        .mat-column-descricao, .mat-column-nome {" + "\r\n" +
+                "            width: 300px;" + "\r\n" +
                 "        }" + "\r\n" +
                 "    }" + "\r\n" +
                 "}" + "\r\n";
@@ -660,8 +675,11 @@ public class GerarFrontEndPagamento extends GerarFrontEnd {
             "import { DialogDesignModel } from '../../../../shared/components/dialogs/custom-dialog/DialogDesignModel';" + "\r\n" +
             "import { FormComponentValidator } from '../../../../shared/components/validator/form-components-validator';" + "\r\n" +
             "\r\n" +
-            "import { CadastroBaseComponent } from '../../../../cadastros/cadastro-base.component';\r\n" +
+            "import { CadastroRecebimentoBaseComponent } from '../../shared/base/cadastro-recebimento-base-component';\r\n" +
             "import { CadastroBaseService } from '../../../../cadastros/cadastro-base.service';\r\n" +
+            "\r\n" +
+            "import { ChooseDialogComponent } from '../../../../shared/components/dialogs/choose-dialog/choose-dialog.component';" + "\r\n" +
+            "import { InformationDialogComponent } from '../../../../shared/components/dialogs/information-dialog/information-dialog.component';" + "\r\n" +
             "import { SearchDialogComponent, SearchResponseModel } from '../../../../shared/components/dialogs/search-dialog/search-dialog.component';" + "\r\n" +
             "import { CriarEditarRecebimentoComponent, TipoRecebimentoEvent, RecebimentoEvent } from '../../shared/acs-recebimento/criar-editar-recebimento/criar-editar-recebimento.component';" + "\r\n" +
             "\r\n" +
@@ -669,6 +687,8 @@ public class GerarFrontEndPagamento extends GerarFrontEnd {
             "import { ContextoRecebimentoFactory } from '../../shared/acs-recebimento/contexto-recebimento/ContextoRecebimentoFactory';" + "\r\n" +
             "import { ConstContextoCaixaDeOrigem } from '../../shared/base/ConstContextoCaixaDeOrigem';" + "\r\n" +
             "import { ConstTipoFinalizadora } from '../../../../shared/models/constants/ConstTipoFinalizadora';" + "\r\n" +
+            "import { ConstRecebConectividade } from '../../../../shared/models/constants/ConstRecebConectividade';" + "\r\n" +
+            "import { ConstRecebFinalidade } from '../../../../shared/models/constants/ConstRecebFinalidade';" + "\r\n" +
             "\r\n" +
             "import { " + options.entityName + "Service } from '../../../../services/" + options.defaultRoute + ".service';\r\n" +
             "import { ClienteEmpresaService } from '../../../../services/cliente-empresa.service';" + "\r\n" +
@@ -677,13 +697,8 @@ public class GerarFrontEndPagamento extends GerarFrontEnd {
             "import { ClienteEmpresa } from '../../../../model/ClienteEmpresa';" + "\r\n" +
             "\r\n" +
             "@Directive()\r\n" +
-            "export abstract class CriarEditar" + options.frontBaseName + "Component extends CadastroBaseComponent implements OnInit {\r\n" +
-            "    id" + options.entityName + ": number;" + "\r\n" +
-            "    preferencia: Sistema;" + "\r\n" +
-            "    contexto: CriarEditarContexto;" + "\r\n" +
-            "\r\n" +
-            "    @ViewChild('acs_criar_editar_recebimento', {static: true}) acsCriarEditarRecebimento: CriarEditarRecebimentoComponent;" + "\r\n" +
-            "    @ViewChild('search_dialog') search_dialog: SearchDialogComponent;" + "\r\n" +
+            "export abstract class CriarEditar" + options.frontBaseName + "Component extends CadastroRecebimentoBaseComponent implements OnInit {\r\n" +
+            "    parametersRepeticao = [];" + "\r\n" +
             "\r\n" +
             "    opcoesFinalizadora = [" + "\r\n" +
             "        { name: 'Finalizadora', value: ConstTipoFinalizadora.finalizadora }" + "\r\n" +
@@ -695,19 +710,33 @@ public class GerarFrontEndPagamento extends GerarFrontEnd {
             "\r\n" +
             "        public activatedRoute: ActivatedRoute," + "\r\n" +
             "        public baseServices: CadastroBaseService" + "\r\n" +
-            "    ) { super('" + options.accessAlias + "', baseServices); }\r\n" +
+            "    ) { super('" + options.accessAlias + "', recebimentoService, activatedRoute, baseServices); }\r\n" +
             "\r\n" +
             "    ngOnInit(): void {\r\n" +
-            "        // Resolvendo o Contexto !" + "\r\n" +
-            "        this.contexto = ContextoRecebimentoFactory.createCriarEditarContexto(this.router, this.bag, this.activatedRoute.snapshot.params);" + "\r\n" +
-            "        this.preferencia = this.activatedRoute.snapshot.data.prefSistema;" + "\r\n" +
-            "\r\n" +
             "        super.ngOnInit();\r\n" +
-            "\r\n" +
-            "        this.acsCriarEditarRecebimento.empresa = this.empresa;" + "\r\n" +
-            "        this.acsCriarEditarRecebimento.contexto = this.contexto.getContextoCaixaDeOrigem();" + "\r\n" +
             "        this.acsCriarEditarRecebimento.finalizadoras = [ConstTipoFinalizadora.finalizadora];" + "\r\n" +
+            "\r\n" +
+            "        this.parametersRepeticao.push(`finalizadora=${ConstTipoFinalizadora.finalizadora}`);" + "\r\n" +
             "    }\r\n" +
+            "\r\n" +
+            "    gravarFormModel() {\n" +
+            "        this.submitted = true;\n" +
+            "\r\n" +
+            "        if (this.formModel.valid) {\n" +
+            "            this.finalizarRecebimento();\n" +
+            "        } else {\n" +
+            "            this.toasty.error('Formulário contém campos inválidos!');\n" +
+            "        }\n" +
+            "    }\n" +
+            "\r\n" +
+            "    private finalizarRecebimento() {" + "\r\n" +
+            "        this.validacoesFinaisRecebimento('Finalizar Cadastro', 'Confirmar a finalização do Recebimento?')\n" +
+            "            .subscribe(resp => {\n" +
+            "                if (resp.response === 'YES') {\n" +
+            "                    this.gravarCustomModel(resp.value); // Gravar o MODEL\n" +
+            "                }\n" +
+            "            });" +
+            "    }" + "\r\n" +
             "\r\n" +
             "    ////////////////////////////////////////////////////////////////////////////////////" + "\r\n" +
             "    bindFormValidators() {\r\n" +
@@ -735,13 +764,12 @@ public class GerarFrontEndPagamento extends GerarFrontEnd {
             "            observacao: ['']," + "\r\n" +
             "\r\n" +
             "            // --------------------- DADOS DO CLIENTE ----------------------- //" + "\r\n" +
-            "            clienteEmpresa: this.formBuilder.group({" + "\r\n" +
-            "                id: [null, Validators.required]," + "\r\n" +
-            "                cliente: this.formBuilder.group({" + "\r\n" +
-            "                    id: [null]," + "\r\n" +
-            "                    nome: ['']" + "\r\n" +
-            "                })" + "\r\n" +
-            "            })," + "\r\n" +
+            "            clienteEmpresa: this.formBuilder.group({\n" +
+            "                id: [this.preferencia.clientePadrao.id],\n" +
+            "                cliente: this.formBuilder.group({\n" +
+            "                    nome: [this.preferencia.clientePadrao.cliente.nome]\n" +
+            "                })\n" +
+            "            }),\n" +
             "            dependente: [null]," + "\r\n" +
             "            placa: ['']," + "\r\n" +
             "            odometroAnterior: [0]," + "\r\n" +
@@ -762,12 +790,17 @@ public class GerarFrontEndPagamento extends GerarFrontEnd {
             "\r\n" +
             "           // ------------------- CAMPOS NÃO MOSTRADOS -------------------- //" + "\r\n" +
             "           prazo: [0]," + "\r\n" +
-            "           finalidade: [1]," + "\r\n" +
+            "           finalidade: [ConstRecebFinalidade.PAGAMENTO]," + "\r\n" +
             "           alteraLimite: ['N']," + "\r\n" +
             "           troco: [0], // Valor troco concedido" + "\r\n" +
             "           statusRecebimento: [0]," + "\r\n" +
+            "           statusBaixa: [0]," + "\r\n" +
             "           cpfCnpj: [null]," + "\r\n" +
             "           idQuitacaoFaturaConvenio: [null]," + "\r\n" +
+            "           creditoRecebimento: this.formBuilder.group({\n" +
+            "                id: [null],\n" +
+            "                dataCredito: [null]\n" +
+            "           }),\n" +
             "\r\n" +
             "           // ********* Campos de FORA ********* //" + "\r\n" +
             "           // a) campos SOMENTE PARA CARTÕES" + "\r\n" +
@@ -784,11 +817,10 @@ public class GerarFrontEndPagamento extends GerarFrontEnd {
             "           nsuTef: ['']," + "\r\n" +
             "           nsuOperacao: ['']," + "\r\n" +
             "           autorizacao: ['']," + "\r\n" +
-            "           idClienteMotorista: [null]," + "\r\n" +
             "           idConciliacao: [null]," + "\r\n" +
             "           statusConciliacao: [0]," + "\r\n" +
             "           statusIntegrador: [0]," + "\r\n" +
-            "           conectividade: [1]," + "\r\n" +
+            "           conectividade: [ConstRecebConectividade.POS]," + "\r\n" +
             "           numParcela: [1]," + "\r\n" +
             "           qtdParcelas: [1]," + "\r\n" +
             "           fiscalIdPagamento: [null]," + "\r\n" +
@@ -799,6 +831,7 @@ public class GerarFrontEndPagamento extends GerarFrontEnd {
             "           numVenda: ['']," + "\r\n" +
             "           administradoraEmpresa: [null]," + "\r\n" +
             "           idFaturaCartao: [null]," + "\r\n" +
+            "           clienteMotorista: [null]," + "\r\n" +
             "\r\n" +
             "          // b) Campos que se aplicam apenas a Cheques:" + "\r\n" +
             "          numAgencia: ['']," + "\r\n" +
@@ -844,34 +877,30 @@ public class GerarFrontEndPagamento extends GerarFrontEnd {
             "    }" + "\r\n" +
             "\r\n" +
             "    // ------------------------- OPEN SEARCH ------------------------- //" + "\r\n" +
-            "    openSearchDialog(controlName: string) {" + "\r\n" +
-            "        if (this.formModel.disabled) return;" + "\r\n" +
-            "        this.search_dialog.canCleanField = false;" + "\r\n" +
-            "        this.search_dialog.modal_lg = false;" + "\r\n" +
+            "    public openClienteEmpresaSearchDialog() {\n" +
+            "        if (this.formModel.disabled) return;\n" +
+            "        if (this.formModel.get('clienteEmpresa.cliente.nome').disabled) return;\n" +
+            "\n" +
+            "        this.clienteEmpresaService._maxItensPage = 14;\n" +
+            "        this.searchDialog.withValues({\n" +
+            "            title: 'Pesquisar Cliente',\n" +
+            "            service: this.clienteEmpresaService,\n" +
+            "            urlParameter: `idEmpresa=${this.empresa.id}&ativo=S&notId=${this.preferencia.clientePadrao.id}`,\n" +
+            "            tableDesign: DialogDesignBuilder.build({\n" +
+            "                'cliente.nome': 'Nome',\n" +
+            "                'cliente.cpfCnpj': { header: 'CPF/CNPJ', options: { format: Util.formatCpfCnpj } },\n" +
+            "                'cliente.uf': 'UF'\n" +
+            "            }),                \n" +
+            "            modalLg: true\n" +
+            "        })\n" +
+            "        .showDialogEntity<ClienteEmpresa>()\n" +
+            "        .subscribe(cliEmp => {\n" +
+            "            if(cliEmp)\n" +
+            "                this.defineDadosClienteEmpresa(cliEmp);\n" +
+            "        });\n" +
+            "    }" +
             "\r\n" +
-            "        if (controlName === 'cliente') {" + "\r\n" +
-            "            if (this.formModel.get('clienteEmpresa.cliente.nome').disabled) return;" + "\r\n" +
-            "\r\n" +
-            "            const cliente_design = [" + "\r\n" +
-            "                 new DialogDesignModel('Nome', 'cliente.nome')," + "\r\n" +
-            "                 new DialogDesignModel('CPF/CNPJ', 'cliente.cpfCnpj', false, 'cliente.cpfCnpj', Util.formatCpfCnpj)," + "\r\n" +
-            "                 new DialogDesignModel('UF', 'cliente.uf')" + "\r\n" +
-            "            ];" + "\r\n" +
-            "\r\n" +
-            "            this.search_dialog.modal_lg = true;" + "\r\n" +
-            "            this.search_dialog.changeSearchValues( 'Pesquisar Cliente', controlName, cliente_design, this.clienteEmpresaService," + "\r\n" +
-            "                    '/search', `idEmpresa=${this.empresa.id}&ativo=S&notId=${this.preferencia.clientePadrao.id}` );" + "\r\n" +
-            "        }" + "\r\n" +
-            "\r\n" +
-            "        this.search_dialog.showDialog().subscribe((resp: SearchResponseModel) => { " + "\r\n" +
-            "            if (resp.sourceControl === 'cliente') {" + "\r\n" +
-            "                const result = resp.result as ClienteEmpresa;" + "\r\n" +
-            "                this.defineDadosClienteEmpresa(result);" + "\r\n" +
-            "            }" + "\r\n" +
-            "        });" + "\r\n" +
-            "    }" + "\r\n" +
-            "\r\n" +
-            "    defineDadosClienteEmpresa(model: ClienteEmpresa) {" + "\r\n" +
+            "    protected defineDadosClienteEmpresa(model: ClienteEmpresa) {" + "\r\n" +
             "        this.formModel.get('clienteEmpresa.id').setValue(model.id);" + "\r\n" +
             "        this.formModel.get('clienteEmpresa.cliente.id').setValue(model.cliente.id);" + "\r\n" +
             "        this.formModel.get('clienteEmpresa.cliente.nome').setValue(model.cliente.nome);" + "\r\n" +
@@ -880,7 +909,7 @@ public class GerarFrontEndPagamento extends GerarFrontEnd {
             "    // ------------------------- OUTROS METODOS ------------------------- //" + "\r\n" +
             "    recebimentoEvent(evento: RecebimentoEvent) {" + "\r\n" +
             "        const model = evento.modelo;" + "\r\n" +
-            "         switch(evento.tipo) {" + "\r\n" +
+            "        switch(evento.tipo) {" + "\r\n" +
             "            case TipoRecebimentoEvent.VENDA:" + "\r\n" +
             "                // Mudanças para Recebimento e Venda !" + "\r\n" +
             "                break;" + "\r\n" +
@@ -974,7 +1003,6 @@ public class GerarFrontEndPagamento extends GerarFrontEnd {
 
         String classBody = "" +
                 "import { OnInit, Component } from '@angular/core';" + "\r\n" +
-                "import { Validators } from '@angular/forms';" + "\r\n" +
                 "import { ActivatedRoute } from '@angular/router';" + "\r\n" +
                 "\r\n" +
                 "import { CriarEditar" + options.frontBaseName + "Component } from '../criar-editar-" + options.frontBaseFolder + ".component';" + "\r\n" +
@@ -1028,6 +1056,8 @@ public class GerarFrontEndPagamento extends GerarFrontEnd {
                 "    }\r\n" +
                 "\r\n" +
                 "    setFormValues(model: " + options.entityName + ") {\r\n" +
+                "        this.parametersRepeticao.push(`notId=${model.id}`);\r\n" +
+                "\r\n" +
                 "        this.formModel.get('id').setValue( model.id );" + "\r\n" +
                 "        this.formModel.get('idEmpresa').setValue(model.idEmpresa);" + "\r\n" +
                 "\r\n" +
@@ -1082,8 +1112,14 @@ public class GerarFrontEndPagamento extends GerarFrontEnd {
                 "        this.formModel.get('alteraLimite').setValue(model.alteraLimite);" + "\r\n" +
                 "        this.formModel.get('troco').setValue(model.troco);" + "\r\n" +
                 "        this.formModel.get('statusRecebimento').setValue(model.statusRecebimento);" + "\r\n" +
+                "        this.formModel.get('statusBaixa').setValue(model.statusBaixa);" + "\r\n" +
                 "        this.formModel.get('cpfCnpj').setValue(model.cpfCnpj);" + "\r\n" +
                 "        this.formModel.get('idQuitacaoFaturaConvenio').setValue(model.idQuitacaoFaturaConvenio);" + "\r\n" +
+                "        if (model.creditoRecebimento) { \n" +
+                "            this.formModel.get('creditoRecebimento.id').setValue(model.creditoRecebimento.id); \n" +
+                "            this.formModel.get('creditoRecebimento.dataCredito').setValue(model.creditoRecebimento.dataCredito.toDate()); \n" +
+                "        }\n" +
+                "        if (model.idFaturaCartao) { this.formModel.get('idFaturaCartao').setValue(model.idFaturaCartao); }\n" +
                 "\r\n" +
                 "        // ********* Campos de FORA ********* //" + "\r\n" +
                 "        // a) campos SOMENTE PARA CARTÕES" + "\r\n" +
@@ -1101,7 +1137,6 @@ public class GerarFrontEndPagamento extends GerarFrontEnd {
                 "        this.formModel.get('nsuTef').setValue(model.nsuTef);" + "\r\n" +
                 "        this.formModel.get('nsuOperacao').setValue(model.nsuOperacao);" + "\r\n" +
                 "        this.formModel.get('autorizacao').setValue(model.autorizacao);" + "\r\n" +
-                "        this.formModel.get('idClienteMotorista').setValue(model.idClienteMotorista);" + "\r\n" +
                 "        this.formModel.get('idConciliacao').setValue(model.idConciliacao);" + "\r\n" +
                 "        this.formModel.get('statusConciliacao').setValue(model.statusConciliacao);" + "\r\n" +
                 "        this.formModel.get('statusIntegrador').setValue(model.statusIntegrador);" + "\r\n" +
@@ -1117,7 +1152,9 @@ public class GerarFrontEndPagamento extends GerarFrontEnd {
                 "        if(model.administradoraEmpresa !== null) {" + "\r\n" +
                 "            this.formModel.get('administradoraEmpresa.id').setValue(model.administradoraEmpresa.id);" + "\r\n" +
                 "        }" + "\r\n" +
-                "        this.formModel.get('idFaturaCartao').setValue(model.idFaturaCartao);" + "\r\n" +
+                "        if(model.clienteMotorista && model.clienteMotorista.id) {" + "\r\n" +
+                "            this.formModel.get('clienteMotorista.id').setValue(model.clienteMotorista.id);" + "\r\n" +
+                "        }" + "\r\n" +
                 "\r\n" +
                 "        // b) Campos que se aplicam apenas a Cheques:" + "\r\n" +
                 "        this.formModel.get('numAgencia').setValue(model.numAgencia);" + "\r\n" +
@@ -1141,6 +1178,15 @@ public class GerarFrontEndPagamento extends GerarFrontEnd {
                 "        if(model.funcionario !== null) {" + "\r\n" +
                 "            this.formModel.get('funcionario.id').setValue(model.funcionario.id);" + "\r\n" +
                 "        }" + "\r\n" +
+                "\r\n" +
+                "        // Se pertencer a uma Fatura de Convenio, não pode mais atualizar nenhum valor do formulário.\n" +
+                "        if(model.idQuitacaoFaturaConvenio != null) {\n" +
+                "            this.formModel.disable();\n" +
+                "        }" +
+                "\r\n" +
+                "        if(this.contexto.isBloqueadoOuFechado()) {\n" +
+                "            this.formModel.disable();\n" +
+                "        }\r\n" +
                 "    }\r\n" +
                 "\r\n" +
                 "    gravarModel(rawValue: any): Observable<any> {" + "\r\n" +
