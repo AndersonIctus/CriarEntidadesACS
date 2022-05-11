@@ -347,17 +347,17 @@ public class GerarBackEnd implements IGerador {
                         break;
 
                     case DATE:
-                        propLine = "@Temporal(TemporalType.DATE) " + propLine + ((!prop.isNullable()) ? ", nullable = false" : "") + ")\r\n" +
+                        propLine = "\t@Temporal(TemporalType.DATE) " + propLine + ((!prop.isNullable()) ? ", nullable = false" : "") + ")\r\n" +
                                 "\tprivate Calendar ";
                         break;
 
                     case TIMESTAMP:
-                        propLine = "@Temporal(TemporalType.TIMESTAMP) " + propLine + ((!prop.isNullable()) ? ", nullable = false" : "") + ")\r\n" +
+                        propLine = "\t@Temporal(TemporalType.TIMESTAMP) " + propLine + ((!prop.isNullable()) ? ", nullable = false" : "") + ")\r\n" +
                                 "\tprivate Calendar ";
                         break;
 
                     case ACS_DATE_TIME:
-                        propLine = "@Columns(columns = {" +
+                        propLine = "\t@Columns(columns = {" +
                                 "@Column(name = \"offset_" + prop.getName() + "\"" + ((!prop.isNullable()) ? ", nullable = false" : "") + ")," +
                                 "@Column(name = \"" + prop.getName() + "\"" + ((!prop.isNullable()) ? ", nullable = false" : "") + ") " +
                                 "})\r\n" +
@@ -1276,6 +1276,11 @@ public class GerarBackEnd implements IGerador {
                 "\t" + "String[] getUpdateIgnoredProperties() {" + "\r\n" +
                 "\t\t" + "return ArrayUtils.toArray(\"id\");" + "\r\n" +
                 "\t" + "}" + "\r\n" +
+                "\r\n" +
+                "\t" + "@Override"+ "\r\n" +
+                "\t" + "public Class<"+ options.entityName + "> getTipoModel() {"+ "\r\n" +
+                "\t\t" + "return " + options.entityName + ".class;"+ "\r\n" +
+                "\t" + "}"+ "\r\n" +
                 "\r\n" +
                 "}\r\n" +
                 "";

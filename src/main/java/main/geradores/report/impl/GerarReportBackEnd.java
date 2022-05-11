@@ -14,6 +14,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.List;
+import java.util.Map;
 
 public class GerarReportBackEnd implements IGerador {
     private static String mainPath = ".\\src\\main\\java\\com\\innovaro\\acs\\modulo\\relatorio\\";
@@ -38,9 +39,6 @@ public class GerarReportBackEnd implements IGerador {
             }
 
             if (!options.onlyModel) {
-                for(ReportFileModel.ReportFile file: options.fileRelatorios) {
-                    includeConstDiretoriosRelatorios(file.getName(), options);
-                }
                 includeResourceLine(options);
                 includeServiceLine(options);
             }
@@ -75,15 +73,14 @@ public class GerarReportBackEnd implements IGerador {
                 "import java.util.List;\r\n" +
                 "import java.util.Map;\r\n" +
                 "\r\n";
-        for(ReportFileModel.ReportFile file: options.fileRelatorios) {
-            String fileName = "RELATORIO_" + file.getConstantName();
-            imports += "import static com.innovaro.acs.modulo.relatorio.ConstDiretoriosRelatorios." + fileName + ";\r\n";
-        }
 
         String properties = "";
         String parametersRequired = "";
         String messageProperties = "";
         String dadosEmpresa = "";
+        String constantesParametro = "";
+        String tipoApresentacaoParam = "";
+        String resourcePathParam = "";
 
         for(ReportFileModel.ReportProperty prop: reportGenerator.getReportModel().getPropriedades()) {
             String typeProp = prop.getType();
@@ -134,6 +131,37 @@ public class GerarReportBackEnd implements IGerador {
                                    "        parametros.put(\"DESCRICAO_EMPRESA\", empresa.getRazaoSocial());";
                 }
             }
+
+            // Verificando as contantes e a existência do tipo do relatório
+            final String frontType = prop.getFront().getType();
+            if((frontType.equalsIgnoreCase("SELECT") || frontType.equalsIgnoreCase("RADIO")) && typeProp.equalsIgnoreCase("INTEGER")) {
+                constantesParametro += "    // Constante do " + prop.getName() + "\r\n";
+                final Map<String, String> optionsProp = prop.getFront().getOptions();
+                for (String key : optionsProp.keySet()) {
+                    String nomeConstante = prop.getName().toUpperCase() + "_" + optionsProp.get(key).toUpperCase().replaceAll(" ", "_");
+                    nomeConstante = normalizaNomeConstante(nomeConstante);
+                    constantesParametro += "    public static final int " + nomeConstante + " = " + key + ";\r\n";
+
+                    if(prop.getName().equalsIgnoreCase("tipoRelatorio")) {
+                        tipoApresentacaoParam += "            case " + nomeConstante + ":\r\n" +
+                                                 "                return \"" + reportGenerator.getReportModel().getTitulo() + " - " + optionsProp.get(key) + "\"; \r\n";
+
+                        String reportType = reportGenerator.getReportModel().getDominio();
+
+                        String nameReport = "";
+                        int keyPos = Integer.parseInt(key);
+                        if(keyPos > options.fileRelatorios.size()) {
+                            nameReport = options.fileRelatorios.get(0).getName();
+                        } else {
+                            nameReport = options.fileRelatorios.get(keyPos).getName();
+                        }
+                        resourcePathParam += "            case " + nomeConstante + ":\r\n" +
+                                             "                return \"/report/" + reportType + "/" + options.defaultRoute + "/" + nameReport + ".jasper\"; \r\n";
+                    }
+                }
+
+                constantesParametro += "\r\n";
+            }
         }
 
         messageProperties =
@@ -151,20 +179,30 @@ public class GerarReportBackEnd implements IGerador {
                 " ** ********************************************** */\r\n" +
                 "@Data\r\n" +
                 "public class " + options.entityName + "FilterReport extends AbstractFilterReport {\r\n" +
-                "    // Services\r\n" +
-                "    private EmpresaService empresaService;\r\n" +
-                "\r\n" +
-                "    // Propriedades\r\n" +
+                "    //region --- Propriedades\r\n" +
                 properties +
                 "\r\n" +
+                constantesParametro +
+                "    //endregion" + "\r\n" +
+                "\r\n" +
                 "    @Override\r\n" +
-                "    public String getTituloRelatorio() {\r\n" +
-                "        return \""+ reportGenerator.getReportModel().getTitulo() + "\";\r\n" +
+                "    public String getTituloRelatorio() { \r\n" +
+                (( !(tipoApresentacaoParam.equals("")) )
+                    ? "        switch (getTipoRelatorio()) { \r\n" +
+                      "            default: \r\n" +
+                      tipoApresentacaoParam +
+                      "        }"
+                    : "        return \""+ reportGenerator.getReportModel().getTitulo() + "\";") + "\r\n" +
                 "    }\r\n" +
                 "\r\n" +
                 "    @Override\r\n" +
                 "    public String getResourcePath() {\r\n" +
-                "        return " + reportName + ";\r\n" +
+                (( !(resourcePathParam.equals("")) )
+                        ? "        switch (getTipoRelatorio()) { \r\n" +
+                          "            default: \r\n" +
+                          resourcePathParam +
+                          "        }"
+                        : "        return " + reportName + ";") + "\r\n" +
                 "    }\r\n" +
                 "\r\n" +
                 "    @Override\r\n" +
@@ -193,90 +231,12 @@ public class GerarReportBackEnd implements IGerador {
                 "    }\r\n" +
                 "\r\n" +
                 "    //region ----- OUTROS METODOS" + "\r\n" +
-                "    private String getDataHoraImpressao() {" + "\r\n" +
-                "        OffsetDateTime offsetNow = OffsetDateTime.now().withOffsetSameInstant(ZoneOffset.of(\"-03:00\"));" + "\r\n" +
-                "        return new AcsDateTime(offsetNow).format(\"dd/MM/yyyy HH:mm:ss\");" + "\r\n" +
-                "    }" + "\r\n" +
                 "    //endregion" + "\r\n" +
-                "\r\n" +
                 "}\r\n" +
                 "";
 
         Utils.writeContentTo(path + options.entityName + "FilterReport.java", classBody);
         System.out.println("Generated Entity '" + options.entityName + "FilterReport' into '" + path + "'");
-        System.out.println("-----------------------------------------------");
-    }
-
-    private void includeConstDiretoriosRelatorios(String reportName, GenOptions options) throws IOException {
-        String pathToFile = options.mainBack;
-        pathToFile += "modulo/relatorio/ConstDiretoriosRelatorios.java";
-
-        ReportGenerator reportGenerator = options.getReportGenerator();
-        String reportNameConstant = "RELATORIO_" + reportName.replaceAll("-", "_").toUpperCase();
-        String reportType = reportGenerator.getReportModel().getDominio();
-
-        String newLine = "    String " + reportNameConstant + " = \"/report/" + reportType +
-                         "/" + options.defaultRoute + "/" + reportName + ".jasper\";";
-        String tmpFile = "./tmp.txt";
-
-        if (Utils.isAuditionMode()) {
-            System.out.println("PATH     => '" + pathToFile + "'");
-            System.out.println("New LINE => '\r\n" + newLine + "'");
-            System.out.println("-----------------------------------------------");
-            return;
-        }
-
-        new File(tmpFile).createNewFile();
-
-        // 1 - Inicia lendo o arquivo de cadastros.module
-        Path readModule = Paths.get(pathToFile);
-        List<String> lines = Files.readAllLines(readModule);
-        boolean writted = false;
-        boolean iniciaBusca = false;
-
-        for (String line : lines) {
-            if (!writted) {
-                if( line.startsWith("    //") ) {
-                    if(line.contains(reportType.toUpperCase())) {
-                        iniciaBusca = true;
-                        writeToFile(Paths.get(tmpFile), (line + "\r\n").getBytes(StandardCharsets.UTF_8), StandardOpenOption.APPEND);
-                        continue;
-                    }
-                }
-
-                if(iniciaBusca && line.contains("String")) {
-                    // LE se a linha está na ordem alfabetica
-                    int inicio = "    String ".length();
-                    int fin = line.lastIndexOf(" =");
-
-                    String token = line.substring(inicio, fin);
-
-                    int comp = reportName.compareTo(token);
-                    if (comp < 0) {
-                        writted = true;
-                        writeToFile(Paths.get(tmpFile), (newLine + "\r\n").getBytes(StandardCharsets.UTF_8), StandardOpenOption.APPEND);
-                    } else if (comp == 0) { // Se estiver repetindo (Mesmo nome do token)
-                        writted = true;
-                    }
-                }
-
-                if (line.startsWith("}")) {
-                    writted = true;
-                    writeToFile(Paths.get(tmpFile), (newLine + "\r\n").getBytes(StandardCharsets.UTF_8), StandardOpenOption.APPEND);
-                } else if(iniciaBusca && line.trim().equals("") ) {
-                    writted = true;
-                    writeToFile(Paths.get(tmpFile), (newLine + "\r\n").getBytes(StandardCharsets.UTF_8), StandardOpenOption.APPEND);
-                }
-            }
-
-            writeToFile(Paths.get(tmpFile), (line + "\r\n").getBytes(StandardCharsets.UTF_8), StandardOpenOption.APPEND);
-        }
-
-        Files.delete(readModule);
-        new File(tmpFile).renameTo(new File(pathToFile));
-
-        System.out.println("Generated a linha '" + newLine);
-        System.out.println("Into '" + pathToFile + "'");
         System.out.println("-----------------------------------------------");
     }
 
@@ -354,7 +314,6 @@ public class GerarReportBackEnd implements IGerador {
         pathToFile += "modulo/relatorio/service/";
 
         ReportGenerator reportGenerator = options.getReportGenerator();
-        String reportName = "RELATORIO_" + reportGenerator.getReportName().toUpperCase();
         String reportType = reportGenerator.getReportModel().getDominio();
 
         pathToFile += getReportServiceName(reportType) + ".java";
@@ -362,7 +321,6 @@ public class GerarReportBackEnd implements IGerador {
         String newLine =
                 "    public Relatorio gerarRelatorio" + options.entityName + "(" + options.entityName + "FilterReport filtro) {\r\n" +
                 "        try {\r\n" +
-                "            filtro.setEmpresaService(empresaService);\r\n" +
                 "            return jasperReportService.gerarRelatorio(filtro);\r\n" +
                 "        } catch (SQLException e) {\r\n" +
                 "            throw new ACSBadRequestException(\"error.report.invalido\");\r\n" +
@@ -419,6 +377,17 @@ public class GerarReportBackEnd implements IGerador {
         System.out.println("Generated a linha '" + newLine);
         System.out.println("Into '" + pathToFile + "'");
         System.out.println("-----------------------------------------------");
+    }
+
+    private String normalizaNomeConstante(String nomeConstante) {
+        return nomeConstante
+                .replaceAll("[ÁÀÃÂ]", "A")
+                .replaceAll("[ÉÈÊ]", "E")
+                .replaceAll("[ÍÌÎ]", "I")
+                .replaceAll("[ÓÒÕÔ]", "O")
+                .replaceAll("[ÚÙÛ]", "U")
+                .replaceAll("[Ç]", "C")
+                ;
     }
 
     private String getReportServiceName(String reportType) {
